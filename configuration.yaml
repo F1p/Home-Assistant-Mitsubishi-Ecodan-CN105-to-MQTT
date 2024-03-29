@@ -181,13 +181,13 @@ mqtt:
 template:
   sensor:
     - name: "DHW CoP"
-      state: "{{(states('sensor.delivered_hot_water')|float/states('sensor.consumed_hot_water')|float)|round(2)}}"
+      state: "{{(states('sensor.delivered_DHW')|float/states('sensor.consumed_DHW')|float)|round(2)}}"
     - name: "Heat CoP"
       state: "{{(states('sensor.delivered_heat')|float/states('sensor.consumed_heat')|float)|round(2)}}"
     - name: "ASHP Consumed Energy"
       unit_of_measurement: "kWh"
       icon: "mdi:meter-electric-outline"
-      state: "{{(states('sensor.consumed_hot_water')|float + states('sensor.consumed_heat')|float)|round(2)}}"
+      state: "{{(states('sensor.consumed_DHW')|float + states('sensor.consumed_heat')|float)|round(2)}}"
     - name: "Total CoP"
       icon: "mdi:generator-stationary"
       state: "{% if not states('sensor.heat_cop') == 'unavailable' %}
