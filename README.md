@@ -78,6 +78,16 @@ Active commands so far identified.
 * DHWSP : Hot Water Setpoint (Temperature * 100)
 * Z1SP : Zone 1 Setpoint (* 100)
 * Z2SP : Zone 1 Setpoint (* 100)
+ ### 0x34 - Set Options
+|   0   |   1   | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|-------|-------|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
+| 0x34  | Flags |   | P |   |   |   |   |   |   |    |    |    |    |    |    |    |  
+
+* Flags : Flags to Indicate which fields are active
+  * 0x01 : Hot Water Boost
+* P : System Power
+  * 0x00 : DHW Boost Off
+  * 0x01 : DHW Boost On
 ### 0x35 - Set Zone 1 Setpoint 
 Identified so far, this must do far more that this!
 |   0   |   1  | 2 | 3 |   4  |  5   | 6 |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
