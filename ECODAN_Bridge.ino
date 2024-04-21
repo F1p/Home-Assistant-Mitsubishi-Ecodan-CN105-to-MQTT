@@ -28,7 +28,7 @@
 #include <ESPTelnet.h>
 #include "Ecodan.h"
 
-String FirmwareVersion = "v3.5.1";
+String FirmwareVersion = "v3.6";
 
 
 int RxPin = 14;  //Rx
@@ -121,17 +121,15 @@ int Zone1FlowSetpoint_UpdateValue, Zone2FlowSetpoint_UpdateValue;
 
 
 void setup() {
-  WiFi.mode(WIFI_STA);  // explicitly set mode, esp defaults to STA+AP
-  //Serial.begin(115200);
+  WiFi.mode(WIFI_STA);                                              // explicitly set mode, esp defaults to STA+AP
   DEBUGPORT.begin(DEBUGBAUD);                                       // Start Debug
   HEATPUMP_STREAM.begin(SERIAL_BAUD, SERIAL_CONFIG, RxPin, TxPin);  // Rx, Tx
-  //pinMode(RxPin, INPUT_PULLUP);  // Commented out for testing because we get nothing :(
-  pinMode(Activity_LED, OUTPUT);   // Onboard LED
-  pinMode(Reset_Button, INPUT);    // Pushbutton
-  pinMode(LDR, INPUT);             // LDR
-  pinMode(Red_RGB_LED, OUTPUT);    // Red (RGB) LED
-  pinMode(Green_RGB_LED, OUTPUT);  // Green (RGB) LED
-  pinMode(Blue_RGB_LED, OUTPUT);   // Blue (RGB) LED
+  pinMode(Activity_LED, OUTPUT);                                    // Onboard LED
+  pinMode(Reset_Button, INPUT);                                     // Pushbutton
+  pinMode(LDR, INPUT);                                              // LDR
+  pinMode(Red_RGB_LED, OUTPUT);                                     // Red (RGB) LED
+  pinMode(Green_RGB_LED, OUTPUT);                                   // Green (RGB) LED
+  pinMode(Blue_RGB_LED, OUTPUT);                                    // Blue (RGB) LED
 
   digitalWrite(Activity_LED, HIGH);
   digitalWrite(Red_RGB_LED, LOW);
@@ -426,6 +424,10 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
     DEBUG_PRINTLN("MQTT Set HW Boost");
     DHW_Update_in_Progress = 1;
     HeatPump.ForceDHW(Payload.toInt());
+  }  
+  if (Topic == MQTTCommandSystemHolidayMode) {
+    DEBUG_PRINTLN("MQTT Set Holiday Mode");
+    HeatPump.SetHolidayMode(Payload.toInt());
   }
   if (Topic == MQTTCommandHotwaterSetpoint) {
     DEBUG_PRINTLN("MQTT Set HW Setpoint");

@@ -29,6 +29,7 @@ String MQTT_COMMAND_ZONE2_NOMODE_SETPOINT = MQTT_COMMAND_ZONE2 + "/ThermostatSet
 
 String MQTT_COMMAND_HOTWATER_SETPOINT = MQTT_COMMAND_HOTWATER + "/Setpoint";
 String MQTT_COMMAND_HOTWATER_BOOST = MQTT_COMMAND_HOTWATER + "/Boost";
+String MQTT_COMMAND_SYSTEM_HOLIDAYMODE = MQTT_COMMAND_SYSTEM + "/HolidayMode";
 String MQTT_COMMAND_SYSTEM_HEATINGMODE = MQTT_COMMAND_SYSTEM + "/HeatingMode";
 String MQTT_COMMAND_SYSTEM_POWER = MQTT_COMMAND_SYSTEM + "/Power";
 String MQTT_COMMAND_SYSTEM_TEMP = MQTT_COMMAND_SYSTEM + "/Temp";
@@ -46,6 +47,7 @@ String MQTTCommandZone2NoModeSetpoint = MQTT_COMMAND_ZONE2_NOMODE_SETPOINT;
 String MQTTCommandHotwaterSetpoint = MQTT_COMMAND_HOTWATER_SETPOINT;
 String MQTTCommandHotwaterBoost = MQTT_COMMAND_HOTWATER_BOOST;
 
+String MQTTCommandSystemHolidayMode = MQTT_COMMAND_SYSTEM_HOLIDAYMODE;
 String MQTTCommandSystemHeatingMode = MQTT_COMMAND_SYSTEM_HEATINGMODE;
 String MQTTCommandSystemPower = MQTT_COMMAND_SYSTEM_POWER;
 String MQTTCommandSystemTemp = MQTT_COMMAND_SYSTEM_TEMP;
@@ -153,6 +155,7 @@ void RecalculateMQTTTopics() {
 
   MQTT_COMMAND_HOTWATER_SETPOINT = MQTT_COMMAND_HOTWATER + "/Setpoint";
   MQTT_COMMAND_HOTWATER_BOOST = MQTT_COMMAND_HOTWATER + "/Boost";
+  MQTT_COMMAND_SYSTEM_HOLIDAYMODE = MQTT_COMMAND_SYSTEM + "/HolidayMode";
   MQTT_COMMAND_SYSTEM_HEATINGMODE = MQTT_COMMAND_SYSTEM + "/HeatingMode";
   MQTT_COMMAND_SYSTEM_POWER = MQTT_COMMAND_SYSTEM + "/Power";
   MQTT_COMMAND_SYSTEM_TEMP = MQTT_COMMAND_SYSTEM + "/Temp";
@@ -170,6 +173,7 @@ void RecalculateMQTTTopics() {
   MQTTCommandHotwaterSetpoint = MQTT_COMMAND_HOTWATER_SETPOINT;
   MQTTCommandHotwaterBoost = MQTT_COMMAND_HOTWATER_BOOST;
 
+  MQTTCommandSystemHolidayMode = MQTT_COMMAND_SYSTEM_HOLIDAYMODE;
   MQTTCommandSystemHeatingMode = MQTT_COMMAND_SYSTEM_HEATINGMODE;
   MQTTCommandSystemPower = MQTT_COMMAND_SYSTEM_POWER;
   MQTTCommandSystemTemp = MQTT_COMMAND_SYSTEM_TEMP;
@@ -248,6 +252,8 @@ void initializeWifiManager() {
   wifiManager.setConfigPortalTimeout(120);                // Timeout before launching the config portal
   wifiManager.setBreakAfterConfig(true);                  // Saves settings, even if WiFi Fails
   wifiManager.setSaveConfigCallback(saveConfigCallback);  // Set config save notify callback
+  // wm.setAPClientCheck(true); // avoid timeout if client connected to softap
+
 
   if (!wifiManager.autoConnect("Ecodan Bridge AP")) {
     DEBUG_PRINTLN("Failed to connect and hit timeout");
@@ -282,6 +288,7 @@ void MQTTonConnect(void) {
   MQTTClient.subscribe(MQTTCommandZone2FlowSetpoint.c_str());
   MQTTClient.subscribe(MQTTCommandZone2CurveSetpoint.c_str());
   MQTTClient.subscribe(MQTTCommandZone2NoModeSetpoint.c_str());
+  MQTTClient.subscribe(MQTTCommandSystemHolidayMode.c_str());
   MQTTClient.subscribe(MQTTCommandSystemHeatingMode.c_str());
   MQTTClient.subscribe(MQTTCommandHotwaterSetpoint.c_str());
   MQTTClient.subscribe(MQTTCommandHotwaterBoost.c_str());

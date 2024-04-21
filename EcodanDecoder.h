@@ -23,14 +23,14 @@
 #include <string.h>
 
 
-#define PACKET_SYNC        0xFC
-#define SET_REQUEST        0x41
-#define SET_RESPONSE       0x61
-#define GET_REQUEST        0x42
-#define GET_RESPONSE       0x62
-#define CONNECT_REQUEST    0x5A
-#define CONNECT_RESPONSE   0x7A
-#define EXCONNECT_REQUEST  0x5B
+#define PACKET_SYNC 0xFC
+#define SET_REQUEST 0x41
+#define SET_RESPONSE 0x61
+#define GET_REQUEST 0x42
+#define GET_RESPONSE 0x62
+#define CONNECT_REQUEST 0x5A
+#define CONNECT_RESPONSE 0x7A
+#define EXCONNECT_REQUEST 0x5B
 #define EXCONNECT_RESPONSE 0x7B
 
 #define TX_MESSAGE_SETTINGS 0x032
@@ -38,8 +38,9 @@
 #define TX_MESSAGE_SETTING_UNK 0x035
 
 #define TX_MESSAGE_SETTING_DHW_Flag 0x01
+#define TX_MESSAGE_SETTING_HOL_Flag 0x02
 
-#define COMMANDSIZE 22 // 5 Byte Header + 16 Byte Payload  + 1 Byte Checksum
+#define COMMANDSIZE 22  // 5 Byte Header + 16 Byte Payload  + 1 Byte Checksum
 #define HEADERSIZE 5
 #define MAXDATABLOCKSIZE 16
 
@@ -47,11 +48,11 @@
 
 #define HOT_WATER_BOOST_OFF 0
 #define HOT_WATER_BOOST_ON 1
-const char HotWaterBoostStr[2][4] = {"Off", "On"};
+const char HotWaterBoostStr[2][4] = { "Off", "On" };
 
 #define SYSTEM_POWER_MODE_STANDBY 0
 #define SYSTEM_POWER_MODE_ON 1
-const char SystemPowerModeString[2][8] = {"Standby", "On"};
+const char SystemPowerModeString[2][8] = { "Standby", "On" };
 
 #define SYSTEM_OPERATION_MODE_OFF 0
 #define SYSTEM_OPERATION_MODE_HOT_WATER 1
@@ -61,11 +62,11 @@ const char SystemPowerModeString[2][8] = {"Standby", "On"};
 #define SYSTEM_OPERATION_MODE_FROST_PROTECT 5
 #define SYSTEM_OPERATION_MODE_LEGIONELLA 6
 #define SYSTEM_OPERATION_MODE_HEATING_ECO 7
-const char SystemOperationModeString[8][14] = {"Off", "Hot Water", "Heating", "Cooling", "Zero V", "Frost Protect", "Legionella", "Heating Eco"};
+const char SystemOperationModeString[8][14] = { "Off", "Hot Water", "Heating", "Cooling", "Zero V", "Frost Protect", "Legionella", "Heating Eco" };
 
 #define HOT_WATER_CONTROL_MODE_NORMAL 0
 #define HOT_WATER_CONTROL_MODE_ECO 1
-const char HowWaterControlModeString[2][7] = {"Normal", "Eco"};
+const char HowWaterControlModeString[2][7] = { "Normal", "Eco" };
 
 #define HEATING_CONTROL_MODE_ZONE_TEMP 0x00
 #define HEATING_CONTROL_MODE_FLOW_TEMP 0x01
@@ -73,38 +74,38 @@ const char HowWaterControlModeString[2][7] = {"Normal", "Eco"};
 #define HEATING_CONTROL_MODE_COOL_ZONE_TEMP 0x03
 #define HEATING_CONTROL_MODE_COOL_FLOW_TEMP 0x04
 #define HEATING_CONTROL_MODE_DRY_UP 0x05
-const char HeatingControlModeString[6][13] = {"Temp", "Flow", "Compensation", "Cool", "Cool Flow", "Dry Up"};
+const char HeatingControlModeString[6][13] = { "Temp", "Flow", "Compensation", "Cool", "Cool Flow", "Dry Up" };
 
 #define HOLIDAY_MODE_OFF 0
 #define HOLIDAY_MODE_ON 1
-const char HolidayModetString[2][4] = {"Off", "On"};
+const char HolidayModetString[2][4] = { "Off", "On" };
 
 #define HOT_WATER_TIMER_ON 0
 #define HOT_WATER_TIMER_OFF 1
-const char HotWaterTimerString[2][4] = {"On", "Off"};
+const char HotWaterTimerString[2][4] = { "On", "Off" };
 
 #define COMPRESSOR_NORMAL 0
 #define COMPRESSOR_STANDBY 1
 #define COMPRESSOR_DEFROST 2
 #define COMPRESSOR_WAIT 3
-const char COMPRESSORString[4][8] = {"Normal", "Standby", "Defrost", "Wait"};
+const char COMPRESSORString[4][8] = { "Normal", "Standby", "Defrost", "Wait" };
 
 
 // System Flags
- 
-#define SET_ZONE_SETPOINT        0x80
-#define UNKNOWN1                 0x40 
-#define SET_HOT_WATER_SETPOINT   0x20
-#define UNKNOWN2                 0x10
-#define SET_HEATING_CONTROL_MODE 0x08 
-#define SET_HOT_WATER_MODE       0x04
-#define UNKNOWN3                 0x02
-#define SET_SYSTEM_POWER         0x01
-#define SET_HOT_WATER_BOOST      0x01
 
-#define ZONE1 0x00    // Zone1
-#define ZONE2 0x03    // Zone2
-#define BOTH 0x02     // BOTH
+#define SET_ZONE_SETPOINT 0x80
+#define UNKNOWN1 0x40
+#define SET_HOT_WATER_SETPOINT 0x20
+#define UNKNOWN2 0x10
+#define SET_HEATING_CONTROL_MODE 0x08
+#define SET_HOT_WATER_MODE 0x04
+#define UNKNOWN3 0x02
+#define SET_SYSTEM_POWER 0x01
+#define SET_HOT_WATER_BOOST 0x01
+
+#define ZONE1 0x00  // Zone1
+#define ZONE2 0x03  // Zone2
+#define BOTH 0x02   // BOTH
 //#define BOTH 0x03   // BOTH
 //#define ZONE1 0x04  // Zone1
 //#define ZONE1 0x05  // Zone1
@@ -115,36 +116,34 @@ const char COMPRESSORString[4][8] = {"Normal", "Standby", "Defrost", "Wait"};
 
 
 
-typedef struct _MessgeStruct
-{
-    uint8_t SyncByte;
-    uint8_t PacketType;
-    uint8_t Preamble[PREAMBLESIZE];
-    uint8_t PayloadSize;
-    uint8_t Payload[MAXDATABLOCKSIZE];
-    uint8_t Checksum;
+typedef struct _MessgeStruct {
+  uint8_t SyncByte;
+  uint8_t PacketType;
+  uint8_t Preamble[PREAMBLESIZE];
+  uint8_t PayloadSize;
+  uint8_t Payload[MAXDATABLOCKSIZE];
+  uint8_t Checksum;
 } MessageStruct;
 
-typedef struct _EcodanStatus
-{
+typedef struct _EcodanStatus {
   //From Message 0x01
   struct tm DateTimeStamp;
 
   //From Message 0x02
   uint8_t Defrost;
-  
+
   // From Message 0x04
   uint8_t CompressorFrequency;
-  
+
   // From Message 0x05
   uint8_t HotWaterBoostActive;
   uint8_t UnknownMSG5;
-  
+
   // From Message 0x07
-  uint8_t OutputPower;  
-  
+  uint8_t OutputPower;
+
   //From Message 0x09
-  float Zone1TemperatureSetpoint; 
+  float Zone1TemperatureSetpoint;
   float Zone2TemperatureSetpoint;
   float Zone1FlowTemperatureSetpoint;
   float Zone2FlowTemperatureSetpoint;
@@ -152,31 +151,31 @@ typedef struct _EcodanStatus
   float HotWaterMaximumTempDrop;
   float FlowTempMax;
   float FlowTempMin;
-  
+
   //From Message 0x0b
   float Zone1Temperature;
   float Zone2Temperature;
   float OutsideTemperature;
-  
+
   //From Message 0x0c
   float HeaterOutputFlowTemperature;
   float HeaterReturnFlowTemperature;
   float HotWaterTemperature;
-  
+
   //From Message 0x0d
   float ExternalBoilerFlowTemperature;
   float ExternalBoilerReturnTemperature;
   // Plus Several Outher unused
-  
+
   //From Message 0x0e
   // Several Unused Temperatures
-  
+
   //From Message 0x14
   uint32_t RunHours;
-  
+
   //From Message 0x14
   uint8_t PrimaryFlowRate;
-  
+
   //From Message 0x26
   uint8_t SystemPowerMode;
   uint8_t SystemOperationMode;
@@ -185,17 +184,17 @@ typedef struct _EcodanStatus
   uint8_t HeatingControlModeZ2;
   float HotWaterSetpoint;
   float HeaterFlowSetpoint;
-  
+
   //From Message 0x28
   uint8_t HotWaterTimerActive;
   uint8_t HolidayModeActive;
-  uint8_t Unknown1Active, Unknown2Active, Unknown3Active, Unknown4Active, Unknown5Active, Unknown6Active, Unknown7Active, Unknown8Active, Unknown9Active, Unknown10Active, Unknown11Active; 
+  uint8_t Unknown1Active, Unknown2Active, Unknown3Active, Unknown4Active, Unknown5Active, Unknown6Active, Unknown7Active, Unknown8Active, Unknown9Active, Unknown10Active, Unknown11Active;
 
-  
+
   //From Message 0x29
   //float Zone1TemperatureSetpoint;  Already Defined Above
   //float Zone2TemperatureSetpoint;  Already Defined Above
-  
+
   //From Message 0xa1
   struct tm ConsumedDateTimeStamp;
   float ConsumedHeatingEnergy;
@@ -206,70 +205,70 @@ typedef struct _EcodanStatus
   struct tm DeliveredDateTimeStamp;
   float DeliveredHeatingEnergy;
   float DeliveredCoolingEnergy;
-  float DeliveredHotWaterEnergy; 
-  
+  float DeliveredHotWaterEnergy;
+
 } EcodanStatus;
 
 
-class ECODANDECODER
-{
+class ECODANDECODER {
 public:
-    ECODANDECODER(void);
-    uint8_t Process(uint8_t c);
+  ECODANDECODER(void);
+  uint8_t Process(uint8_t c);
 
-    void CreateBlankTxMessage(uint8_t PacketType, uint8_t PayloadSize);
-    void SetPayloadByte(uint8_t Data, uint8_t Location);
-    uint8_t PrepareTxCommand(uint8_t *Buffer);
-    
-    void EncodeSystemUpdate(uint8_t Flags, float Zone1TempSetpoint, float Zone2TempSetpoint, 
-                            uint8_t Zones, 
-                            float HotWaterSetpoint, 
-                            uint8_t HeatingControlModeZ1, uint8_t HeatingControlModeZ2, 
-                            uint8_t HotWaterMode, uint8_t Power);
+  void CreateBlankTxMessage(uint8_t PacketType, uint8_t PayloadSize);
+  void SetPayloadByte(uint8_t Data, uint8_t Location);
+  uint8_t PrepareTxCommand(uint8_t *Buffer);
 
-                            
-    void EncodeDHW(uint8_t OnOff);
+  void EncodeSystemUpdate(uint8_t Flags, float Zone1TempSetpoint, float Zone2TempSetpoint,
+                          uint8_t Zones,
+                          float HotWaterSetpoint,
+                          uint8_t HeatingControlModeZ1, uint8_t HeatingControlModeZ2,
+                          uint8_t HotWaterMode, uint8_t Power);
 
-    EcodanStatus Status;
+
+  void EncodeDHW(uint8_t OnOff);
+  void EncodeHolidayMode(uint8_t OnOff);
+
+  EcodanStatus Status;
 protected:
-    
+
 private:
-    MessageStruct RxMessage;
-    MessageStruct TxMessage;
-    
-    
+  MessageStruct RxMessage;
+  MessageStruct TxMessage;
 
-    uint8_t Preamble[PREAMBLESIZE];
 
-    uint8_t  BuildRxMessage(MessageStruct *Message, uint8_t c);
 
-    void CreateBlankMessageTemplate(MessageStruct *Message, uint8_t PacketType, uint8_t PayloadSize);
-    uint8_t PrepareCommand(MessageStruct *Message, uint8_t *Buffer);
+  uint8_t Preamble[PREAMBLESIZE];
 
-    
-    uint16_t ExtractUInt16(uint8_t *Buffer, uint8_t Index);
-    float    ExtractEnergy(uint8_t *Buffer, uint8_t index);
-    
-    
-    uint8_t  CheckSum(uint8_t *Buffer, uint8_t len);
+  uint8_t BuildRxMessage(MessageStruct *Message, uint8_t c);
 
-    void Process0x01(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x02(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x04(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x05(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x07(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x09(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x0B(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x0C(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x0D(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x0E(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x13(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x14(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x26(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x28(uint8_t *Payload, EcodanStatus *Status);
-    void Process0x29(uint8_t *Payload, EcodanStatus *Status);
-    void Process0xA1(uint8_t *Payload, EcodanStatus *Status);
-    void Process0xA2(uint8_t *Payload, EcodanStatus *Status);
+  void CreateBlankMessageTemplate(MessageStruct *Message, uint8_t PacketType, uint8_t PayloadSize);
+  uint8_t PrepareCommand(MessageStruct *Message, uint8_t *Buffer);
+
+
+  uint16_t ExtractUInt16(uint8_t *Buffer, uint8_t Index);
+  float ExtractEnergy(uint8_t *Buffer, uint8_t index);
+
+
+  uint8_t CheckSum(uint8_t *Buffer, uint8_t len);
+
+  void Process0x01(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x02(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x04(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x05(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x07(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x09(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x0B(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x0C(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x0D(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x0E(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x13(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x14(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x26(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x28(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x29(uint8_t *Payload, EcodanStatus *Status);
+  void Process0xA1(uint8_t *Payload, EcodanStatus *Status);
+  void Process0xA2(uint8_t *Payload, EcodanStatus *Status);
 };
 
 #endif

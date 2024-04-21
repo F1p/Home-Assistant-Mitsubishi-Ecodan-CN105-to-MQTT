@@ -182,6 +182,16 @@ void ECODAN::ForceDHW(uint8_t OnOff) {
   DeviceStream->write(Buffer, CommandSize);
 }
 
+void ECODAN::SetHolidayMode(uint8_t OnOff) {
+  uint8_t Buffer[COMMANDSIZE];
+  uint8_t CommandSize = 0;
+
+  ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
+  ECODANDECODER::EncodeHolidayMode(OnOff);
+  CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
+  DeviceStream->write(Buffer, CommandSize);
+}
+
 void ECODAN::SetHotWaterSetpoint(uint8_t Target) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
