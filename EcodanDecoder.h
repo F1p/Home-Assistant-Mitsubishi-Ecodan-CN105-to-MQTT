@@ -33,8 +33,8 @@
 #define EXCONNECT_REQUEST 0x5B
 #define EXCONNECT_RESPONSE 0x7B
 
-#define TX_MESSAGE_SETTINGS 0x032
-#define TX_MESSAGE_SETTING_DHW 0x034
+#define TX_MESSAGE_SETTINGS_1 0x032
+#define TX_MESSAGE_SETTINGS_2 0x034
 #define TX_MESSAGE_SETTING_UNK 0x035
 
 #define TX_MESSAGE_SETTING_DHW_Flag 0x01
@@ -224,7 +224,6 @@ public:
                           float HotWaterSetpoint,
                           uint8_t HeatingControlModeZ1, uint8_t HeatingControlModeZ2,
                           uint8_t HotWaterMode, uint8_t Power);
-
 
   void EncodeDHW(uint8_t OnOff);
   void EncodeHolidayMode(uint8_t OnOff);

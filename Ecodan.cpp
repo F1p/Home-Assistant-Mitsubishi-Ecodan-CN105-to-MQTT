@@ -255,32 +255,6 @@ void ECODAN::SetSystemPowerMode(String *Mode) {
   Serial.println();
 }
 
-//
-void ECODAN::Scratch(uint8_t Target) {
-  uint8_t CommandSize;
-  uint8_t Buffer[COMMANDSIZE];
-  int i;
-
-  ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
-  ECODANDECODER::SetPayloadByte(TX_MESSAGE_SETTINGS, 0);
-  ECODANDECODER::SetPayloadByte(UNKNOWN3 | UNKNOWN2 | UNKNOWN1, 1);
-  ECODANDECODER::SetPayloadByte(Target, 4);
-  ECODANDECODER::SetPayloadByte(Target, 14);
-  ECODANDECODER::SetPayloadByte(Target, 15);
-
-  //ECODANDECODER::SetPayloadByte(0x01, Target);
-
-  CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
-  DeviceStream->write(Buffer, CommandSize);
-
-  for (i = 0; i < CommandSize; i++) {
-    if (Buffer[i] < 0x10) Serial.print("0");
-    Serial.print(String(Buffer[i], HEX));
-    Serial.print(",");
-  }
-  Serial.println();
-}
-
 void ECODAN::PrintTumble(void) {
   static char tumble[] = "|/-\\";
   static uint8_t i = 0;

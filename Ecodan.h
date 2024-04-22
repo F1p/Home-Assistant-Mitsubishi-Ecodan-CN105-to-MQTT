@@ -41,8 +41,6 @@ public:
 
   void SetHeatingControlMode(String *Mode, uint8_t Zones);
   void SetSystemPowerMode(String *Mode);
-
-  void Scratch(uint8_t Target);
 protected:
 
 private:

@@ -261,8 +261,7 @@ void HeatPumpQueryStateEngine(void) {
       if (Zone2_Update_in_Progress == 0) {  // If a Zone Update is in progress, skip MQTT update for one cycle
         Zone2Report();
       }
-
-
+      
       if (DHW_Update_in_Progress == 0) {  // Added because the FTC took time to enable DHW, so don't publish DHW Report after an update
         HotWaterReport();
       } else {
@@ -440,10 +439,6 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
   if (Topic == MQTTCommandSystemPower) {
     DEBUG_PRINTLN("MQTT Set System Power Mode");
     HeatPump.SetSystemPowerMode(&Payload);
-  }
-  if (Topic == MQTTCommandSystemTemp) {
-    DEBUG_PRINTLN("Temp Trigger");
-    HeatPump.Scratch(Payload.toInt());
   }
 
   // Block the Update Request if one is in progress

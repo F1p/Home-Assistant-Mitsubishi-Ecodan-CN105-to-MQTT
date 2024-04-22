@@ -32,7 +32,6 @@ String MQTT_COMMAND_HOTWATER_BOOST = MQTT_COMMAND_HOTWATER + "/Boost";
 String MQTT_COMMAND_SYSTEM_HOLIDAYMODE = MQTT_COMMAND_SYSTEM + "/HolidayMode";
 String MQTT_COMMAND_SYSTEM_HEATINGMODE = MQTT_COMMAND_SYSTEM + "/HeatingMode";
 String MQTT_COMMAND_SYSTEM_POWER = MQTT_COMMAND_SYSTEM + "/Power";
-String MQTT_COMMAND_SYSTEM_TEMP = MQTT_COMMAND_SYSTEM + "/Temp";
 
 String MQTTCommandZone1TempSetpoint = MQTT_COMMAND_ZONE1_TEMP_SETPOINT;
 String MQTTCommandZone1FlowSetpoint = MQTT_COMMAND_ZONE1_FLOW_SETPOINT;
@@ -50,7 +49,6 @@ String MQTTCommandHotwaterBoost = MQTT_COMMAND_HOTWATER_BOOST;
 String MQTTCommandSystemHolidayMode = MQTT_COMMAND_SYSTEM_HOLIDAYMODE;
 String MQTTCommandSystemHeatingMode = MQTT_COMMAND_SYSTEM_HEATINGMODE;
 String MQTTCommandSystemPower = MQTT_COMMAND_SYSTEM_POWER;
-String MQTTCommandSystemTemp = MQTT_COMMAND_SYSTEM_TEMP;
 
 String HostName;
 
@@ -158,7 +156,6 @@ void RecalculateMQTTTopics() {
   MQTT_COMMAND_SYSTEM_HOLIDAYMODE = MQTT_COMMAND_SYSTEM + "/HolidayMode";
   MQTT_COMMAND_SYSTEM_HEATINGMODE = MQTT_COMMAND_SYSTEM + "/HeatingMode";
   MQTT_COMMAND_SYSTEM_POWER = MQTT_COMMAND_SYSTEM + "/Power";
-  MQTT_COMMAND_SYSTEM_TEMP = MQTT_COMMAND_SYSTEM + "/Temp";
 
   MQTTCommandZone1TempSetpoint = MQTT_COMMAND_ZONE1_TEMP_SETPOINT;
   MQTTCommandZone1FlowSetpoint = MQTT_COMMAND_ZONE1_FLOW_SETPOINT;
@@ -176,7 +173,6 @@ void RecalculateMQTTTopics() {
   MQTTCommandSystemHolidayMode = MQTT_COMMAND_SYSTEM_HOLIDAYMODE;
   MQTTCommandSystemHeatingMode = MQTT_COMMAND_SYSTEM_HEATINGMODE;
   MQTTCommandSystemPower = MQTT_COMMAND_SYSTEM_POWER;
-  MQTTCommandSystemTemp = MQTT_COMMAND_SYSTEM_TEMP;
 }
 
 
@@ -293,7 +289,6 @@ void MQTTonConnect(void) {
   MQTTClient.subscribe(MQTTCommandHotwaterSetpoint.c_str());
   MQTTClient.subscribe(MQTTCommandHotwaterBoost.c_str());
   MQTTClient.subscribe(MQTTCommandSystemPower.c_str());
-  MQTTClient.subscribe(MQTTCommandSystemTemp.c_str());
 }
 
 

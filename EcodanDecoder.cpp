@@ -534,7 +534,7 @@ void ECODANDECODER::EncodeSystemUpdate(uint8_t Flags, float Zone1TempSetpoint, f
   uint8_t UpperByte, LowerByte;
   uint16_t ScaledTarget;
 
-  TxMessage.Payload[0] = TX_MESSAGE_SETTINGS;
+  TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_1;
   TxMessage.Payload[1] = Flags;
 
   TxMessage.Payload[2] = Zones;
@@ -581,14 +581,14 @@ void ECODANDECODER::EncodeSystemUpdate(uint8_t Flags, float Zone1TempSetpoint, f
 
 void ECODANDECODER::EncodeDHW(uint8_t OnOff) {
   // DHW Boost Active
-  TxMessage.Payload[0] = TX_MESSAGE_SETTING_DHW;
+  TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
   TxMessage.Payload[1] = TX_MESSAGE_SETTING_DHW_Flag;
   TxMessage.Payload[3] = OnOff;
 }
 
 void ECODANDECODER::EncodeHolidayMode(uint8_t OnOff) {
   // Holiday Mode Active
-  TxMessage.Payload[0] = TX_MESSAGE_SETTING_DHW;
+  TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
   TxMessage.Payload[1] = TX_MESSAGE_SETTING_HOL_Flag;
   TxMessage.Payload[4] = OnOff;
 }
