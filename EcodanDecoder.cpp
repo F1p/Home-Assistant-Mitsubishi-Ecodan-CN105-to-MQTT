@@ -39,6 +39,9 @@ uint8_t ECODANDECODER::Process(uint8_t c) {
           break;          
         case 0x02:
           Process0x02(RxMessage.Payload, &Status);
+          break;          
+        case 0x03:
+          Process0x03(RxMessage.Payload, &Status);
           break;
         case 0x04:
           Process0x04(RxMessage.Payload, &Status);
@@ -64,11 +67,20 @@ uint8_t ECODANDECODER::Process(uint8_t c) {
         case 0x0e:
           Process0x0E(RxMessage.Payload, &Status);
           break;
+        case 0x11:
+          Process0x11(RxMessage.Payload, &Status);
+          break;
         case 0x13:
           Process0x13(RxMessage.Payload, &Status);
           break;
         case 0x14:
           Process0x14(RxMessage.Payload, &Status);
+          break;
+        case 0x15:
+          Process0x15(RxMessage.Payload, &Status);
+          break;
+        case 0x16:
+          Process0x16(RxMessage.Payload, &Status);
           break;
         case 0x26:
           Process0x26(RxMessage.Payload, &Status);
@@ -208,43 +220,51 @@ void ECODANDECODER::Process0x02(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t Defrost;
 
   Defrost = Buffer[3];
+
   Status->Defrost = Defrost;
 }
+
+void ECODANDECODER::Process0x03(uint8_t *Buffer, EcodanStatus *Status) {
+  uint8_t Unknown1;
+
+  Unknown1 = Buffer[8];  // 03 when Zone2 Play Only, nothing with both zones running, 02 when Zone1 Play Only, 01 with both zones running
+  
+  Status->Unknown1 = Unknown1;
+}
+
 
 void ECODANDECODER::Process0x04(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t CompressorFrequency;
 
-
   CompressorFrequency = Buffer[1];
-
 
   Status->CompressorFrequency = CompressorFrequency;
 }
 
+
 void ECODANDECODER::Process0x05(uint8_t *Buffer, EcodanStatus *Status) {
-  uint8_t HotWaterBoost;
-  uint8_t Unknown1;
-
-  Unknown1 = Buffer[5];
-
+  uint8_t HotWaterBoost, TempDropActive;
+  
+  TempDropActive = Buffer[5];     // 0 in Timer or Inhibit, was 7 in on Temp Drop mode (Play)
   HotWaterBoost = Buffer[7];
-  Status->HotWaterBoostActive = HotWaterBoost;
+  //Unknown = Buffer[9];  // Always 6?
 
-  Status->Unknown1Active = Unknown1;
+  Status->HotWaterBoostActive = HotWaterBoost;
+  Status->TempDropActive = TempDropActive;
+
 }
+
+
 void ECODANDECODER::Process0x07(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t OutputPower;
-  uint8_t Unknown11;
 
-  Unknown11 = Buffer[4];
   OutputPower = Buffer[6];
 
-  Status->Unknown11Active = Unknown11;
   Status->OutputPower = OutputPower;
 }
 
+
 void ECODANDECODER::Process0x09(uint8_t *Buffer, EcodanStatus *Status) {
-  //Buffer 12 & 13 Yet To Identify
   float fZone1TempSetpoint, fZone2TempSetpoint;
   float fZ1FlowSetpoint, fZ2FlowSetpoint, fLegionellaSetpoint;
   float fHWTempDrop, fFlowTempMax, fFlowTempMin;
@@ -286,16 +306,13 @@ void ECODANDECODER::Process0x0B(uint8_t *Buffer, EcodanStatus *Status) {
 
 void ECODANDECODER::Process0x0C(uint8_t *Buffer, EcodanStatus *Status) {
   float fWaterHeatingFeed, fWaterHeatingReturn, fHotWater;
-  float T1, T2, T3;
 
   fWaterHeatingFeed = ((float)ExtractUInt16(Buffer, 1) / 100);
-  T1 = ((float)Buffer[3] / 2) - 40;
+  //Unknown = ((float)Buffer[3] / 2) - 40;
   fWaterHeatingReturn = ((float)ExtractUInt16(Buffer, 4) / 100);
-  T2 = ((float)Buffer[6] / 2) - 40;
-  ;
+  //Unknown = ((float)Buffer[6] / 2) - 40;
   fHotWater = ((float)ExtractUInt16(Buffer, 7) / 100);
-  T3 = ((float)Buffer[9] / 2) - 40;
-  ;
+  //Unknown = ((float)Buffer[9] / 2) - 40;
 
   Status->HeaterOutputFlowTemperature = fWaterHeatingFeed;
   Status->HeaterReturnFlowTemperature = fWaterHeatingReturn;
@@ -321,8 +338,25 @@ void ECODANDECODER::Process0x0E(uint8_t *Buffer, EcodanStatus *Status) {
   //Unknown = ((float)ExtractUInt16(Buffer, 10) / 100)
 }
 
+void ECODANDECODER::Process0x11(uint8_t *Buffer, EcodanStatus *Status) {
+  uint8_t Unknown2, Unknown3, Unknown4, Unknown5;
+
+  Unknown2 = Buffer[1];    // ce  To Int?
+  Unknown3 = Buffer[3];    // 80
+  Unknown4 = Buffer[5];    // 70
+  Unknown5 = Buffer[9];    // 02
+
+  Status->Unknown2 = Unknown2;
+  Status->Unknown3 = Unknown3;
+  Status->Unknown4 = Unknown4;
+  Status->Unknown5 = Unknown5;
+}
+
 void ECODANDECODER::Process0x13(uint8_t *Buffer, EcodanStatus *Status) {
   uint32_t RunHours;
+  uint8_t Unknown6;
+
+  Unknown6 = Buffer[1];   // 01 when running Zone2 Only, 01 when running Zone1 Only
 
   RunHours = Buffer[4];
   RunHours = RunHours << 8;
@@ -330,6 +364,7 @@ void ECODANDECODER::Process0x13(uint8_t *Buffer, EcodanStatus *Status) {
   RunHours *= 100;
   RunHours += Buffer[3];
 
+  Status->Unknown6 = Unknown6;
   Status->RunHours = RunHours;
 }
 
@@ -342,9 +377,41 @@ void ECODANDECODER::Process0x14(uint8_t *Buffer, EcodanStatus *Status) {
   Status->PrimaryFlowRate = FlowRate;
 }
 
+
+void ECODANDECODER::Process0x15(uint8_t *Buffer, EcodanStatus *Status) {
+  uint8_t Unknown7, Unknown8, Unknown9, Unknown10, Unknown11, Unknown12;
+
+  Unknown7 = Buffer[1];  // 01 when Zone2 in Play Only, 01 on dhw
+  Unknown8 = Buffer[2];  // 2&3 together for large number?
+  Unknown9 = Buffer[3];  
+  Unknown10 = Buffer[4];  // 01 when Zone2 in Play Only
+  Unknown11 = Buffer[6];  // 01 when DHW Running
+  Unknown12 = Buffer[11]; // Always 04
+
+  Status->Unknown7 = Unknown7;
+  Status->Unknown8 = Unknown8;
+  Status->Unknown9 = Unknown9;
+  Status->Unknown10 = Unknown10;
+  Status->Unknown11 = Unknown11;
+  Status->Unknown12 = Unknown12;
+}
+
+
+void ECODANDECODER::Process0x16(uint8_t *Buffer, EcodanStatus *Status) {
+  uint8_t DHWPumpRunning, Zone1PumpRunning, Zone2PumpRunning;
+
+  DHWPumpRunning = Buffer[1];
+  Zone1PumpRunning = Buffer[2];
+  Zone2PumpRunning = Buffer[3];
+
+  Status->DHWPumpRunning = DHWPumpRunning;
+  Status->Zone1PumpRunning = Zone1PumpRunning;
+  Status->Zone1PumpRunning = Zone1PumpRunning;
+}
+
+
 void ECODANDECODER::Process0x26(uint8_t *Buffer, EcodanStatus *Status) {
-  float fHWSetpoint;
-  float fExternalSetpoint, fExternalFlowTemp;
+  float fHWSetpoint, fExternalSetpoint, fExternalFlowTemp;
   uint8_t SystemPowerMode, SystemOperationMode, HotWaterPowerMode;
   uint8_t HeatingControlModeZone1, HeatingControlModeZone2, HotWaterControlMode;
 
@@ -353,7 +420,6 @@ void ECODANDECODER::Process0x26(uint8_t *Buffer, EcodanStatus *Status) {
   HotWaterControlMode = Buffer[5];
   HeatingControlModeZone1 = Buffer[6];
   HeatingControlModeZone2 = Buffer[7];
-
   fHWSetpoint = ((float)ExtractUInt16(Buffer, 8) / 100);
   fExternalSetpoint = ((float)ExtractUInt16(Buffer, 10) / 100);
   fExternalFlowTemp = ((float)ExtractUInt16(Buffer, 12) / 100);
@@ -365,43 +431,39 @@ void ECODANDECODER::Process0x26(uint8_t *Buffer, EcodanStatus *Status) {
   Status->HeatingControlModeZ2 = HeatingControlModeZone2;
   Status->HotWaterSetpoint = fHWSetpoint;
   Status->HeaterFlowSetpoint = fExternalSetpoint;
+  Status->ExternalFlowTemp = fExternalFlowTemp;
 }
 
 
 void ECODANDECODER::Process0x28(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t HotWaterTimer;
   uint8_t HolidayMode;
-  uint8_t Unknown2, Unknown3;
+  uint8_t ProhibitHeatingZ1, ProhibitHeatingZ2;
+  uint8_t ProhibitCoolingZ1, ProhibitCoolingZ2;
+  uint8_t Unknown13;
 
+  Unknown13 = Buffer[3];         // 1 When DHW Running
   HolidayMode = Buffer[4];
   HotWaterTimer = Buffer[5];
-  Unknown2 = Buffer[6];
-  Unknown3 = Buffer[7];
+  ProhibitHeatingZ1 = Buffer[6]; //Prohibit Heating Zone1
+  ProhibitCoolingZ1 = Buffer[7]; //Prohibit Cooling Zone1
+  ProhibitHeatingZ2 = Buffer[8]; //Prohibit Heating Zone2
+  ProhibitCoolingZ2 = Buffer[9]; //Prohibit Cooling Zone2
 
+  Status->Unknown13 = Unknown13;
   Status->HolidayModeActive = HolidayMode;
   Status->HotWaterTimerActive = HotWaterTimer;
-  Status->Unknown2Active = Unknown2;
-  Status->Unknown3Active = Unknown3;
+  Status->ProhibitHeatingZ1 = ProhibitHeatingZ1;
+  Status->ProhibitCoolingZ1 = ProhibitCoolingZ1;
+  Status->ProhibitHeatingZ2 = ProhibitHeatingZ2;
+  Status->ProhibitCoolingZ2 = ProhibitCoolingZ2;
 }
 
 void ECODANDECODER::Process0x29(uint8_t *Buffer, EcodanStatus *Status) {
   float fZone1, fZone2;
-  float fFlowSetpoint, fFlowTemp, fWaterSetpoint;
-  uint8_t Unknown7, Unknown8, Unknown9, Unknown10;
-
-
-  Unknown7 = Buffer[8];
-  Unknown8 = Buffer[9];
-  Unknown9 = Buffer[10];
-  Unknown10 = Buffer[11];
 
   fZone1 = ((float)ExtractUInt16(Buffer, 4) / 100);
   fZone2 = ((float)ExtractUInt16(Buffer, 6) / 100);
-
-  Status->Unknown7Active = Unknown7;
-  Status->Unknown8Active = Unknown8;
-  Status->Unknown9Active = Unknown9;
-  Status->Unknown10Active = Unknown10;
 }
 
 void ECODANDECODER::Process0xA1(uint8_t *Buffer, EcodanStatus *Status) {

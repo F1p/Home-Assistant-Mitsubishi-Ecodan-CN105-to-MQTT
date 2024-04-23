@@ -28,7 +28,7 @@
 #include <ESPTelnet.h>
 #include "Ecodan.h"
 
-String FirmwareVersion = "v3.6";
+String FirmwareVersion = "v4.0";
 
 
 int RxPin = 14;  //Rx
@@ -459,6 +459,8 @@ void Zone1Report(void) {
   doc[F("Setpoint")] = HeatPump.Status.Zone1TemperatureSetpoint;
   doc["HeatingControlMode"] = HeatingControlModeString[HeatPump.Status.HeatingControlModeZ1];
   doc["FSP"] = HeatPump.Status.Zone1FlowTemperatureSetpoint;
+  doc["PumpRunning"] = HeatPump.Status.Zone1PumpRunning;
+  doc["ProhibitHeating"] = HeatPump.Status.ProhibitHeatingZ1;
 
   serializeJson(doc, Buffer);
 
@@ -474,6 +476,8 @@ void Zone2Report(void) {
   doc[F("Setpoint")] = HeatPump.Status.Zone2TemperatureSetpoint;
   doc["HeatingControlMode"] = HeatingControlModeString[HeatPump.Status.HeatingControlModeZ2];
   doc["FSP"] = HeatPump.Status.Zone2FlowTemperatureSetpoint;
+  doc["PumpRunning"] = HeatPump.Status.Zone2PumpRunning;
+  doc["ProhibitHeating"] = HeatPump.Status.ProhibitHeatingZ2;
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_ZONE2.c_str(), Buffer, true);
@@ -488,9 +492,11 @@ void HotWaterReport(void) {
   doc["Setpoint"] = HeatPump.Status.HotWaterSetpoint;
   doc["HotWaterBoostActive"] = HeatPump.Status.HotWaterBoostActive;  // Use HotWaterBoostStr[HeatPump.Status.HotWaterBoostActive] for On/Off instead of 1/0
   doc["HotWaterTimerActive"] = HeatPump.Status.HotWaterTimerActive;
+  doc["HotWaterTDropActive"] = TDropModeActive[HeatPump.Status.TempDropActive];   // Converts "7" to "1"
   doc["HotWaterControlMode"] = HowWaterControlModeString[HeatPump.Status.HotWaterControlMode];
   doc["LegionellaSetpoint"] = HeatPump.Status.LegionellaSetpoint;
   doc["HotWaterMaximumTempDrop"] = HeatPump.Status.HotWaterMaximumTempDrop;
+  doc["PumpRunning"] = HeatPump.Status.DHWPumpRunning;
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_HOTWATER.c_str(), Buffer, true);
@@ -533,6 +539,7 @@ void AdvancedReport(void) {
   doc["PrimaryFlowRate"] = HeatPump.Status.PrimaryFlowRate;
   doc["BoilerFlow"] = HeatPump.Status.ExternalBoilerFlowTemperature;
   doc["BoilerReturn"] = HeatPump.Status.ExternalBoilerReturnTemperature;
+  doc["ExternalFlowTemp"] = HeatPump.Status.ExternalFlowTemp;
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_ADVANCED.c_str(), Buffer, true);
@@ -543,17 +550,19 @@ void TestReport(void) {
   StaticJsonDocument<512> doc;
   char Buffer[512];
 
-  doc["Unknown1"] = HeatPump.Status.Unknown1Active;
-  doc["Unknown2"] = HeatPump.Status.Unknown2Active;
-  doc["Unknown3"] = HeatPump.Status.Unknown3Active;
-  doc["Unknown4"] = HeatPump.Status.Unknown4Active;
-  doc["Unknown5"] = HeatPump.Status.Unknown5Active;
-  doc["Unknown6"] = HeatPump.Status.Unknown6Active;
-  doc["Unknown7"] = HeatPump.Status.Unknown7Active;
-  doc["Unknown8"] = HeatPump.Status.Unknown8Active;
-  doc["Unknown9"] = HeatPump.Status.Unknown9Active;
-  doc["Unknown10"] = HeatPump.Status.Unknown10Active;
-  doc["Unknown11"] = HeatPump.Status.Unknown11Active;
+  doc["Unknown1"] = HeatPump.Status.Unknown1;
+  doc["Unknown2"] = HeatPump.Status.Unknown2;
+  doc["Unknown3"] = HeatPump.Status.Unknown3;
+  doc["Unknown4"] = HeatPump.Status.Unknown4;
+  doc["Unknown5"] = HeatPump.Status.Unknown5;
+  doc["Unknown6"] = HeatPump.Status.Unknown6;
+  doc["Unknown7"] = HeatPump.Status.Unknown7;
+  doc["Unknown8"] = HeatPump.Status.Unknown8;
+  doc["Unknown9"] = HeatPump.Status.Unknown9;
+  doc["Unknown10"] = HeatPump.Status.Unknown10;
+  doc["Unknown11"] = HeatPump.Status.Unknown11;
+  doc["Unknown12"] = HeatPump.Status.Unknown12;
+  doc["Unknown13"] = HeatPump.Status.Unknown13;
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_TEST.c_str(), Buffer, true);

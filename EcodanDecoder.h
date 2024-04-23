@@ -50,6 +50,10 @@
 #define HOT_WATER_BOOST_ON 1
 const char HotWaterBoostStr[2][4] = { "Off", "On" };
 
+#define TEMP_DROP_MODE_OFF 0
+#define TEMP_DROP_MODE_ON 7
+const char TDropModeActive[8][2] = { "0", "0", "0", "0", "0", "0", "0", "1" };
+
 #define SYSTEM_POWER_MODE_STANDBY 0
 #define SYSTEM_POWER_MODE_ON 1
 const char SystemPowerModeString[2][8] = { "Standby", "On" };
@@ -106,13 +110,6 @@ const char COMPRESSORString[4][8] = { "Normal", "Standby", "Defrost", "Wait" };
 #define ZONE1 0x00  // Zone1
 #define ZONE2 0x03  // Zone2
 #define BOTH 0x02   // BOTH
-//#define BOTH 0x03   // BOTH
-//#define ZONE1 0x04  // Zone1
-//#define ZONE1 0x05  // Zone1
-//#define ZONE1 0x06  // Zone1
-//#define BOTH 0x07   // BOTH
-//#define ZONE1 0x08  // Zone1
-//#define ZONE1 0x10  // Zone1
 
 
 
@@ -132,12 +129,15 @@ typedef struct _EcodanStatus {
   //From Message 0x02
   uint8_t Defrost;
 
+  //From Message 0x03
+  uint8_t Unknown1;
+
   // From Message 0x04
   uint8_t CompressorFrequency;
 
   // From Message 0x05
+  uint8_t TempDropActive;
   uint8_t HotWaterBoostActive;
-  uint8_t UnknownMSG5;
 
   // From Message 0x07
   uint8_t OutputPower;
@@ -165,16 +165,27 @@ typedef struct _EcodanStatus {
   //From Message 0x0d
   float ExternalBoilerFlowTemperature;
   float ExternalBoilerReturnTemperature;
-  // Plus Several Outher unused
 
   //From Message 0x0e
   // Several Unused Temperatures
 
-  //From Message 0x14
+  //From Message 0x11
+  uint8_t Unknown2, Unknown3, Unknown4, Unknown5;
+
+  //From Message 0x13
+  uint8_t Unknown6;
   uint32_t RunHours;
 
   //From Message 0x14
   uint8_t PrimaryFlowRate;
+
+  //From Message 0x15
+  uint8_t Unknown7, Unknown8, Unknown9, Unknown10, Unknown11, Unknown12;
+
+  //From Message 0x16
+  uint8_t DHWPumpRunning;
+  uint8_t Zone1PumpRunning;
+  uint8_t Zone2PumpRunning;
 
   //From Message 0x26
   uint8_t SystemPowerMode;
@@ -184,12 +195,14 @@ typedef struct _EcodanStatus {
   uint8_t HeatingControlModeZ2;
   float HotWaterSetpoint;
   float HeaterFlowSetpoint;
+  float ExternalFlowTemp;
 
   //From Message 0x28
   uint8_t HotWaterTimerActive;
   uint8_t HolidayModeActive;
-  uint8_t Unknown1Active, Unknown2Active, Unknown3Active, Unknown4Active, Unknown5Active, Unknown6Active, Unknown7Active, Unknown8Active, Unknown9Active, Unknown10Active, Unknown11Active;
-
+  uint8_t ProhibitHeatingZ1, ProhibitHeatingZ2;
+  uint8_t ProhibitCoolingZ1, ProhibitCoolingZ2;
+  uint8_t Unknown13;
 
   //From Message 0x29
   //float Zone1TemperatureSetpoint;  Already Defined Above
@@ -253,6 +266,7 @@ private:
 
   void Process0x01(uint8_t *Payload, EcodanStatus *Status);
   void Process0x02(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x03(uint8_t *Payload, EcodanStatus *Status);
   void Process0x04(uint8_t *Payload, EcodanStatus *Status);
   void Process0x05(uint8_t *Payload, EcodanStatus *Status);
   void Process0x07(uint8_t *Payload, EcodanStatus *Status);
@@ -261,8 +275,11 @@ private:
   void Process0x0C(uint8_t *Payload, EcodanStatus *Status);
   void Process0x0D(uint8_t *Payload, EcodanStatus *Status);
   void Process0x0E(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x11(uint8_t *Payload, EcodanStatus *Status);
   void Process0x13(uint8_t *Payload, EcodanStatus *Status);
   void Process0x14(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x15(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x16(uint8_t *Payload, EcodanStatus *Status);
   void Process0x26(uint8_t *Payload, EcodanStatus *Status);
   void Process0x28(uint8_t *Payload, EcodanStatus *Status);
   void Process0x29(uint8_t *Payload, EcodanStatus *Status);
