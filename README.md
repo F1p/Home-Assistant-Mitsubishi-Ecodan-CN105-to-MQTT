@@ -90,13 +90,12 @@ Active commands so far identified, 0x00 to 0xff. Commands not listed appear to g
 | Command | Brief Description |
 | ------- | ----------- |
 | 0x01 | Time & Date |
-| 0x02 | Unknown |
-| 0x03 | Unknown |
-| 0x04 | Unknown - Empty Response |
+| 0x02 | Defrost |
+| 0x03 | Unknown Running Parameter |
+| 0x04 | Compressor Frequency |
 | 0x05 | Hot Water Boot Flag |
 | 0x06 | Unknown - Empty Response |
-| 0x06 | Unknown - Empty Response |
-| 0x07 | Unknown |
+| 0x07 | Output Power |
 | 0x08 | Unknown |
 | 0x09 | Zone 1 & 2 Temperatures and Setpoints, Hot Water Setpoint |
 | 0x0b | Zone 1 & 2 and Outside |Temperature
@@ -105,10 +104,10 @@ Active commands so far identified, 0x00 to 0xff. Commands not listed appear to g
 | 0x0e | Unknown |
 | 0x10 | Unknown |
 | 0x11 | Unknown |
-| 0x13 | Unknown |
-| 0x14 | Unknown |
-| 0x15 | Unknown |
-| 0x16 | Unknown - Empty Response |
+| 0x13 | Run Hours |
+| 0x14 | Primary Flow Rate |
+| 0x15 | Unknown Flags |
+| 0x16 | Running Pumps |
 | 0x17 | Unknown - Empty Response |
 | 0x18 | Unknown - Empty Response |
 | 0x19 | Unknown - Empty Response |
@@ -163,6 +162,16 @@ Responses so far identified.
 * h: Hour
 * m: Minute
 * s: Second
+### 0x02 - Defrost
+|   0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|-------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
+| 0x02  |   |   | D |   |   |   |   |   |   |    |    |    |    |    |    |    |  
+* D: Defrost
+### 0x03 - Unknown
+|   0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 |  8  | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|-------|---|---|---|---|---|---|---|-----|---|----|----|----|----|----|----|----|
+| 0x03  |   |   |   |   |   |   |   |  U  |   |    |    |    |    |    |    |    |  
+* U: Unknown Running Parameter
 ### 0x04 - Various Flags
 |   0   | 1  | 2 | 3 | 4 | 5 | 6 |  7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
@@ -176,7 +185,7 @@ Responses so far identified.
 ### 0x07 
 |   0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
-| 0x07  |   |   |   |   |   |   |   |   | P  |    |    |    |    |    |    |    |  
+| 0x07  |   |   |   |   |   |   |   |   | P |    |    |    |    |    |    |    |  
 * P : Heater Power (kW)
 ### 0x09 - Zone 1 & 2 Temperatures and Setpoints, Hot Water Setpoint
 | 0    |   1  |   2  | 3    | 4    | 5    | 6    | 7    | 8    |  9  |  10 |  11 | 12 | 13 | 14 | 15 | 16 |
@@ -189,9 +198,9 @@ Responses so far identified.
 * LSP  : Legionella Setpoint * 100;
 * HWD  : DHW Max Temp Drop;
 ### 0x0b - Zone 1 & 2 and Outside Temperature
-|   0  |  1  |  2  | 3 | 4 | 5 | 6 |  7  |  8  | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
-|------|-----|-----|---|---|---|---|-----|-----|---|----|----|----|----|----|----|----|
-| 0x0b | Z1T | Z1T | ? | ? |   |   | Z2T | Z2T |   |    | O  |    |    |    |    |    |
+|   0  |  1  |  2  |  3  | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|------|-----|-----|-----|---|---|---|---|---|---|----|----|----|----|----|----|----|
+| 0x0b | Z1T |     | Z2T |   |   |   |   |   |   |    | O  |    |    |    |    |    |
 * Z1T : Zone1 Temperature * 100
 * Z2T : Zone2 Temperature * 100
 * O : Outside Temp  +40 x 2 
@@ -213,11 +222,33 @@ Responses so far identified.
 |------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
 | 0x0e |   |   |   |   |   |   |   |   |   |    |    |    |    |    |    |    |
 Several Unknown Temperatures
+### 0x13 - Run Hours
+|   0   | 1  | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|-------|----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
+| 0x13  | U  |   |RH | RH|RH |   |   |   |   |    | PF |    |    |    |    |    |  
+* U : Unknown
+* RH: Run Hours
 ### 0x14 - Primary Cct Flow Rate
 |   0   | 1  | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
 | 0x14  |    |   |   |   |   |   |   |   |   |    | PF |    |    |    |    |    |  
 * PF : Primary Flow Rate (l/min)
+### 0x15 - Unknown
+|   0   | 1  |  2 |  3 |  4 | 5 |  6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|-------|----|----|----|----|---|----|---|---|---|----|----|----|----|----|----|----|
+| 0x15  | U1 | U2 | U2 | U3 |   | U4 |   |   |   |    | U5 |    |    |    |    |    |  
+* U1 : Unknown Flag
+* U2 : Unknown Int 
+* U3 : Unknown Flag
+* U4 : Unknown DHW Flag?
+* U5 : Unknown - always a value of 4?
+### 0x16 - Pumps Running
+|   0   | 1  |  2 |  3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|-------|----|----|----|---|---|---|---|---|---|----|----|----|----|----|----|----|
+| 0x16  | DHW| Z1 | Z2 |   |   |   |   |   |   |    |    |    |    |    |    |    |  
+* DHW : DHW Pump Running Flag
+* Z1 : Zone1 Pump Running Flag 
+* Z2 : Zone2 Pump Running Flag
 ### 0x26
 | 0 | 1 | 2 |  3  | 4  | 5  | 6  |  7 |   8  |  9   |  10 |  11 | 12 | 13 | 14 |
 |---|---|---|-----|----|----|----|----|------|------|-----|-----|----|----|----|
@@ -241,11 +272,16 @@ Several Unknown Temperatures
 * HSP : Heating Flow SetPoint * 100;
 * SP : Unknown Setpoint:
 ### 0x28 - Various Flags
-|   0   | 1 | 2 | 3 | 4  | 5  | 6 |  7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
-|-------|---|---|---|----|----|---|---|---|---|----|----|----|----|----|----|----|
-| 0x28  |   |   |   | HM | HT |   |   |   |   |    |    |    |    |    |    |    |  
+|   0   | 1 | 2 | 3 | 4  | 5  |  6 | 7  |  8 |  9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|-------|---|---|---|----|----|----|----|----|----|----|----|----|----|----|----|----|
+| 0x28  |   |   |U1 | HM | HT |PHZ1|PCZ1|PHZ2|PCZ2|    |    |    |    |    |    |  
+* U1 : Unknown DHW Flag?
 * HM : Holiday Mode
 * HT : Hot Water Timer
+* PHZ1 : Prohibit Heating Zone1
+* PCZ1 : Prohibit Cooling Zone1
+* PHZ2 : Prohibit Heating Zone2
+* PCZ2 : Prohibit Cooling Zone2
 ### 0x29 - 
 |   0   | 1 | 2 | 3 |  4  |  5  |  6  |  7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|-----|-----|-----|-----|---|---|----|----|----|----|----|----|----|
