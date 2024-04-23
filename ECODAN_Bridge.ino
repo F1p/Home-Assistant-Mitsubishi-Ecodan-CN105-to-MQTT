@@ -558,7 +558,7 @@ void EnergyReport(void) {
   doc["DDHW"] = HeatPump.Status.DeliveredHotWaterEnergy;
   doc["CTOTAL"] = (HeatPump.Status.ConsumedHeatingEnergy + HeatPump.Status.ConsumedHotWaterEnergy);
   doc["DTOTAL"] = (HeatPump.Status.DeliveredHeatingEnergy + HeatPump.Status.DeliveredHotWaterEnergy);
-  doc["HEAT_CoP"] = (HeatPump.Status.DeliveredHotWaterEnergy / HeatPump.Status.ConsumedHotWaterEnergy);
+  doc["HEAT_CoP"] = (HeatPump.Status.DeliveredHeatingEnergy / HeatPump.Status.ConsumedHeatingEnergy);
   doc["DHW_CoP"] = (HeatPump.Status.DeliveredHotWaterEnergy / HeatPump.Status.ConsumedHotWaterEnergy);
   doc["TOTAL_COP"] = ((HeatPump.Status.DeliveredHeatingEnergy + HeatPump.Status.DeliveredHotWaterEnergy)/(HeatPump.Status.ConsumedHeatingEnergy + HeatPump.Status.ConsumedHotWaterEnergy));
 
