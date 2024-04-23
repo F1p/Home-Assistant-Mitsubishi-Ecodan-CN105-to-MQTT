@@ -102,6 +102,7 @@ void Zone1Report(void);
 void HotWaterReport(void);
 void SystemReport(void);
 void AdvancedReport(void);
+void EnergyReport(void);
 void TestReport(void);
 
 TimerCallBack HeatPumpQuery1(500, HeatPumpQueryStateEngine);
@@ -269,6 +270,7 @@ void HeatPumpQueryStateEngine(void) {
       }
       SystemReport();
       AdvancedReport();
+      EnergyReport();
       TestReport();
       StatusReport();
     }
@@ -525,7 +527,6 @@ void SystemReport(void) {
   //DEBUG_PRINTLN(Buffer);
 }
 
-
 void AdvancedReport(void) {
   StaticJsonDocument<512> doc;
   char Buffer[512];
@@ -545,6 +546,27 @@ void AdvancedReport(void) {
   MQTTClient.publish(MQTT_STATUS_ADVANCED.c_str(), Buffer, true);
   //DEBUG_PRINTLN(Buffer);
 }
+
+
+void EnergyReport(void) {
+  StaticJsonDocument<512> doc;
+  char Buffer[512];
+
+  doc["CHEAT"] = HeatPump.Status.ConsumedHeatingEnergy;
+  doc["CDHW"] = HeatPump.Status.ConsumedHotWaterEnergy;
+  doc["DHEAT"] = HeatPump.Status.DeliveredHeatingEnergy;
+  doc["DDHW"] = HeatPump.Status.DeliveredHotWaterEnergy;
+  doc["CTOTAL"] = (HeatPump.Status.ConsumedHeatingEnergy + HeatPump.Status.ConsumedHotWaterEnergy);
+  doc["DTOTAL"] = (HeatPump.Status.DeliveredHeatingEnergy + HeatPump.Status.DeliveredHotWaterEnergy);
+  doc["HEAT_CoP"] = (HeatPump.Status.DeliveredHotWaterEnergy / HeatPump.Status.ConsumedHotWaterEnergy);
+  doc["DHW_CoP"] = (HeatPump.Status.DeliveredHotWaterEnergy / HeatPump.Status.ConsumedHotWaterEnergy);
+  doc["TOTAL_COP"] = ((HeatPump.Status.DeliveredHeatingEnergy + HeatPump.Status.DeliveredHotWaterEnergy)/(HeatPump.Status.ConsumedHeatingEnergy + HeatPump.Status.ConsumedHotWaterEnergy));
+
+  serializeJson(doc, Buffer);
+  MQTTClient.publish(MQTT_STATUS_ENERGY.c_str(), Buffer, true);
+  //DEBUG_PRINTLN(Buffer);
+}
+
 
 void TestReport(void) {
   StaticJsonDocument<512> doc;
