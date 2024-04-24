@@ -226,8 +226,26 @@ void ECODANDECODER::Process0x02(uint8_t *Buffer, EcodanStatus *Status) {
 
 void ECODANDECODER::Process0x03(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t Unknown1;
+  uint8_t Zone1PumpRunning, Zone2PumpRunning;
 
-  Unknown1 = Buffer[8];  // 03 when Zone2 Play Only, nothing with both zones running, 02 when Zone1 Play Only, 01 with both zones running
+
+  Unknown1 = Buffer[8];  // 03 when Zone2 Running, 02 when Zone1 Only, 01 with both zones running? 0 when stopped
+
+  if(Buffer[8] == 1){
+    Zone1PumpRunning = 1;
+    Zone2PumpRunning = 1;
+  }
+  else if(Buffer[8] == 2){
+    Zone1PumpRunning = 1;
+    Zone2PumpRunning = 0;
+  }
+  else if(Buffer[8] == 3){
+    Zone1PumpRunning = 0;
+    Zone2PumpRunning = 1;
+  }
+  
+  Status->Zone1PumpRunning = Zone1PumpRunning;
+  Status->Zone1PumpRunning = Zone1PumpRunning;
   
   Status->Unknown1 = Unknown1;
 }
@@ -381,10 +399,10 @@ void ECODANDECODER::Process0x14(uint8_t *Buffer, EcodanStatus *Status) {
 void ECODANDECODER::Process0x15(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t Unknown7, Unknown8, Unknown9, Unknown10, Unknown11, Unknown12;
 
-  Unknown7 = Buffer[1];  // 01 when Zone2 in Play Only, 01 on dhw
+  Unknown7 = Buffer[1];  // 01 when running
   Unknown8 = Buffer[2];  // 2&3 together for large number?
   Unknown9 = Buffer[3];  
-  Unknown10 = Buffer[4];  // 01 when Zone2 in Play Only
+  Unknown10 = Buffer[4];  // 01 when Heating Running
   Unknown11 = Buffer[6];  // 01 when DHW Running
   Unknown12 = Buffer[11]; // Always 04
 
@@ -398,15 +416,16 @@ void ECODANDECODER::Process0x15(uint8_t *Buffer, EcodanStatus *Status) {
 
 
 void ECODANDECODER::Process0x16(uint8_t *Buffer, EcodanStatus *Status) {
-  uint8_t DHWPumpRunning, Zone1PumpRunning, Zone2PumpRunning;
+  uint8_t DHWPumpRunning;
+  //uint8_t Zone1PumpRunning, Zone2PumpRunning;
 
   DHWPumpRunning = Buffer[1];
-  Zone1PumpRunning = Buffer[2];
-  Zone2PumpRunning = Buffer[3];
+  //Zone1PumpRunning = Buffer[2];
+  //Zone2PumpRunning = Buffer[3];
 
   Status->DHWPumpRunning = DHWPumpRunning;
-  Status->Zone1PumpRunning = Zone1PumpRunning;
-  Status->Zone1PumpRunning = Zone1PumpRunning;
+  //Status->Zone1PumpRunning = Zone1PumpRunning;
+  //Status->Zone1PumpRunning = Zone1PumpRunning;
 }
 
 
@@ -461,9 +480,15 @@ void ECODANDECODER::Process0x28(uint8_t *Buffer, EcodanStatus *Status) {
 
 void ECODANDECODER::Process0x29(uint8_t *Buffer, EcodanStatus *Status) {
   float fZone1, fZone2;
+  uint8_t Unknown14;
 
   fZone1 = ((float)ExtractUInt16(Buffer, 4) / 100);
   fZone2 = ((float)ExtractUInt16(Buffer, 6) / 100);
+
+  Unknown14 = Buffer[12];
+
+  Status->Unknown14 = Unknown14;
+
 }
 
 void ECODANDECODER::Process0xA1(uint8_t *Buffer, EcodanStatus *Status) {

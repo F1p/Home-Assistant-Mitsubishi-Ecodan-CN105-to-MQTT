@@ -28,7 +28,7 @@
 #include <ESPTelnet.h>
 #include "Ecodan.h"
 
-String FirmwareVersion = "v4.0";
+String FirmwareVersion = "v4.0.1";
 
 
 int RxPin = 14;  //Rx
@@ -585,6 +585,7 @@ void TestReport(void) {
   doc["Unknown11"] = HeatPump.Status.Unknown11;
   doc["Unknown12"] = HeatPump.Status.Unknown12;
   doc["Unknown13"] = HeatPump.Status.Unknown13;
+  doc["Unknown14"] = HeatPump.Status.Unknown14;
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_TEST.c_str(), Buffer, true);

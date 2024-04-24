@@ -207,6 +207,7 @@ typedef struct _EcodanStatus {
   //From Message 0x29
   //float Zone1TemperatureSetpoint;  Already Defined Above
   //float Zone2TemperatureSetpoint;  Already Defined Above
+  uint8_t Unknown14;
 
   //From Message 0xa1
   struct tm ConsumedDateTimeStamp;
