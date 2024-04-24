@@ -586,6 +586,7 @@ void TestReport(void) {
   doc["Unknown12"] = HeatPump.Status.Unknown12;
   doc["Unknown13"] = HeatPump.Status.Unknown13;
   doc["Unknown14"] = HeatPump.Status.Unknown14;
+  doc["Unknown15"] = HeatPump.Status.Unknown15;
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_TEST.c_str(), Buffer, true);

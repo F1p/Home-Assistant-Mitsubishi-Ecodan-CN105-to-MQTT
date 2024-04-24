@@ -130,7 +130,8 @@ typedef struct _EcodanStatus {
   uint8_t Defrost;
 
   //From Message 0x03
-  uint8_t Unknown1;
+  uint8_t Zone1PumpRunning, Zone2PumpRunning;
+  uint8_t Unknown1, Unknown15;
 
   // From Message 0x04
   uint8_t CompressorFrequency;
@@ -184,8 +185,6 @@ typedef struct _EcodanStatus {
 
   //From Message 0x16
   uint8_t DHWPumpRunning;
-  uint8_t Zone1PumpRunning;
-  uint8_t Zone2PumpRunning;
 
   //From Message 0x26
   uint8_t SystemPowerMode;
