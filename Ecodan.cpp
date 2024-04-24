@@ -32,7 +32,7 @@ uint8_t Init5[] = { 0xfc, 0x41, 0x02, 0x7a, 0x10, 0x34, 0x00, 0x01, 0, 0, 0, 0, 
 
 #define NUMBER_COMMANDS 22
 uint8_t ActiveCommand[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x07, 0x09, 0x0B, 0x0C, 0x0D, 0x0E,
-                            0x11, 0x13, 0x14, 0x15, 0x16, 
+                            0x11, 0x13, 0x14, 0x15, 0x16,
                             0x26, 0x28, 0x29,
                             0xA1, 0xA2,
                             0x00 };
@@ -94,6 +94,7 @@ void ECODAN::StatusStateMachine(void) {
     CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
 
     DeviceStream->write(Buffer, CommandSize);
+    DeviceStream->flush();
 
     CurrentMessage++;
     CurrentMessage %= NUMBER_COMMANDS;
@@ -131,6 +132,7 @@ void ECODAN::KeepAlive(void) {
   ECODANDECODER::SetPayloadByte(0x02, 1);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
+  DeviceStream->flush();
 }
 
 void ECODAN::SetZoneTempSetpoint(float Zone1Target, float Zone2Target, uint8_t Zones) {
@@ -141,6 +143,7 @@ void ECODAN::SetZoneTempSetpoint(float Zone1Target, float Zone2Target, uint8_t Z
   ECODANDECODER::EncodeSystemUpdate(SET_ZONE_SETPOINT | SET_HEATING_CONTROL_MODE, Zone1Target, Zone2Target, Zones, 0, HEATING_CONTROL_MODE_ZONE_TEMP, HEATING_CONTROL_MODE_ZONE_TEMP, 0, 1);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
+  DeviceStream->flush();
 }
 
 void ECODAN::SetZoneFlowSetpoint(uint8_t Zone1Target, uint8_t Zone2Target, uint8_t Zones) {
@@ -151,6 +154,7 @@ void ECODAN::SetZoneFlowSetpoint(uint8_t Zone1Target, uint8_t Zone2Target, uint8
   ECODANDECODER::EncodeSystemUpdate(SET_ZONE_SETPOINT | SET_HEATING_CONTROL_MODE, Zone1Target, Zone2Target, Zones, 0, HEATING_CONTROL_MODE_FLOW_TEMP, HEATING_CONTROL_MODE_FLOW_TEMP, 0, 1);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
+  DeviceStream->flush();
 }
 
 void ECODAN::SetZoneCurveSetpoint(float Zone1Target, float Zone2Target, uint8_t Zones) {
@@ -161,6 +165,7 @@ void ECODAN::SetZoneCurveSetpoint(float Zone1Target, float Zone2Target, uint8_t 
   ECODANDECODER::EncodeSystemUpdate(SET_ZONE_SETPOINT, Zone1Target, Zone2Target, Zones, 0, HEATING_CONTROL_MODE_COMPENSATION, HEATING_CONTROL_MODE_COMPENSATION, 0, 1);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
+  DeviceStream->flush();
 }
 
 void ECODAN::ForceDHW(uint8_t OnOff) {
@@ -171,6 +176,7 @@ void ECODAN::ForceDHW(uint8_t OnOff) {
   ECODANDECODER::EncodeDHW(OnOff);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
+  DeviceStream->flush();
 }
 
 void ECODAN::SetHolidayMode(uint8_t OnOff) {
@@ -181,16 +187,18 @@ void ECODAN::SetHolidayMode(uint8_t OnOff) {
   ECODANDECODER::EncodeHolidayMode(OnOff);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
+  DeviceStream->flush();
 }
 
-void ECODAN::SetHotWaterSetpoint(uint8_t Target) {
+void ECODAN::SetHotWaterSetpoint(uint8_t Target, uint8_t CurrentMode) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
 
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
-  ECODANDECODER::EncodeSystemUpdate(SET_HOT_WATER_SETPOINT, 0, 0, BOTH, Target, 0, 0, 0, 1);
+  ECODANDECODER::EncodeSystemUpdate(SET_HOT_WATER_SETPOINT, 0, 0, ZONE1, Target, CurrentMode, CurrentMode, 0, 1);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
+  DeviceStream->flush();
 }
 
 void ECODAN::SetHeatingControlMode(String *Mode, uint8_t Zones) {
@@ -204,15 +212,18 @@ void ECODAN::SetHeatingControlMode(String *Mode, uint8_t Zones) {
     ECODANDECODER::EncodeSystemUpdate(SET_HEATING_CONTROL_MODE, 0, 0, Zones, 0, HEATING_CONTROL_MODE_ZONE_TEMP, HEATING_CONTROL_MODE_ZONE_TEMP, 0, 1);
     CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
     DeviceStream->write(Buffer, CommandSize);
+    DeviceStream->flush();
   } else if (*Mode == String("Fixed Flow")) {
     ECODANDECODER::EncodeSystemUpdate(SET_HEATING_CONTROL_MODE, 0, 0, Zones, 0, HEATING_CONTROL_MODE_FLOW_TEMP, HEATING_CONTROL_MODE_FLOW_TEMP, 0, 1);
     CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
     DeviceStream->write(Buffer, CommandSize);
+    DeviceStream->flush();
   }
   if (*Mode == String("Compensation Flow")) {
     ECODANDECODER::EncodeSystemUpdate(SET_HEATING_CONTROL_MODE, 0, 0, Zones, 0, HEATING_CONTROL_MODE_COMPENSATION, HEATING_CONTROL_MODE_COMPENSATION, 0, 1);
     CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
     DeviceStream->write(Buffer, CommandSize);
+    DeviceStream->flush();
   }
   for (i = 0; i < CommandSize; i++) {
     if (Buffer[i] < 0x10) Serial.print("0");
@@ -233,10 +244,12 @@ void ECODAN::SetSystemPowerMode(String *Mode) {
     ECODANDECODER::EncodeSystemUpdate(SET_SYSTEM_POWER, 0, 0, 0, 0, 0, 0, 0, SYSTEM_POWER_MODE_ON);
     CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
     DeviceStream->write(Buffer, CommandSize);
+    DeviceStream->flush();
   } else if (*Mode == String("Standby")) {
     ECODANDECODER::EncodeSystemUpdate(SET_SYSTEM_POWER, 0, 0, 0, 0, 0, 0, 0, SYSTEM_POWER_MODE_STANDBY);
     CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
     DeviceStream->write(Buffer, CommandSize);
+    DeviceStream->flush();
   }
   for (i = 0; i < CommandSize; i++) {
     if (Buffer[i] < 0x10) Serial.print("0");

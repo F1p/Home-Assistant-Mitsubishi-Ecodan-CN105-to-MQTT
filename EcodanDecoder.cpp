@@ -228,9 +228,8 @@ void ECODANDECODER::Process0x03(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t Unknown1;
   uint8_t Zone1PumpRunning, Zone2PumpRunning;
 
-
-  Unknown1 = Buffer[8];  // 03 when Zone2 Running, 02 when Zone1 Only, 01 with both zones running? 0 when stopped
-
+  Unknown1 = Buffer[8];  // 03 when Zone2 Only, 02 when Zone1 Only, 01 with both zones running, 0 when stopped
+ 
   if(Buffer[8] == 1){
     Zone1PumpRunning = 1;
     Zone2PumpRunning = 1;
@@ -243,9 +242,13 @@ void ECODANDECODER::Process0x03(uint8_t *Buffer, EcodanStatus *Status) {
     Zone1PumpRunning = 0;
     Zone2PumpRunning = 1;
   }
+  else{
+    Zone1PumpRunning = 0;
+    Zone2PumpRunning = 0;
+  }
   
   Status->Zone1PumpRunning = Zone1PumpRunning;
-  Status->Zone1PumpRunning = Zone1PumpRunning;
+  Status->Zone2PumpRunning = Zone2PumpRunning;
   
   Status->Unknown1 = Unknown1;
 }

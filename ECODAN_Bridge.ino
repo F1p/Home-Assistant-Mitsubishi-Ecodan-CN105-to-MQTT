@@ -308,10 +308,10 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
     } else {
       if (HeatPump.Status.HeatingControlModeZ1 == 0) {
         DEBUG_PRINT("Zone1 in Temperature Mode");
-        HeatPump.SetZoneTempSetpoint(Payload.toFloat(), Zone2TemperatureSetpoint_UpdateValue, ZONE1);  // Set the Payload and to BOTH Zones as both are requiring update
+        HeatPump.SetZoneTempSetpoint(Payload.toFloat(), HeatPump.Status.Zone2TemperatureSetpoint, ZONE1);  // Set the Payload and to BOTH Zones as both are requiring update
       } else if (HeatPump.Status.HeatingControlModeZ1 == 2) {
         DEBUG_PRINT("Zone1 in Compensation Curve Mode");
-        HeatPump.SetZoneCurveSetpoint(Payload.toFloat(), Zone2TemperatureSetpoint_UpdateValue, ZONE1);  // Set the Payload and to BOTH Zones as both are requiring update
+        HeatPump.SetZoneCurveSetpoint(Payload.toFloat(), HeatPump.Status.Zone2TemperatureSetpoint, ZONE1);  // Set the Payload and to BOTH Zones as both are requiring update
       }
     }
     Zone1TemperatureSetpoint_UpdateValue = Payload.toFloat();
@@ -330,9 +330,9 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
       }
     } else {
       if (HeatPump.Status.HeatingControlModeZ2 == 0) {
-        HeatPump.SetZoneTempSetpoint(Zone1TemperatureSetpoint_UpdateValue, Payload.toFloat(), ZONE2);  // Set the Payload and the Zone2 value that is in progress of being written
+        HeatPump.SetZoneTempSetpoint(HeatPump.Status.Zone1TemperatureSetpoint, Payload.toFloat(), ZONE2);  // Set the Payload and the Zone2 value that is in progress of being written
       } else if (HeatPump.Status.HeatingControlModeZ2 == 2) {
-        HeatPump.SetZoneCurveSetpoint(Zone1TemperatureSetpoint_UpdateValue, Payload.toFloat(), ZONE2);  // Set the Payload and the Zone2 value that is in progress of being written
+        HeatPump.SetZoneCurveSetpoint(HeatPump.Status.Zone1TemperatureSetpoint, Payload.toFloat(), ZONE2);  // Set the Payload and the Zone2 value that is in progress of being written
       }
     }
     Zone2TemperatureSetpoint_UpdateValue = Payload.toFloat();
@@ -432,11 +432,11 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
   }
   if (Topic == MQTTCommandHotwaterSetpoint) {
     DEBUG_PRINTLN("MQTT Set HW Setpoint");
-    HeatPump.SetHotWaterSetpoint(Payload.toInt());
+    HeatPump.SetHotWaterSetpoint(Payload.toInt(),HeatPump.Status.HeatingControlModeZ1);
   }
   if (Topic == MQTTCommandSystemHeatingMode) {
     DEBUG_PRINTLN("MQTT Set Heating Mode");
-    HeatPump.SetHeatingControlMode(&Payload, BOTH);
+    HeatPump.SetHeatingControlMode(&Payload, ZONE1);
   }
   if (Topic == MQTTCommandSystemPower) {
     DEBUG_PRINTLN("MQTT Set System Power Mode");
