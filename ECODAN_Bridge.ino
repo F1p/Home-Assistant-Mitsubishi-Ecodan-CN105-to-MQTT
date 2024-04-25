@@ -28,7 +28,7 @@
 #include <ESPTelnet.h>
 #include "Ecodan.h"
 
-String FirmwareVersion = "v4.0.1";
+String FirmwareVersion = "v4.0.2";
 
 
 int RxPin = 14;  //Rx
@@ -494,7 +494,7 @@ void HotWaterReport(void) {
   doc["Setpoint"] = HeatPump.Status.HotWaterSetpoint;
   doc["HotWaterBoostActive"] = HeatPump.Status.HotWaterBoostActive;  // Use HotWaterBoostStr[HeatPump.Status.HotWaterBoostActive] for On/Off instead of 1/0
   doc["HotWaterTimerActive"] = HeatPump.Status.HotWaterTimerActive;
-  doc["HotWaterTDropActive"] = TDropModeActive[HeatPump.Status.TempDropActive];   // Converts "7" to "1"
+  doc["HotWaterTDropActive"] = HeatPump.Status.TempDropActive;       
   doc["HotWaterControlMode"] = HowWaterControlModeString[HeatPump.Status.HotWaterControlMode];
   doc["LegionellaSetpoint"] = HeatPump.Status.LegionellaSetpoint;
   doc["HotWaterMaximumTempDrop"] = HeatPump.Status.HotWaterMaximumTempDrop;
