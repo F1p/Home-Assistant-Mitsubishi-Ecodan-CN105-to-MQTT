@@ -52,7 +52,7 @@ const char HotWaterBoostStr[2][4] = { "Off", "On" };
 
 #define TEMP_DROP_MODE_OFF 0
 #define TEMP_DROP_MODE_ON 7
-const char TDropModeActive[8][2] = { "0", "0", "0", "0", "0", "0", "0", "1" };
+const char TDropModeActive[8][2] = { 0, 0, 0, 0, 0, 0, 0, 1 };
 
 #define SYSTEM_POWER_MODE_STANDBY 0
 #define SYSTEM_POWER_MODE_ON 1
