@@ -1,3 +1,5 @@
+## !! Configuration is specific for Firmware V4 or above!! ##
+
 # Loads default set of integrations. Do not remove.
 default_config:
 
