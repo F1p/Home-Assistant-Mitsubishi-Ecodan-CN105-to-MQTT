@@ -170,8 +170,9 @@ Responses so far identified.
 ### 0x03 - Unknown
 |   0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 |  8  | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|---|---|---|---|-----|---|----|----|----|----|----|----|----|
-| 0x03  |   |   |   |   |   |   |   |  U  |   |    |    |    |    |    |    |    |  
-* U: Unknown Running Parameter
+| 0x03  |   |   |   |   |   |   |   |  M  | S |    |    |    |    |    |    |    |  
+* M: Multi Zone Running Parameter (3 = Z2/2 = Z1/1 = Both Active)
+* S: Single Zone Running Parameter (TBC)?
 ### 0x04 - Various Flags
 |   0   | 1  | 2 | 3 | 4 | 5 | 6 |  7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
@@ -187,7 +188,7 @@ Responses so far identified.
 |   0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
 | 0x07  |   |   |   |   |   |   |   |   | P |    |    |    |    |    |    |    |  
-* P : Heater Power (kW)
+* P : Heater Power (*10 = %?)
 ### 0x09 - Zone 1 & 2 Temperatures and Setpoints, Hot Water Setpoint
 | 0    |   1  |   2  | 3    | 4    | 5    | 6    | 7    | 8    |  9  |  10 |  11 | 12 | 13 | 14 | 15 | 16 |
 |------|------|------|------|------|------|------|------|------|-----|-----|-----|----|----|----|----|----|
@@ -239,17 +240,17 @@ Several Unknown Temperatures
 |-------|----|----|----|----|---|----|---|---|---|----|----|----|----|----|----|----|
 | 0x15  | U1 | U2 | U2 | U3 |   | U4 |   |   |   |    | U5 |    |    |    |    |    |  
 * U1 : Unknown Flag
-* U2 : Unknown Int 
-* U3 : Unknown Flag
-* U4 : Unknown DHW Flag?
-* U5 : Unknown - always a value of 4?
+* U2 : Unknown Int (3+4 Two Bytes?)
+* U3 : Unknown Flag - Heating?
+* U4 : Unknown Flag - DHW Flag?
+* U5 : Unknown - Running Mode Type (e.g. 1 = IH, 4 = Boiler etc?)
 ### 0x16 - Pumps Running
 |   0   | 1  |  2 |  3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|----|----|---|---|---|---|---|---|----|----|----|----|----|----|----|
-| 0x16  | DHW| Z1 | Z2 |   |   |   |   |   |   |    |    |    |    |    |    |    |  
-* DHW : DHW Pump Running Flag
-* Z1 : Zone1 Pump Running Flag 
-* Z2 : Zone2 Pump Running Flag
+| 0x16  | DHW| U1 | U2 |   |   |   |   |   |   |    |    |    |    |    |    |    |  
+* DHW : DHW Pump Running Flag? 3 Way Valve?
+* U1 : Heating Flag?
+* U2 : Heating Flag?
 ### 0x26
 | 0 | 1 | 2 |  3  | 4  | 5  | 6  |  7 |   8  |  9   |  10 |  11 | 12 | 13 | 14 |
 |---|---|---|-----|----|----|----|----|------|------|-----|-----|----|----|----|
@@ -262,6 +263,7 @@ Several Unknown Temperatures
   * 1 : Hot Water On
   * 2 : Heating On
   * 5 : Frost Protect
+  * 6 : Legionella
 * HW - Hot Water Mode
   * 0 : Normal
   * 1 : Economy
@@ -276,7 +278,7 @@ Several Unknown Temperatures
 |   0   | 1 | 2 | 3 | 4  | 5  |  6 | 7  |  8 |  9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|----|----|----|----|----|----|----|----|----|----|----|----|----|
 | 0x28  |   |   |U1 | HM | HT |PHZ1|PCZ1|PHZ2|PCZ2|    |    |    |    |    |    |  
-* U1 : Unknown DHW Flag?
+* U1 : Unknown DHW Flag? Pump Running?
 * HM : Holiday Mode
 * HT : Hot Water Timer
 * PHZ1 : Prohibit Heating Zone1
