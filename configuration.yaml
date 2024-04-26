@@ -152,7 +152,7 @@ mqtt:
       mode_state_template: "{{ 'heat' if (value_json.SystemOperationMode=='Heating' and states('sensor.zone1_pump_running')=='1') else 'off' }}"
       modes: ["heat","off"]
       availability:
-        - topic: "Devices/Status/ASHP"
+        - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
           payload_available: 1
           payload_not_available: 0
@@ -175,7 +175,7 @@ mqtt:
       mode_state_template: "{{ 'heat' if (value_json.SystemOperationMode=='Heating' and states('sensor.zone2_pump_running')=='1') else 'off' }}"
       modes: ["heat","off"]
       availability:
-        - topic: "Devices/Status/ASHP"
+        - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
           payload_available: 1
           payload_not_available: 0
@@ -193,7 +193,7 @@ mqtt:
       min: 30
       step: 1
       availability:
-        - topic: "Devices/Status/ASHP"
+        - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
           payload_available: 1
           payload_not_available: 0
@@ -208,7 +208,7 @@ mqtt:
       min: 30
       step: 1
       availability:
-        - topic: "Devices/Status/ASHP"
+        - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
           payload_available: 1
           payload_not_available: 0
@@ -223,7 +223,7 @@ mqtt:
       min: 30
       step: 1
       availability:
-        - topic: "Devices/Status/ASHP"
+        - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
           payload_available: 1
           payload_not_available: 0
@@ -271,7 +271,7 @@ mqtt:
       payload_on: "On"
       payload_off: "Standby"
       availability:
-        - topic: "Devices/Status/ASHP"
+        - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
           payload_available: 1
           payload_not_available: 0
@@ -288,7 +288,7 @@ mqtt:
       payload_on: 1
       payload_off: 0
       availability:
-        - topic: "Devices/Status/ASHP"
+        - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
           payload_available: 1
           payload_not_available: 0
