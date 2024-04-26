@@ -159,8 +159,8 @@ mqtt:
       availability:
         - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
-          payload_available: 1
-          payload_not_available: 0
+          payload_available: "online"
+          payload_not_available: "offline"
       
     - unique_id: "ASHP_Zone2"
       name: "Zone2"
@@ -185,8 +185,8 @@ mqtt:
       availability:
         - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
-          payload_available: 1
-          payload_not_available: 0
+          payload_available: "online"
+          payload_not_available: "offline"
 
 
         
@@ -203,8 +203,8 @@ mqtt:
       availability:
         - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
-          payload_available: 1
-          payload_not_available: 0
+          payload_available: "online"
+          payload_not_available: "offline"
 
     - unique_id: "ashp_z1_flow_setpoint"
       name: "Zone1 Flow Setpoint"
@@ -218,8 +218,8 @@ mqtt:
       availability:
         - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
-          payload_available: 1
-          payload_not_available: 0
+          payload_available: "online"
+          payload_not_available: "offline"
           
     - unique_id: "ashp_z2_flow_setpoint"
       name: "Zone2 Flow Setpoint"
@@ -233,8 +233,8 @@ mqtt:
       availability:
         - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
-          payload_available: 1
-          payload_not_available: 0
+          payload_available: "online"
+          payload_not_available: "offline"
 
 
   select:
@@ -281,8 +281,8 @@ mqtt:
       availability:
         - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
-          payload_available: 1
-          payload_not_available: 0
+          payload_available: "online"
+          payload_not_available: "offline"
 
 
     - unique_id: "ashp_holidaymode"
@@ -298,8 +298,8 @@ mqtt:
       availability:
         - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
-          payload_available: 1
-          payload_not_available: 0
+          payload_available: "online"
+          payload_not_available: "offline"
 
       
 template:
