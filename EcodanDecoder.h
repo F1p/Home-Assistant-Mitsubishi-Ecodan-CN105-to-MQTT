@@ -53,6 +53,16 @@ const char HotWaterBoostStr[2][4] = { "Off", "On" };
 #define TEMP_DROP_MODE_OFF 0
 #define TEMP_DROP_MODE_ON 7
 
+#define DEFROST_OFF 0
+#define DEFROST_STANDBY 1
+#define DEFROST_ON 2
+#define DEFROST_AWAIT 3
+const char DefrostModeString[4][16] = { "Off", "Standby", "Defrosting", "Waiting Restart"};
+
+#define FTC4 1
+#define FTC5 2
+#define FTC6 3
+const char FTCModel[3][16] = { "FTC4", "FTC5", "FTC6"};
 
 #define SYSTEM_POWER_MODE_STANDBY 0
 #define SYSTEM_POWER_MODE_ON 1

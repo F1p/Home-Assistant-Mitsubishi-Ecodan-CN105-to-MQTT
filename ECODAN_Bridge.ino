@@ -513,7 +513,7 @@ void SystemReport(void) {
   doc["HeaterReturn"] = HeatPump.Status.HeaterReturnFlowTemperature;
   doc["HeaterSetpoint"] = HeatPump.Status.HeaterFlowSetpoint;
   doc["OutsideTemp"] = HeatPump.Status.OutsideTemperature;
-  doc["Defrost"] = HeatPump.Status.Defrost;
+  doc["Defrost"] = DefrostModeString[HeatPump.Status.Defrost];
   doc["HeaterPower"] = HeatPump.Status.OutputPower;
   doc["Compressor"] = HeatPump.Status.CompressorFrequency;
   doc["SystemPower"] = SystemPowerModeString[HeatPump.Status.SystemPowerMode];
@@ -537,7 +537,6 @@ void AdvancedReport(void) {
   doc["DDHW"] = HeatPump.Status.DeliveredHotWaterEnergy;
   doc["FlowTMax"] = HeatPump.Status.FlowTempMax;
   doc["FlowTMin"] = HeatPump.Status.FlowTempMin;
-  doc["PrimaryFlowRate"] = HeatPump.Status.PrimaryFlowRate;
   doc["BoilerFlow"] = HeatPump.Status.ExternalBoilerFlowTemperature;
   doc["BoilerReturn"] = HeatPump.Status.ExternalBoilerReturnTemperature;
   doc["ExternalFlowTemp"] = HeatPump.Status.ExternalFlowTemp;

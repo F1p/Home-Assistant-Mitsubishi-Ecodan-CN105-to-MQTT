@@ -283,6 +283,7 @@ void ECODANDECODER::Process0x05(uint8_t *Buffer, EcodanStatus *Status) {
 void ECODANDECODER::Process0x07(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t OutputPower;
 
+  // Uknown = Buffer[4]; // 03 in DHW
   OutputPower = Buffer[6];
 
   Status->OutputPower = OutputPower;
@@ -366,16 +367,17 @@ void ECODANDECODER::Process0x0E(uint8_t *Buffer, EcodanStatus *Status) {
 void ECODANDECODER::Process0x11(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t Unknown2, Unknown3, Unknown4, Unknown5;
 
-  Unknown2 = Buffer[1];  // ce  To Int?
-  Unknown3 = Buffer[3];  // 80
-  Unknown4 = Buffer[5];  // 70
-  Unknown5 = Buffer[9];  // 02
+  Unknown2 = Buffer[1];  // ce/36  To Int?
+  Unknown3 = Buffer[3];  // 80/8D
+  Unknown4 = Buffer[5];  // 70/10
+  Unknown5 = Buffer[9];  // 02/26
 
   Status->Unknown2 = Unknown2;
   Status->Unknown3 = Unknown3;
   Status->Unknown4 = Unknown4;
   Status->Unknown5 = Unknown5;
 }
+
 
 void ECODANDECODER::Process0x13(uint8_t *Buffer, EcodanStatus *Status) {
   uint32_t RunHours;
@@ -389,7 +391,7 @@ void ECODANDECODER::Process0x13(uint8_t *Buffer, EcodanStatus *Status) {
   RunHours *= 100;
   RunHours += Buffer[3];
 
-  Status->Unknown6 = Unknown6;
+  Status->Unknown6 = Unknown6;  // Nothing in DHW
   Status->RunHours = RunHours;
 }
 
@@ -411,7 +413,7 @@ void ECODANDECODER::Process0x15(uint8_t *Buffer, EcodanStatus *Status) {
   Unknown9 = Buffer[3];
   Unknown10 = Buffer[4];   // 01 when Heating Running
   Unknown11 = Buffer[6];   // 01 when DHW Running
-  Unknown12 = Buffer[11];  // Always 04
+  Unknown12 = Buffer[11];  // 0 = H/P, 1 = IH, 2 = BH, 3 = IH + BH, 4 = Boiler? (Heat source status)
 
   Status->Unknown7 = Unknown7;
   Status->Unknown8 = Unknown8;
@@ -423,16 +425,13 @@ void ECODANDECODER::Process0x15(uint8_t *Buffer, EcodanStatus *Status) {
 
 
 void ECODANDECODER::Process0x16(uint8_t *Buffer, EcodanStatus *Status) {
-  uint8_t DHWPumpRunning;
-  //uint8_t Zone1PumpRunning, Zone2PumpRunning;
+  uint8_t Unknown13;
 
-  DHWPumpRunning = Buffer[1];
-  //Zone1PumpRunning = Buffer[2];
-  //Zone2PumpRunning = Buffer[3];
+  Unknown13 = Buffer[1];      // On in DHW, off in Heating
+  //Unknown = Buffer[2];      // On in Heating, off in DHW
+  //Unknown = Buffer[3];      // On in Heating, off in DHW
 
-  Status->DHWPumpRunning = DHWPumpRunning;
-  //Status->Zone1PumpRunning = Zone1PumpRunning;
-  //Status->Zone1PumpRunning = Zone1PumpRunning;
+  Status->Unknown13 = Unknown13;
 }
 
 
@@ -466,9 +465,9 @@ void ECODANDECODER::Process0x28(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t HolidayMode;
   uint8_t ProhibitHeatingZ1, ProhibitHeatingZ2;
   uint8_t ProhibitCoolingZ1, ProhibitCoolingZ2;
-  uint8_t Unknown13;
+  uint8_t DHWPumpRunning;
 
-  Unknown13 = Buffer[3];  // 1 When DHW Running
+  DHWPumpRunning = Buffer[3];
   HolidayMode = Buffer[4];
   HotWaterTimer = Buffer[5];
   ProhibitHeatingZ1 = Buffer[6];  //Prohibit Heating Zone1
@@ -476,7 +475,7 @@ void ECODANDECODER::Process0x28(uint8_t *Buffer, EcodanStatus *Status) {
   ProhibitHeatingZ2 = Buffer[8];  //Prohibit Heating Zone2
   ProhibitCoolingZ2 = Buffer[9];  //Prohibit Cooling Zone2
 
-  Status->Unknown13 = Unknown13;
+  Status->DHWPumpRunning = DHWPumpRunning;
   Status->HolidayModeActive = HolidayMode;
   Status->HotWaterTimerActive = HotWaterTimer;
   Status->ProhibitHeatingZ1 = ProhibitHeatingZ1;
