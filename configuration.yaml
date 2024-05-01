@@ -154,7 +154,7 @@ mqtt:
       # One Zone System:
       mode_state_template: "{{ 'heat' if (value_json.SystemOperationMode=='Heating' else 'off' }}"
       # Two Zone Systems:
-      #mode_state_template: "{{ 'heat' if (value_json.SystemOperationMode=='Heating' and states('sensor.zone1_pump_running')=='1') else 'off' }}
+      #mode_state_template: "{{ 'heat' if (value_json.SystemOperationMode=='Heating' and states('sensor.zone1_pump_running')=='1') else 'off' }}"
       modes: ["heat","off"]
       availability:
         - topic: "Ecodan/ASHP/LWT"
@@ -180,7 +180,7 @@ mqtt:
       # One Zone System:
       mode_state_template: "{{ 'heat' if (value_json.SystemOperationMode=='Heating' else 'off' }}"
       # Two Zone Systems:
-      #mode_state_template: "{{ 'heat' if (value_json.SystemOperationMode=='Heating' and states('sensor.zone2_pump_running')=='1') else 'off' }}
+      #mode_state_template: "{{ 'heat' if (value_json.SystemOperationMode=='Heating' and states('sensor.zone2_pump_running')=='1') else 'off' }}"
       modes: ["heat","off"]
       availability:
         - topic: "Ecodan/ASHP/LWT"
