@@ -30,12 +30,13 @@ uint8_t Init3[] = { 0xfc, 0x5a, 0x02, 0x7a, 0x02, 0xca, 0x01, 0x5d };
 uint8_t Init4[] = { 0xfc, 0x5b, 0x02, 0x7a, 0x01, 0xc9, 0x5f };
 uint8_t Init5[] = { 0xfc, 0x41, 0x02, 0x7a, 0x10, 0x34, 0x00, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0xfd };
 
-#define NUMBER_COMMANDS 22
-uint8_t ActiveCommand[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x07, 0x09, 0x0B, 0x0C, 0x0D, 0x0E,
-                            0x11, 0x13, 0x14, 0x15, 0x16,
-                            0x26, 0x28, 0x29,
+#define NUMBER_COMMANDS 20
+uint8_t ActiveCommand[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x07, 0x09, 0x0B, 0x0C, 0x0D,
+                            0x10, 0x13, 0x14, 0x15, 0x16,
+                            0x26, 0x28,
                             0xA1, 0xA2,
                             0x00 };
+
 
 ECODAN::ECODAN(void)
   : ECODANDECODER() {
@@ -74,17 +75,55 @@ void ECODAN::SetStream(Stream *HeatPumpStream) {
 
 void ECODAN::TriggerStatusStateMachine(void) {
   //DEBUG_PRINTLN("\e[1;1H\e[2J");  // Clear terminal
-  DEBUG_PRINTLN("Triggering HeatPump Query");
+  DEBUG_PRINTLN("Triggering Heat Pump Query");
   if (!Connected) {
     Connect();
   }
-  CurrentMessage = 1;
+  CurrentMessage = 1;  // This triggers the run
   Connected = false;
 }
+
+
+void ECODAN::StopStateMachine(void) {
+  uint8_t Buffer[COMMANDSIZE];
+  uint8_t CommandSize;
+
+  if (CurrentMessage != 0) {
+    DEBUG_PRINTLN("Stopping Current Operation");
+    CurrentMessage = 0;
+    ECODANDECODER::CreateBlankTxMessage(GET_REQUEST, 0x10);
+    ECODANDECODER::SetPayloadByte(ActiveCommand[NUMBER_COMMANDS], 0);
+    CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
+    DeviceStream->write(Buffer, CommandSize);
+    DeviceStream->flush();
+  }
+}
+
+
+void ECODAN::StatusStateMachineTarget(uint8_t TargetMessage) {
+  uint8_t Buffer[COMMANDSIZE];
+  uint8_t CommandSize;
+  uint8_t i;
+
+  ECODANDECODER::CreateBlankTxMessage(GET_REQUEST, 0x10);
+  ECODANDECODER::SetPayloadByte(TargetMessage, 0);
+  CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
+  DeviceStream->write(Buffer, CommandSize);
+  DeviceStream->flush();
+
+  for (i = 0; i < CommandSize; i++) {
+    if (Buffer[i] < 0x10) DEBUG_PRINT("0");
+    DEBUG_PRINT(String(Buffer[i], HEX));
+    DEBUG_PRINT(", ");
+  }
+  DEBUG_PRINTLN();
+}
+
 
 void ECODAN::StatusStateMachine(void) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize;
+  uint8_t i;
 
   if (CurrentMessage != 0) {
     DEBUG_PRINT("Send Message ");
@@ -92,12 +131,19 @@ void ECODAN::StatusStateMachine(void) {
     ECODANDECODER::CreateBlankTxMessage(GET_REQUEST, 0x10);
     ECODANDECODER::SetPayloadByte(ActiveCommand[CurrentMessage], 0);
     CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
-
     DeviceStream->write(Buffer, CommandSize);
     DeviceStream->flush();
 
+    for (i = 0; i < CommandSize; i++) {
+      if (Buffer[i] < 0x10) DEBUG_PRINT("0");
+      DEBUG_PRINT(String(Buffer[i], HEX));
+      DEBUG_PRINT(", ");
+    }
+    DEBUG_PRINTLN();
+
+
     CurrentMessage++;
-    CurrentMessage %= NUMBER_COMMANDS;
+    CurrentMessage %= NUMBER_COMMANDS;  // Once none left
 
     if (CurrentMessage == 0) {
       UpdateFlag = 1;
@@ -110,6 +156,7 @@ void ECODAN::StatusStateMachine(void) {
 void ECODAN::Connect(void) {
   DEBUG_PRINTLN("Init 3");
   DeviceStream->write(Init3, 8);
+  DeviceStream->flush();
   Process();
   DEBUG_PRINTLN();
 }
@@ -138,18 +185,28 @@ void ECODAN::KeepAlive(void) {
 void ECODAN::SetZoneTempSetpoint(float Zone1Target, float Zone2Target, uint8_t Zones) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
+  uint8_t i;
 
+  StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
   ECODANDECODER::EncodeSystemUpdate(SET_ZONE_SETPOINT | SET_HEATING_CONTROL_MODE, Zone1Target, Zone2Target, Zones, 0, HEATING_CONTROL_MODE_ZONE_TEMP, HEATING_CONTROL_MODE_ZONE_TEMP, 0, 1);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
   DeviceStream->flush();
+
+  for (i = 0; i < CommandSize; i++) {
+    if (Buffer[i] < 0x10) DEBUG_PRINT("0");
+    DEBUG_PRINT(String(Buffer[i], HEX));
+    DEBUG_PRINT(", ");
+  }
+  DEBUG_PRINTLN();
 }
 
 void ECODAN::SetZoneFlowSetpoint(uint8_t Zone1Target, uint8_t Zone2Target, uint8_t Zones) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
 
+  StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
   ECODANDECODER::EncodeSystemUpdate(SET_ZONE_SETPOINT | SET_HEATING_CONTROL_MODE, Zone1Target, Zone2Target, Zones, 0, HEATING_CONTROL_MODE_FLOW_TEMP, HEATING_CONTROL_MODE_FLOW_TEMP, 0, 1);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
@@ -161,6 +218,7 @@ void ECODAN::SetZoneCurveSetpoint(float Zone1Target, float Zone2Target, uint8_t 
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
 
+  StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
   ECODANDECODER::EncodeSystemUpdate(SET_ZONE_SETPOINT, Zone1Target, Zone2Target, Zones, 0, HEATING_CONTROL_MODE_COMPENSATION, HEATING_CONTROL_MODE_COMPENSATION, 0, 1);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
@@ -171,29 +229,49 @@ void ECODAN::SetZoneCurveSetpoint(float Zone1Target, float Zone2Target, uint8_t 
 void ECODAN::ForceDHW(uint8_t OnOff) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
+  uint8_t i;
 
+  StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
   ECODANDECODER::EncodeDHW(OnOff);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
   DeviceStream->flush();
+
+  for (i = 0; i < CommandSize; i++) {
+    if (Buffer[i] < 0x10) DEBUG_PRINT("0");
+    DEBUG_PRINT(String(Buffer[i], HEX));
+    DEBUG_PRINT(", ");
+  }
+  DEBUG_PRINTLN();
 }
 
 void ECODAN::SetHolidayMode(uint8_t OnOff) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
+  uint8_t i;
 
+  StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
   ECODANDECODER::EncodeHolidayMode(OnOff);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
   DeviceStream->flush();
+
+
+  for (i = 0; i < CommandSize; i++) {
+    if (Buffer[i] < 0x10) DEBUG_PRINT("0");
+    DEBUG_PRINT(String(Buffer[i], HEX));
+    DEBUG_PRINT(", ");
+  }
+  DEBUG_PRINTLN();
 }
 
 void ECODAN::SetHotWaterSetpoint(uint8_t Target, uint8_t CurrentMode) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
 
+  StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
   ECODANDECODER::EncodeSystemUpdate(SET_HOT_WATER_SETPOINT, 0, 0, ZONE1, Target, CurrentMode, CurrentMode, 0, 1);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
@@ -206,6 +284,7 @@ void ECODAN::SetHeatingControlMode(String *Mode, uint8_t Zones) {
   uint8_t CommandSize = 0;
   uint8_t i;
 
+  StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
 
   if (*Mode == String("Temperature Control")) {
@@ -226,11 +305,11 @@ void ECODAN::SetHeatingControlMode(String *Mode, uint8_t Zones) {
     DeviceStream->flush();
   }
   for (i = 0; i < CommandSize; i++) {
-    if (Buffer[i] < 0x10) Serial.print("0");
-    Serial.print(String(Buffer[i], HEX));
-    Serial.print(", ");
+    if (Buffer[i] < 0x10) DEBUG_PRINT("0");
+    DEBUG_PRINT(String(Buffer[i], HEX));
+    DEBUG_PRINT(", ");
   }
-  Serial.println();
+  DEBUG_PRINTLN();
 }
 
 void ECODAN::SetSystemPowerMode(String *Mode) {
@@ -238,6 +317,7 @@ void ECODAN::SetSystemPowerMode(String *Mode) {
   uint8_t CommandSize = 0;
   uint8_t i;
 
+  StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
 
   if (*Mode == String("On")) {
@@ -252,12 +332,13 @@ void ECODAN::SetSystemPowerMode(String *Mode) {
     DeviceStream->flush();
   }
   for (i = 0; i < CommandSize; i++) {
-    if (Buffer[i] < 0x10) Serial.print("0");
-    Serial.print(String(Buffer[i], HEX));
-    Serial.print(", ");
+    if (Buffer[i] < 0x10) DEBUG_PRINT("0");
+    DEBUG_PRINT(String(Buffer[i], HEX));
+    DEBUG_PRINT(", ");
   }
-  Serial.println();
+  DEBUG_PRINTLN();
 }
+
 
 void ECODAN::PrintTumble(void) {
   static char tumble[] = "|/-\\";

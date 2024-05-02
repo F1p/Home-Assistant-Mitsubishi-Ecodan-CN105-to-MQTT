@@ -65,7 +65,7 @@ uint8_t ECODANDECODER::Process(uint8_t c) {
           Process0x0D(RxMessage.Payload, &Status);
           break;
         case 0x0e:
-          Process0x0E(RxMessage.Payload, &Status);
+          Process0x10(RxMessage.Payload, &Status);
           break;
         case 0x11:
           Process0x11(RxMessage.Payload, &Status);
@@ -225,10 +225,14 @@ void ECODANDECODER::Process0x02(uint8_t *Buffer, EcodanStatus *Status) {
 }
 
 void ECODANDECODER::Process0x03(uint8_t *Buffer, EcodanStatus *Status) {
-  uint8_t Unknown1, Unknown15;
+  uint8_t Unknown15;
+  uint8_t RefFltCode, FltCode1, FltCode2;
   uint8_t Zone1PumpRunning, Zone2PumpRunning;
 
-  Unknown1 = Buffer[8];   // 03 when Zone2 Only, 02 when Zone1 Only, 01 with both zones running, 0 when stopped
+  //RefFltCode = Buffer[1];
+  //FltCode1 = Buffer[2]*100+Buffer[3];
+  //FltCode2 = Buffer[4]Buffer[5];
+
   Unknown15 = Buffer[9];  // Flag only in Single Zone Systems?
 
   if (Buffer[8] == 1) {
@@ -248,7 +252,6 @@ void ECODANDECODER::Process0x03(uint8_t *Buffer, EcodanStatus *Status) {
   Status->Zone1PumpRunning = Zone1PumpRunning;
   Status->Zone2PumpRunning = Zone2PumpRunning;
 
-  Status->Unknown1 = Unknown1;
   Status->Unknown15 = Unknown15;
 }
 
@@ -264,6 +267,7 @@ void ECODANDECODER::Process0x04(uint8_t *Buffer, EcodanStatus *Status) {
 
 void ECODANDECODER::Process0x05(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t HotWaterBoost, TempDropActive;
+  uint8_t HeatSource;
 
   //TempDropActive = Buffer[5];     // 0 in Timer or Inhibit, was 7 in on Temp Drop mode (Play)
   if (Buffer[5] == 7) {
@@ -272,9 +276,11 @@ void ECODANDECODER::Process0x05(uint8_t *Buffer, EcodanStatus *Status) {
     TempDropActive = 0;
   }
 
+  HeatSource = Buffer[6];         // 0 = H/P, 1 = IH, 2 = BH, 3 = IH + BH, 4 = Boiler
   HotWaterBoost = Buffer[7];
   //Unknown = Buffer[9];  // Always 6?
 
+  Status->HeatSource = HeatSource;
   Status->HotWaterBoostActive = HotWaterBoost;
   Status->TempDropActive = TempDropActive;
 }
@@ -317,17 +323,20 @@ void ECODANDECODER::Process0x09(uint8_t *Buffer, EcodanStatus *Status) {
 
 void ECODANDECODER::Process0x0B(uint8_t *Buffer, EcodanStatus *Status) {
   float fZone1, fZone2, fOutside;
+  float RefridgeTemp;
 
   fZone1 = ((float)ExtractUInt16(Buffer, 1) / 100);
   fZone2 = ((float)ExtractUInt16(Buffer, 3) / 100);
   //Unknown = ((float)ExtractUInt16(Buffer, 5) / 100);
   //Unknown = ((float)ExtractUInt16(Buffer, 7) / 100);
+  RefridgeTemp = ((float)ExtractUInt16(Buffer, 8) / 100);
   //Unknown = ((float)ExtractUInt16(Buffer, 9) / 100);
   fOutside = ((float)Buffer[11] / 2) - 40;
 
   Status->Zone1Temperature = fZone1;
   Status->Zone2Temperature = fZone2;
   Status->OutsideTemperature = fOutside;
+  Status->RefridgeTemp = RefridgeTemp;
 }
 
 void ECODANDECODER::Process0x0C(uint8_t *Buffer, EcodanStatus *Status) {
@@ -350,40 +359,37 @@ void ECODANDECODER::Process0x0D(uint8_t *Buffer, EcodanStatus *Status) {
 
   fBoilerFlow = ((float)ExtractUInt16(Buffer, 1) / 100);
   fBoilerReturn = ((float)ExtractUInt16(Buffer, 4) / 100);
-  //Unknown = ((float)ExtractUInt16(Buffer, 7) / 100)
-  //Unknown = ((float)ExtractUInt16(Buffer, 10) / 100)
 
   Status->ExternalBoilerFlowTemperature = fBoilerFlow;
   Status->ExternalBoilerReturnTemperature = fBoilerReturn;
 }
 
-void ECODANDECODER::Process0x0E(uint8_t *Buffer, EcodanStatus *Status) {
-  //Unknown = ((float)ExtractUInt16(Buffer, 1) / 100)
-  //Unknown = ((float)ExtractUInt16(Buffer, 4) / 100)
-  //Unknown = ((float)ExtractUInt16(Buffer, 7) / 100)
-  //Unknown = ((float)ExtractUInt16(Buffer, 10) / 100)
+
+void ECODANDECODER::Process0x10(uint8_t *Buffer, EcodanStatus *Status) {
+  uint8_t Zone1ThermostatDemand, Zone2ThermostatDemand;
+
+  Zone1ThermostatDemand = Buffer[1];
+  Zone2ThermostatDemand = Buffer[3];
+  
+  Status->Zone1ThermostatDemand = Zone1ThermostatDemand;
+  Status->Zone2ThermostatDemand = Zone2ThermostatDemand;
 }
 
+
 void ECODANDECODER::Process0x11(uint8_t *Buffer, EcodanStatus *Status) {
-  uint8_t Unknown2, Unknown3, Unknown4, Unknown5;
+  
+  //Unknown2 = Buffer[1];  // 206 or 0, unknown what it is
+  //Unknown3 = Buffer[3];  // 128 or 1 when unknown 2 is 0
+  //Unknown4 = Buffer[5];  // 112 or 0 when unknown 2 is 0
+  //Unknown5 = Buffer[9];  // 2 or 0 when unknown 2 is 0
 
-  Unknown2 = Buffer[1];  // ce/36  To Int?
-  Unknown3 = Buffer[3];  // 80/8D
-  Unknown4 = Buffer[5];  // 70/10
-  Unknown5 = Buffer[9];  // 02/26
-
-  Status->Unknown2 = Unknown2;
-  Status->Unknown3 = Unknown3;
-  Status->Unknown4 = Unknown4;
-  Status->Unknown5 = Unknown5;
 }
 
 
 void ECODANDECODER::Process0x13(uint8_t *Buffer, EcodanStatus *Status) {
   uint32_t RunHours;
-  uint8_t Unknown6;
 
-  Unknown6 = Buffer[1];  // 01 when running Zone2 Only, 01 when running Zone1 Only
+  //Unknown6 = Buffer[1];  // 0 When off, on/off 1's when running
 
   RunHours = Buffer[4];
   RunHours = RunHours << 8;
@@ -391,43 +397,46 @@ void ECODANDECODER::Process0x13(uint8_t *Buffer, EcodanStatus *Status) {
   RunHours *= 100;
   RunHours += Buffer[3];
 
-  Status->Unknown6 = Unknown6;  // Nothing in DHW
   Status->RunHours = RunHours;
 }
 
 
 void ECODANDECODER::Process0x14(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t FlowRate;
+  uint8_t BoosterActive, ImmersionActive;
 
+  BoosterActive = Buffer[2];
+  ImmersionActive = Buffer[5];
   FlowRate = Buffer[12];
 
+  Status->BoosterActive = BoosterActive;
+  Status->ImmersionActive = ImmersionActive;
   Status->PrimaryFlowRate = FlowRate;
 }
 
 
 void ECODANDECODER::Process0x15(uint8_t *Buffer, EcodanStatus *Status) {
-  uint8_t Unknown7, Unknown8, Unknown9, Unknown10, Unknown11, Unknown12;
+  uint8_t Unknown9, Unknown10;
+  uint8_t PrimaryWaterPump, ThreeWayValve;
 
-  Unknown7 = Buffer[1];  // 01 when running
-  Unknown8 = Buffer[2];  // 2&3 together for large number?
-  Unknown9 = Buffer[3];
-  Unknown10 = Buffer[4];   // 01 when Heating Running
-  Unknown11 = Buffer[6];   // 01 when DHW Running
-  Unknown12 = Buffer[11];  // 0 = H/P, 1 = IH, 2 = BH, 3 = IH + BH, 4 = Boiler? (Heat source status)
+  PrimaryWaterPump = Buffer[1];  // 01 when running (Primary Water Pump)
+  //Unknown8 = Buffer[2];        // Aligns with Unknown4
+  Unknown9 = Buffer[3];          // 23 or 22? Li/Min?
+  Unknown10 = Buffer[4];         // Heating Running
+  ThreeWayValve = Buffer[6];     // (3 Way Valve Position)
+  //Unknown12 = Buffer[11];      // 4 or very briefly 0 during one DHW run
 
-  Status->Unknown7 = Unknown7;
-  Status->Unknown8 = Unknown8;
+  Status->PrimaryWaterPump = PrimaryWaterPump;
   Status->Unknown9 = Unknown9;
   Status->Unknown10 = Unknown10;
-  Status->Unknown11 = Unknown11;
-  Status->Unknown12 = Unknown12;
+  Status->ThreeWayValve = ThreeWayValve;
 }
 
 
 void ECODANDECODER::Process0x16(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t Unknown13;
 
-  Unknown13 = Buffer[1];      // On in DHW, off in Heating
+  //Unknown13 = Buffer[1];    // On in DHW after 10min or so, off in Heating
   //Unknown = Buffer[2];      // On in Heating, off in DHW
   //Unknown = Buffer[3];      // On in Heating, off in DHW
 
@@ -475,9 +484,9 @@ void ECODANDECODER::Process0x28(uint8_t *Buffer, EcodanStatus *Status) {
   ProhibitHeatingZ2 = Buffer[8];  //Prohibit Heating Zone2
   ProhibitCoolingZ2 = Buffer[9];  //Prohibit Cooling Zone2
 
-  Status->DHWPumpRunning = DHWPumpRunning;
+  Status->DHWPumpRunning = DHWPumpRunning;        // Hot Water Active?
   Status->HolidayModeActive = HolidayMode;
-  Status->HotWaterTimerActive = HotWaterTimer;
+  Status->HotWaterTimerActive = HotWaterTimer;    // Check if inhibit or Timer
   Status->ProhibitHeatingZ1 = ProhibitHeatingZ1;
   Status->ProhibitCoolingZ1 = ProhibitCoolingZ1;
   Status->ProhibitHeatingZ2 = ProhibitHeatingZ2;
@@ -485,15 +494,10 @@ void ECODANDECODER::Process0x28(uint8_t *Buffer, EcodanStatus *Status) {
 }
 
 void ECODANDECODER::Process0x29(uint8_t *Buffer, EcodanStatus *Status) {
-  float fZone1, fZone2;
-  uint8_t Unknown14;
+  //float fZone1, fZone2;
 
-  fZone1 = ((float)ExtractUInt16(Buffer, 4) / 100);
-  fZone2 = ((float)ExtractUInt16(Buffer, 6) / 100);
-
-  Unknown14 = Buffer[12];
-
-  Status->Unknown14 = Unknown14;
+  //fZone1 = ((float)ExtractUInt16(Buffer, 4) / 100);
+  //fZone2 = ((float)ExtractUInt16(Buffer, 6) / 100);
 }
 
 void ECODANDECODER::Process0xA1(uint8_t *Buffer, EcodanStatus *Status) {
@@ -537,6 +541,7 @@ void ECODANDECODER::Process0xA2(uint8_t *Buffer, EcodanStatus *Status) {
   Status->DeliveredCoolingEnergy = DeliveredCooling;
   Status->DeliveredHotWaterEnergy = DeliveredHotWater;
 }
+
 
 float ECODANDECODER::ExtractEnergy(uint8_t *Buffer, uint8_t index) {
   float Energy;
@@ -634,7 +639,7 @@ void ECODANDECODER::EncodeSystemUpdate(uint8_t Flags, float Zone1TempSetpoint, f
 
   TxMessage.Payload[2] = Zones;
   TxMessage.Payload[3] = Power;
-  //TxMessage.Payload[4] = ???;
+  TxMessage.Payload[4] = 0;
 
 
   if ((Flags & SET_HOT_WATER_MODE) == SET_HOT_WATER_MODE) {
@@ -678,12 +683,40 @@ void ECODANDECODER::EncodeDHW(uint8_t OnOff) {
   // DHW Boost Active
   TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
   TxMessage.Payload[1] = TX_MESSAGE_SETTING_DHW_Flag;
+  TxMessage.Payload[2] = 0;
   TxMessage.Payload[3] = OnOff;
+  TxMessage.Payload[4] = 0;
+  TxMessage.Payload[5] = 0;
+  TxMessage.Payload[6] = 0;
+  TxMessage.Payload[7] = 0;
+  TxMessage.Payload[8] = 0;
+  TxMessage.Payload[9] = 0;
+  TxMessage.Payload[10] = 0;
+  TxMessage.Payload[11] = 0;
+  TxMessage.Payload[12] = 0;
+  TxMessage.Payload[13] = 0;
+  TxMessage.Payload[14] = 0;
+  TxMessage.Payload[15] = 0;
+  TxMessage.Payload[16] = 0;
 }
 
 void ECODANDECODER::EncodeHolidayMode(uint8_t OnOff) {
   // Holiday Mode Active
   TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
   TxMessage.Payload[1] = TX_MESSAGE_SETTING_HOL_Flag;
+  TxMessage.Payload[2] = 0;
+  TxMessage.Payload[3] = 0;
   TxMessage.Payload[4] = OnOff;
+  TxMessage.Payload[5] = 0;
+  TxMessage.Payload[6] = 0;
+  TxMessage.Payload[7] = 0;
+  TxMessage.Payload[8] = 0;
+  TxMessage.Payload[9] = 0;
+  TxMessage.Payload[10] = 0;
+  TxMessage.Payload[11] = 0;
+  TxMessage.Payload[12] = 0;
+  TxMessage.Payload[13] = 0;
+  TxMessage.Payload[14] = 0;
+  TxMessage.Payload[15] = 0;
+  TxMessage.Payload[16] = 0;
 }

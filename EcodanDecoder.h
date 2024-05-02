@@ -35,7 +35,7 @@
 
 #define TX_MESSAGE_SETTINGS_1 0x032
 #define TX_MESSAGE_SETTINGS_2 0x034
-#define TX_MESSAGE_SETTING_UNK 0x035
+#define TX_MESSAGE_SETTING_TST_Flag 0x04
 
 #define TX_MESSAGE_SETTING_DHW_Flag 0x01
 #define TX_MESSAGE_SETTING_HOL_Flag 0x02
@@ -58,11 +58,6 @@ const char HotWaterBoostStr[2][4] = { "Off", "On" };
 #define DEFROST_ON 2
 #define DEFROST_AWAIT 3
 const char DefrostModeString[4][16] = { "Off", "Standby", "Defrosting", "Waiting Restart"};
-
-#define FTC4 1
-#define FTC5 2
-#define FTC6 3
-const char FTCModel[3][16] = { "FTC4", "FTC5", "FTC6"};
 
 #define SYSTEM_POWER_MODE_STANDBY 0
 #define SYSTEM_POWER_MODE_ON 1
@@ -105,6 +100,13 @@ const char HotWaterTimerString[2][4] = { "On", "Off" };
 const char COMPRESSORString[4][8] = { "Normal", "Standby", "Defrost", "Wait" };
 
 
+#define FTC2 0
+#define FTC4 1
+#define FTC5 2
+#define FTC6 3
+const char FTCString[4][6] = { "FTC2B", "FTC4", "FTC5", "FTC6" };
+
+
 // System Flags
 
 #define SET_ZONE_SETPOINT 0x80
@@ -141,7 +143,8 @@ typedef struct _EcodanStatus {
 
   //From Message 0x03
   uint8_t Zone1PumpRunning, Zone2PumpRunning;
-  uint8_t Unknown1, Unknown15;
+  uint8_t Unknown15;
+  uint8_t RefFltCode, FltCode1, FltCode2;
 
   // From Message 0x04
   uint8_t CompressorFrequency;
@@ -149,6 +152,7 @@ typedef struct _EcodanStatus {
   // From Message 0x05
   uint8_t TempDropActive;
   uint8_t HotWaterBoostActive;
+  uint8_t HeatSource;
 
   // From Message 0x07
   uint8_t OutputPower;
@@ -163,38 +167,41 @@ typedef struct _EcodanStatus {
   float FlowTempMax;
   float FlowTempMin;
 
-  //From Message 0x0b
-  float Zone1Temperature;
-  float Zone2Temperature;
-  float OutsideTemperature;
+  //From Message 0x0B
+  float Zone1Temperature, Zone2Temperature, OutsideTemperature;
+  float RefridgeTemp;
 
-  //From Message 0x0c
+  //From Message 0x0C
   float HeaterOutputFlowTemperature;
   float HeaterReturnFlowTemperature;
   float HotWaterTemperature;
 
-  //From Message 0x0d
+  //From Message 0x0D
   float ExternalBoilerFlowTemperature;
   float ExternalBoilerReturnTemperature;
 
-  //From Message 0x0e
+  //From Message 0x0E
   // Several Unused Temperatures
 
+  //From Message 0x10
+  uint8_t Zone1ThermostatDemand, Zone2ThermostatDemand;
+
   //From Message 0x11
-  uint8_t Unknown2, Unknown3, Unknown4, Unknown5;
+  // Unknowns
 
   //From Message 0x13
-  uint8_t Unknown6;
   uint32_t RunHours;
 
   //From Message 0x14
   uint8_t PrimaryFlowRate;
+  uint8_t BoosterActive, ImmersionActive;
 
   //From Message 0x15
-  uint8_t Unknown7, Unknown8, Unknown9, Unknown10, Unknown11, Unknown12;
+  uint8_t Unknown9, Unknown10;
+  uint8_t PrimaryWaterPump, ThreeWayValve;
 
   //From Message 0x16
-  uint8_t DHWPumpRunning;
+  // Unknowns
 
   //From Message 0x26
   uint8_t SystemPowerMode;
@@ -207,6 +214,7 @@ typedef struct _EcodanStatus {
   float ExternalFlowTemp;
 
   //From Message 0x28
+  uint8_t DHWPumpRunning;
   uint8_t HotWaterTimerActive;
   uint8_t HolidayModeActive;
   uint8_t ProhibitHeatingZ1, ProhibitHeatingZ2;
@@ -216,7 +224,6 @@ typedef struct _EcodanStatus {
   //From Message 0x29
   //float Zone1TemperatureSetpoint;  Already Defined Above
   //float Zone2TemperatureSetpoint;  Already Defined Above
-  uint8_t Unknown14;
 
   //From Message 0xa1
   struct tm ConsumedDateTimeStamp;
@@ -250,6 +257,8 @@ public:
 
   void EncodeDHW(uint8_t OnOff);
   void EncodeHolidayMode(uint8_t OnOff);
+  
+  void EncodeTestMode(uint8_t OnOff);
 
   EcodanStatus Status;
 protected:
@@ -284,7 +293,7 @@ private:
   void Process0x0B(uint8_t *Payload, EcodanStatus *Status);
   void Process0x0C(uint8_t *Payload, EcodanStatus *Status);
   void Process0x0D(uint8_t *Payload, EcodanStatus *Status);
-  void Process0x0E(uint8_t *Payload, EcodanStatus *Status);
+  void Process0x10(uint8_t *Payload, EcodanStatus *Status);
   void Process0x11(uint8_t *Payload, EcodanStatus *Status);
   void Process0x13(uint8_t *Payload, EcodanStatus *Status);
   void Process0x14(uint8_t *Payload, EcodanStatus *Status);
