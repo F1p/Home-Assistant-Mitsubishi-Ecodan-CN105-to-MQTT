@@ -41,7 +41,7 @@ Active commands so far identified.
 | Command | Brief Description |
 | ------- | ----------- |
 | 0x32 |  Update Settings |
-| 0x34 | Hot Water |
+| 0x34 | Hot Water and Holiday |
 | 0x35 | Unknown |
 ### 0x32 - Set Options
 |   0   |   1   | 2 | 3 | 4 |  5  |  6  |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
@@ -78,6 +78,16 @@ Active commands so far identified.
 * DHWSP : Hot Water Setpoint (Temperature * 100)
 * Z1SP : Zone 1 Setpoint (* 100)
 * Z2SP : Zone 1 Setpoint (* 100)
+### 0x34 - Set Zone 1 Setpoint 
+Identified so far, this must do far more that this!
+|   0   |  1  | 2 | 3 |   4  |  5   | 6 |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
+|-------|-----|---|---|------|------|---|-----|-------|-------|------|------|------|------|----|----|----|
+| 0x34  |Flags|   |DHW|  HOL |      |   |     |       |       |      |      |      |      |    |    |    |  
+* Flags : Flags to Indicate which fields are active
+  * 0x01 : Hot Water Force (Boost)
+  * 0x02 : Holiday Mode
+* DHW : On (1) / Off (0)
+* HOL : On (1) / Off (0)
 ### 0x35 - Set Zone 1 Setpoint 
 Identified so far, this must do far more that this!
 |   0   |   1  | 2 | 3 |   4  |  5   | 6 |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
