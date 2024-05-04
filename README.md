@@ -78,7 +78,7 @@ Active commands so far identified.
 * DHWSP : Hot Water Setpoint (Temperature * 100)
 * Z1SP : Zone 1 Setpoint (* 100)
 * Z2SP : Zone 1 Setpoint (* 100)
-### 0x34 - Set Zone 1 Setpoint 
+### 0x34 - Hot Water and Holiday Mode
 Identified so far, this must do far more that this!
 |   0   |  1  | 2 | 3 |   4  |  5   | 6 |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
 |-------|-----|---|---|------|------|---|-----|-------|-------|------|------|------|------|----|----|----|
