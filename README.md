@@ -80,16 +80,22 @@ Active commands so far identified.
 * Z2SP : Zone 1 Setpoint (* 100)
 ### 0x34 - Hot Water and Holiday Mode
 Identified so far, this must do far more that this!
-|   0   |  1  | 2 | 3 |   4  |  5   | 6 |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
-|-------|-----|---|---|------|------|---|-----|-------|-------|------|------|------|------|----|----|----|
-| 0x34  |Flags|   |DHW|  HOL |      |   |     |       |       | SCM  |      |      |      |    |    |    |  
+|   0   |  1  | 2 | 3 |   4  |  5   |   6  |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
+|-------|-----|---|---|------|------|------|-----|-------|-------|------|------|------|------|----|----|----|
+| 0x34  |Flags|   |DHW|  HOL | IDHW | Z1HI | Z1CI| Z2HI  | CZ2I  | SCM  |      |      |      |    |    |    |  
 * Flags : Flags to Indicate which fields are active
   * 0x01 : Hot Water Force (Boost)
   * 0x02 : Holiday Mode
+  * 0x04 : DHW Inhibit   -- Suspected
+  * 0x08 : Heating Z1 Inhibit  -- Suspected
+  * 0x10 : Cooling Z1 Inhibit  -- Suspected
+  * 0x20 : Heating Z2 Inhibit  -- Suspected
+  * 0x40 : Cooling Z2 Inhibit  -- Suspected
   * 0x80 : Server Control Mode
 * DHW : On (1) / Off (0)
 * HOL : On (1) / Off (0)
 * SCM : Server Control Mode On (1) / Off (0)
+* IDHW : Inhibit DHW On (1) / Off (0)  -- Suspected
 ### 0x35 - Set Zone 1 Setpoint 
 Identified so far, this must do far more that this!
 |   0   |   1  | 2 | 3 |   4  |  5   | 6 |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
