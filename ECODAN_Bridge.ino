@@ -110,7 +110,8 @@ TimerCallBack HeatPumpQuery2(60000, HeatPumpKeepAlive);
 
 
 unsigned long wifipreviousMillis = 0;  // variable for comparing millis counter
-int WiFiOneShot = 1;
+int WiFiOneShot = true;
+int HeatPumpQueryOneShot = true;
 int Zone1_Update_in_Progress = 0;
 int Zone2_Update_in_Progress = 0;
 int DHW_Update_in_Progress = 0;
@@ -172,13 +173,17 @@ void loop() {
     saveConfig();
   }
 
+  if (HeatPumpQueryOneShot) {
+    HeatPump.GetFTCVersion();
+    HeatPumpQueryOneShot = false;
+  }
 
   if (WiFi.status() != WL_CONNECTED) {
     digitalWrite(Green_RGB_LED, LOW);  // Turn the Green LED Off
     digitalWrite(Red_RGB_LED, HIGH);   // Turn the Red LED On
-    if (WiFiOneShot == 1) {
+    if (WiFiOneShot) {
       wifipreviousMillis = millis();
-      WiFiOneShot = 0;
+      WiFiOneShot = false;
     }  // Oneshot to start the timer
     if (millis() - wifipreviousMillis >= 300000) {
       digitalWrite(Red_RGB_LED, HIGH);  // Flash the Red LED
@@ -224,7 +229,7 @@ void HeatPumpQueryStateEngine(void) {
   // DHW Boost Latch Status Check Every 15s
   if ((DHW_Update_in_Progress == 1) && (CycleCounter > 28)) {
     // First Cycle Send
-    if (CycleCounter == 29) { HeatPump.StatusStateMachineTarget(0x05); }
+    if (CycleCounter == 29) { HeatPump.StatusStateMachineTarget(0x28); }
     if (CycleCounter == 30) {
       if (HeatPump.Status.HotWaterBoostActive == 1) {
         DEBUG_PRINTLN("DHW Seen Active");
@@ -418,13 +423,13 @@ void HotWaterReport(void) {
 
   doc["Temperature"] = HeatPump.Status.HotWaterTemperature;
   doc["Setpoint"] = HeatPump.Status.HotWaterSetpoint;
-  doc["HotWaterBoostActive"] = HeatPump.Status.HotWaterBoostActive;  // Use HotWaterBoostStr[HeatPump.Status.HotWaterBoostActive] for On/Off instead of 1/0
+  doc["HotWaterBoostActive"] = HeatPump.Status.HotWaterBoostActive;
   doc["HotWaterTimerActive"] = HeatPump.Status.HotWaterTimerActive;
   doc["HotWaterTDropActive"] = HeatPump.Status.TempDropActive;
   doc["HotWaterControlMode"] = HowWaterControlModeString[HeatPump.Status.HotWaterControlMode];
   doc["LegionellaSetpoint"] = HeatPump.Status.LegionellaSetpoint;
-  doc["HotWaterMaximumTempDrop"] = HeatPump.Status.HotWaterMaximumTempDrop;
-  doc["PumpRunning"] = HeatPump.Status.DHWPumpRunning;
+  doc["HotWaterMaxTDrop"] = HeatPump.Status.HotWaterMaximumTempDrop;
+  doc["HotWaterPhase"] = DHWPhaseString[HeatPump.Status.DHWHeatSourcePhase];
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_HOTWATER.c_str(), Buffer, true);
@@ -464,11 +469,11 @@ void AdvancedReport(void) {
   doc["ExternalFlowTemp"] = HeatPump.Status.ExternalFlowTemp;
   doc["Immersion"] = HeatPump.Status.ImmersionActive;
   doc["Booster"] = HeatPump.Status.BoosterActive;
-  doc["ThreeWayValve"] = HeatPump.Status.ThreeWayValve;
+  doc["3WayValve"] = HeatPump.Status.ThreeWayValve;
   doc["PrimaryWaterPump"] = HeatPump.Status.PrimaryWaterPump;
-  doc["RefrigerantTemp"] = HeatPump.Status.RefrigeTemp;
-  doc["Zone1ThermostatDemand"] = HeatPump.Status.Zone1ThermostatDemand;
-  doc["Zone2ThermostatDemand"] = HeatPump.Status.Zone2ThermostatDemand;
+  doc["RefrigeTemp"] = HeatPump.Status.RefrigeTemp;
+  doc["Z1TstatDemand"] = HeatPump.Status.Zone1ThermostatDemand;
+  doc["Z2TstatDemand"] = HeatPump.Status.Zone2ThermostatDemand;
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_ADVANCED.c_str(), Buffer, true);
@@ -500,7 +505,6 @@ void TestReport(void) {
   StaticJsonDocument<512> doc;
   char Buffer[512];
 
-  doc["HeatSource"] = HeatPump.Status.HeatSource;
   doc["WaterPump2"] = HeatPump.Status.WaterPump2;
   doc["ThreeWayValve2"] = HeatPump.Status.ThreeWayValve2;
   doc["Unknown9"] = HeatPump.Status.Unknown9;
@@ -520,6 +524,7 @@ void StatusReport(void) {
   doc["RSSI"] = WiFi.RSSI();
   doc["IP"] = WiFi.localIP().toString();
   doc["Firmware"] = FirmwareVersion;
+  doc["FTCVersion"] = FTCString[HeatPump.Status.FTCVersion];
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_WIFISTATUS.c_str(), Buffer, true);

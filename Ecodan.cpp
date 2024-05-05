@@ -141,10 +141,10 @@ void ECODAN::StatusStateMachine(void) {
     }
     DEBUG_PRINTLN();
 
-
     CurrentMessage++;
     CurrentMessage %= NUMBER_COMMANDS;  // Once none left
 
+    // Straight to end
     if (CurrentMessage == 0) {
       UpdateFlag = 1;
     }
@@ -280,7 +280,6 @@ void ECODAN::SetSvrControlMode(uint8_t OnOff) {
   DeviceStream->write(Buffer, CommandSize);
   DeviceStream->flush();
 
-
   for (i = 0; i < CommandSize; i++) {
     if (Buffer[i] < 0x10) DEBUG_PRINT("0");
     DEBUG_PRINT(String(Buffer[i], HEX));
@@ -361,6 +360,24 @@ void ECODAN::SetSystemPowerMode(String *Mode) {
   DEBUG_PRINTLN();
 }
 
+
+void ECODAN::GetFTCVersion(){
+  uint8_t Buffer[COMMANDSIZE];
+  uint8_t CommandSize = 0;
+  uint8_t i;
+
+  StopStateMachine();
+  ECODANDECODER::CreateBlankTxMessage(0x5B, 0x01);
+  ECODANDECODER::EncodeFTCVersion();
+  CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
+  DeviceStream->write(Buffer, CommandSize);
+  for (i = 0; i < CommandSize; i++) {
+    if (Buffer[i] < 0x10) DEBUG_PRINT("0");
+    DEBUG_PRINT(String(Buffer[i], HEX));
+    DEBUG_PRINT(", ");
+  }
+  DEBUG_PRINTLN();
+}
 
 void ECODAN::PrintTumble(void) {
   static char tumble[] = "|/-\\";

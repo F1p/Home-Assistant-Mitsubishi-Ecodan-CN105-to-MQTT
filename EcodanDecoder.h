@@ -28,6 +28,7 @@
 #define SET_RESPONSE 0x61
 #define GET_REQUEST 0x42
 #define GET_RESPONSE 0x62
+#define GET_ABOUT_RESPONSE 0x7B
 #define CONNECT_REQUEST 0x5A
 #define CONNECT_RESPONSE 0x7A
 #define EXCONNECT_REQUEST 0x5B
@@ -53,6 +54,11 @@ const char HotWaterBoostStr[2][4] = { "Off", "On" };
 
 #define TEMP_DROP_MODE_OFF 0
 #define TEMP_DROP_MODE_ON 7
+
+#define HOT_WATER_PHASE_OFF 0
+#define HOT_WATER_PHASE_HP 1
+#define HOT_WATER_PHASE_Heater 2
+const char DHWPhaseString[3][10] = { "Off", "Heat Pump", "Heater" };
 
 #define DEFROST_OFF 0
 #define DEFROST_STANDBY 1
@@ -152,8 +158,7 @@ typedef struct _EcodanStatus {
 
   // From Message 0x05
   uint8_t TempDropActive;
-  uint8_t HotWaterBoostActive;
-  uint8_t HeatSource;
+  uint8_t DHWHeatSourcePhase;
 
   // From Message 0x07
   uint8_t OutputPower;
@@ -215,7 +220,7 @@ typedef struct _EcodanStatus {
   float ExternalFlowTemp;
 
   //From Message 0x28
-  uint8_t DHWPumpRunning;
+  uint8_t HotWaterBoostActive;
   uint8_t HotWaterTimerActive;
   uint8_t HolidayModeActive;
   uint8_t ProhibitHeatingZ1, ProhibitHeatingZ2;
@@ -238,6 +243,10 @@ typedef struct _EcodanStatus {
   float DeliveredCoolingEnergy;
   float DeliveredHotWaterEnergy;
 
+  //From Message 0xc9
+  uint8_t FTCVersion;
+
+
 } EcodanStatus;
 
 
@@ -258,10 +267,9 @@ public:
 
   void EncodeDHW(uint8_t OnOff);
   void EncodeHolidayMode(uint8_t OnOff);
+  void EncodeFTCVersion(void);
   void EncodeServerControlMode(uint8_t OnOff);
   
-  void EncodeTestMode(uint8_t OnOff);
-
   EcodanStatus Status;
 protected:
 
@@ -306,6 +314,7 @@ private:
   void Process0x29(uint8_t *Payload, EcodanStatus *Status);
   void Process0xA1(uint8_t *Payload, EcodanStatus *Status);
   void Process0xA2(uint8_t *Payload, EcodanStatus *Status);
+  void Process0xC9(uint8_t *Payload, EcodanStatus *Status);
 };
 
 #endif

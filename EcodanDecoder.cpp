@@ -98,6 +98,12 @@ uint8_t ECODANDECODER::Process(uint8_t c) {
           Process0xA2(RxMessage.Payload, &Status);
           break;
       }
+    } else if (RxMessage.PacketType == GET_ABOUT_RESPONSE) {
+      switch (RxMessage.Payload[0]) {
+        case 0xc9:
+          Process0xC9(RxMessage.Payload, &Status);
+          break;
+      }
     }
   }
   return ReturnValue;
@@ -267,7 +273,7 @@ void ECODANDECODER::Process0x04(uint8_t *Buffer, EcodanStatus *Status) {
 
 void ECODANDECODER::Process0x05(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t HotWaterBoost, TempDropActive;
-  uint8_t HeatSource;
+  uint8_t DHWHeatSourcePhase;
 
   //TempDropActive = Buffer[5];     // 0 in Timer or Inhibit, was 7 in on Temp Drop mode (Play)
   if (Buffer[5] == 7) {
@@ -276,12 +282,12 @@ void ECODANDECODER::Process0x05(uint8_t *Buffer, EcodanStatus *Status) {
     TempDropActive = 0;
   }
 
-  HeatSource = Buffer[6];         // 0 = H/P, 1 = IH, 2 = BH, 3 = IH + BH, 4 = Boiler
-  HotWaterBoost = Buffer[7];
-  //Unknown = Buffer[9];  // Always 6?
+  //HeatSource = Buffer[6];     // 0 = H/P, 1 = IH, 2 = BH, 3 = IH + BH, 4 = Boiler but doesn't seem to change
+  DHWHeatSourcePhase = Buffer[7];    // Heat Source Phase for DHW (0 = Normal, 1 = HP, 2 = Immersion or Booster)
+  //Unknown = Buffer[9];        // Always 6?
 
-  Status->HeatSource = HeatSource;
-  Status->HotWaterBoostActive = HotWaterBoost;
+  //Status->HeatSource = HeatSource;
+  Status->DHWHeatSourcePhase = DHWHeatSourcePhase;
   Status->TempDropActive = TempDropActive;
 }
 
@@ -289,7 +295,7 @@ void ECODANDECODER::Process0x05(uint8_t *Buffer, EcodanStatus *Status) {
 void ECODANDECODER::Process0x07(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t OutputPower;
 
-  // Uknown = Buffer[4]; 
+  // Uknown = Buffer[4];
   OutputPower = Buffer[6];
 
   Status->OutputPower = OutputPower;
@@ -370,19 +376,18 @@ void ECODANDECODER::Process0x10(uint8_t *Buffer, EcodanStatus *Status) {
 
   Zone1ThermostatDemand = Buffer[1];
   Zone2ThermostatDemand = Buffer[3];
-  
+
   Status->Zone1ThermostatDemand = Zone1ThermostatDemand;
   Status->Zone2ThermostatDemand = Zone2ThermostatDemand;
 }
 
 
 void ECODANDECODER::Process0x11(uint8_t *Buffer, EcodanStatus *Status) {
-  
+
   //Unknown2 = Buffer[1];  // 206 or 0, unknown what it is
   //Unknown3 = Buffer[3];  // 128 or 1 when unknown 2 is 0
   //Unknown4 = Buffer[5];  // 112 or 0 when unknown 2 is 0
   //Unknown5 = Buffer[9];  // 2 or 0 when unknown 2 is 0
-
 }
 
 
@@ -421,10 +426,10 @@ void ECODANDECODER::Process0x15(uint8_t *Buffer, EcodanStatus *Status) {
 
   PrimaryWaterPump = Buffer[1];  // 01 when running (Primary Water Pump)
   //Unknown8 = Buffer[2];        // Aligns with Unknown4
-  Unknown9 = Buffer[3];          // 23 or 22? Li/Min?
-  WaterPump2 = Buffer[4];         // Water Pump 2 Active
-  ThreeWayValve = Buffer[6];     // 3 Way Valve Position
-  ThreeWayValve2 = Buffer[7];    // 3 Way Valve 2 Position
+  Unknown9 = Buffer[3];        // 23 or 22? Li/Min?
+  WaterPump2 = Buffer[4];      // Water Pump 2 Active
+  ThreeWayValve = Buffer[6];   // 3 Way Valve Position
+  ThreeWayValve2 = Buffer[7];  // 3 Way Valve 2 Position
   //Unknown12 = Buffer[11];      // 4 or very briefly 0 during one DHW run
 
   Status->PrimaryWaterPump = PrimaryWaterPump;
@@ -476,9 +481,9 @@ void ECODANDECODER::Process0x28(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t HolidayMode;
   uint8_t ProhibitHeatingZ1, ProhibitHeatingZ2;
   uint8_t ProhibitCoolingZ1, ProhibitCoolingZ2;
-  uint8_t DHWPumpRunning;
+  uint8_t HotWaterBoostActive;
 
-  DHWPumpRunning = Buffer[3];     //ForcedDHW on FTC6?
+  HotWaterBoostActive = Buffer[3];  //Forced DHW Mode (Booster)
   HolidayMode = Buffer[4];
   HotWaterTimer = Buffer[5];      //Prohibit DHW in FTC6?
   ProhibitHeatingZ1 = Buffer[6];  //Prohibit Heating Zone1
@@ -486,9 +491,9 @@ void ECODANDECODER::Process0x28(uint8_t *Buffer, EcodanStatus *Status) {
   ProhibitHeatingZ2 = Buffer[8];  //Prohibit Heating Zone2
   ProhibitCoolingZ2 = Buffer[9];  //Prohibit Cooling Zone2
 
-  Status->DHWPumpRunning = DHWPumpRunning;        // Hot Water Active?
+  Status->HotWaterBoostActive = HotWaterBoostActive;  // Hot Water Forced (Boost) Active
   Status->HolidayModeActive = HolidayMode;
-  Status->HotWaterTimerActive = HotWaterTimer;    // Check if inhibit or Timer
+  Status->HotWaterTimerActive = HotWaterTimer;  // Check if inhibit or Timer
   Status->ProhibitHeatingZ1 = ProhibitHeatingZ1;
   Status->ProhibitCoolingZ1 = ProhibitCoolingZ1;
   Status->ProhibitHeatingZ2 = ProhibitHeatingZ2;
@@ -544,6 +549,14 @@ void ECODANDECODER::Process0xA2(uint8_t *Buffer, EcodanStatus *Status) {
   Status->DeliveredHotWaterEnergy = DeliveredHotWater;
 }
 
+
+void ECODANDECODER::Process0xC9(uint8_t *Buffer, EcodanStatus *Status) {
+  uint8_t FTCVersion;
+
+  FTCVersion = Buffer[6];
+
+  Status->FTCVersion = FTCVersion;
+}
 
 float ECODANDECODER::ExtractEnergy(uint8_t *Buffer, uint8_t index) {
   float Energy;
@@ -695,10 +708,17 @@ void ECODANDECODER::EncodeHolidayMode(uint8_t OnOff) {
   TxMessage.Payload[4] = OnOff;
 }
 
+
+void ECODANDECODER::EncodeFTCVersion() {
+  // Get FTC Version
+  TxMessage.Payload[0] = 0xC9;
+  TxMessage.Payload[1] = 0x5F;
+}
+
 void ECODANDECODER::EncodeServerControlMode(uint8_t OnOff) {
   // Holiday Mode Active
   TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
   TxMessage.Payload[1] = TX_MESSAGE_SETTING_SRV_Flag;
-  TxMessage.Payload[3] = 1;
+  TxMessage.Payload[3] = 1;  // Testing
   TxMessage.Payload[10] = OnOff;
 }
