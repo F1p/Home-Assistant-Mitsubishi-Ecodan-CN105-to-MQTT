@@ -82,12 +82,14 @@ Active commands so far identified.
 Identified so far, this must do far more that this!
 |   0   |  1  | 2 | 3 |   4  |  5   | 6 |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
 |-------|-----|---|---|------|------|---|-----|-------|-------|------|------|------|------|----|----|----|
-| 0x34  |Flags|   |DHW|  HOL |      |   |     |       |       |      |      |      |      |    |    |    |  
+| 0x34  |Flags|   |DHW|  HOL |      |   |     |       |       | SCM  |      |      |      |    |    |    |  
 * Flags : Flags to Indicate which fields are active
   * 0x01 : Hot Water Force (Boost)
   * 0x02 : Holiday Mode
+  * 0x80 : Server Control Mode
 * DHW : On (1) / Off (0)
 * HOL : On (1) / Off (0)
+* SCM : Server Control Mode On (1) / Off (0)
 ### 0x35 - Set Zone 1 Setpoint 
 Identified so far, this must do far more that this!
 |   0   |   1  | 2 | 3 |   4  |  5   | 6 |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
