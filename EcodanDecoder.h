@@ -39,6 +39,7 @@
 
 #define TX_MESSAGE_SETTING_DHW_Flag 0x01
 #define TX_MESSAGE_SETTING_HOL_Flag 0x02
+#define TX_MESSAGE_SETTING_SRV_Flag 0x80
 
 #define COMMANDSIZE 22  // 5 Byte Header + 16 Byte Payload  + 1 Byte Checksum
 #define HEADERSIZE 5
@@ -142,7 +143,7 @@ typedef struct _EcodanStatus {
   uint8_t Defrost;
 
   //From Message 0x03
-  uint8_t Zone1PumpRunning, Zone2PumpRunning;
+  uint8_t TwoZone_Z1Working, TwoZone_Z2Working;
   uint8_t Unknown15;
   uint8_t RefFltCode, FltCode1, FltCode2;
 
@@ -169,7 +170,7 @@ typedef struct _EcodanStatus {
 
   //From Message 0x0B
   float Zone1Temperature, Zone2Temperature, OutsideTemperature;
-  float RefridgeTemp;
+  float RefrigeTemp;
 
   //From Message 0x0C
   float HeaterOutputFlowTemperature;
@@ -198,7 +199,7 @@ typedef struct _EcodanStatus {
 
   //From Message 0x15
   uint8_t Unknown9, Unknown10;
-  uint8_t PrimaryWaterPump, ThreeWayValve;
+  uint8_t PrimaryWaterPump, WaterPump2, ThreeWayValve, ThreeWayValve2;
 
   //From Message 0x16
   // Unknowns
@@ -257,6 +258,7 @@ public:
 
   void EncodeDHW(uint8_t OnOff);
   void EncodeHolidayMode(uint8_t OnOff);
+  void EncodeServerControlMode(uint8_t OnOff);
   
   void EncodeTestMode(uint8_t OnOff);
 

@@ -267,6 +267,28 @@ void ECODAN::SetHolidayMode(uint8_t OnOff) {
   DEBUG_PRINTLN();
 }
 
+
+void ECODAN::SetSvrControlMode(uint8_t OnOff) {
+  uint8_t Buffer[COMMANDSIZE];
+  uint8_t CommandSize = 0;
+  uint8_t i;
+
+  StopStateMachine();
+  ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
+  ECODANDECODER::EncodeServerControlMode(OnOff);
+  CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
+  DeviceStream->write(Buffer, CommandSize);
+  DeviceStream->flush();
+
+
+  for (i = 0; i < CommandSize; i++) {
+    if (Buffer[i] < 0x10) DEBUG_PRINT("0");
+    DEBUG_PRINT(String(Buffer[i], HEX));
+    DEBUG_PRINT(", ");
+  }
+  DEBUG_PRINTLN();
+}
+
 void ECODAN::SetHotWaterSetpoint(uint8_t Target, uint8_t CurrentMode) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;

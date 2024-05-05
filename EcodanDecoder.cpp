@@ -227,7 +227,7 @@ void ECODANDECODER::Process0x02(uint8_t *Buffer, EcodanStatus *Status) {
 void ECODANDECODER::Process0x03(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t Unknown15;
   uint8_t RefFltCode, FltCode1, FltCode2;
-  uint8_t Zone1PumpRunning, Zone2PumpRunning;
+  uint8_t TwoZone_Z1Working, TwoZone_Z2Working;
 
   //RefFltCode = Buffer[1];
   //FltCode1 = Buffer[2]*100+Buffer[3];
@@ -236,21 +236,21 @@ void ECODANDECODER::Process0x03(uint8_t *Buffer, EcodanStatus *Status) {
   Unknown15 = Buffer[9];  // Flag only in Single Zone Systems?
 
   if (Buffer[8] == 1) {
-    Zone1PumpRunning = 1;
-    Zone2PumpRunning = 1;
+    TwoZone_Z1Working = 1;
+    TwoZone_Z2Working = 1;
   } else if (Buffer[8] == 2) {
-    Zone1PumpRunning = 1;
-    Zone2PumpRunning = 0;
+    TwoZone_Z1Working = 1;
+    TwoZone_Z2Working = 0;
   } else if (Buffer[8] == 3) {
-    Zone1PumpRunning = 0;
-    Zone2PumpRunning = 1;
+    TwoZone_Z1Working = 0;
+    TwoZone_Z2Working = 1;
   } else {
-    Zone1PumpRunning = 0;
-    Zone2PumpRunning = 0;
+    TwoZone_Z1Working = 0;
+    TwoZone_Z2Working = 0;
   }
 
-  Status->Zone1PumpRunning = Zone1PumpRunning;
-  Status->Zone2PumpRunning = Zone2PumpRunning;
+  Status->TwoZone_Z1Working = TwoZone_Z1Working;
+  Status->TwoZone_Z2Working = TwoZone_Z2Working;
 
   Status->Unknown15 = Unknown15;
 }
@@ -289,7 +289,7 @@ void ECODANDECODER::Process0x05(uint8_t *Buffer, EcodanStatus *Status) {
 void ECODANDECODER::Process0x07(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t OutputPower;
 
-  // Uknown = Buffer[4]; // 03 in DHW
+  // Uknown = Buffer[4]; 
   OutputPower = Buffer[6];
 
   Status->OutputPower = OutputPower;
@@ -323,20 +323,20 @@ void ECODANDECODER::Process0x09(uint8_t *Buffer, EcodanStatus *Status) {
 
 void ECODANDECODER::Process0x0B(uint8_t *Buffer, EcodanStatus *Status) {
   float fZone1, fZone2, fOutside;
-  float RefridgeTemp;
+  float RefrigeTemp;
 
   fZone1 = ((float)ExtractUInt16(Buffer, 1) / 100);
   fZone2 = ((float)ExtractUInt16(Buffer, 3) / 100);
   //Unknown = ((float)ExtractUInt16(Buffer, 5) / 100);
   //Unknown = ((float)ExtractUInt16(Buffer, 7) / 100);
-  RefridgeTemp = ((float)ExtractUInt16(Buffer, 8) / 100);
+  RefrigeTemp = ((float)ExtractUInt16(Buffer, 8) / 100);
   //Unknown = ((float)ExtractUInt16(Buffer, 9) / 100);
   fOutside = ((float)Buffer[11] / 2) - 40;
 
   Status->Zone1Temperature = fZone1;
   Status->Zone2Temperature = fZone2;
   Status->OutsideTemperature = fOutside;
-  Status->RefridgeTemp = RefridgeTemp;
+  Status->RefrigeTemp = RefrigeTemp;
 }
 
 void ECODANDECODER::Process0x0C(uint8_t *Buffer, EcodanStatus *Status) {
@@ -416,20 +416,22 @@ void ECODANDECODER::Process0x14(uint8_t *Buffer, EcodanStatus *Status) {
 
 
 void ECODANDECODER::Process0x15(uint8_t *Buffer, EcodanStatus *Status) {
-  uint8_t Unknown9, Unknown10;
-  uint8_t PrimaryWaterPump, ThreeWayValve;
+  uint8_t Unknown9;
+  uint8_t PrimaryWaterPump, WaterPump2, ThreeWayValve, ThreeWayValve2;
 
   PrimaryWaterPump = Buffer[1];  // 01 when running (Primary Water Pump)
   //Unknown8 = Buffer[2];        // Aligns with Unknown4
   Unknown9 = Buffer[3];          // 23 or 22? Li/Min?
-  Unknown10 = Buffer[4];         // Heating Running
-  ThreeWayValve = Buffer[6];     // (3 Way Valve Position)
+  WaterPump2 = Buffer[4];         // Water Pump 2 Active
+  ThreeWayValve = Buffer[6];     // 3 Way Valve Position
+  ThreeWayValve2 = Buffer[7];    // 3 Way Valve 2 Position
   //Unknown12 = Buffer[11];      // 4 or very briefly 0 during one DHW run
 
   Status->PrimaryWaterPump = PrimaryWaterPump;
   Status->Unknown9 = Unknown9;
-  Status->Unknown10 = Unknown10;
+  Status->WaterPump2 = WaterPump2;
   Status->ThreeWayValve = ThreeWayValve;
+  Status->ThreeWayValve2 = ThreeWayValve2;
 }
 
 
@@ -476,9 +478,9 @@ void ECODANDECODER::Process0x28(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t ProhibitCoolingZ1, ProhibitCoolingZ2;
   uint8_t DHWPumpRunning;
 
-  DHWPumpRunning = Buffer[3];
+  DHWPumpRunning = Buffer[3];     //ForcedDHW on FTC6?
   HolidayMode = Buffer[4];
-  HotWaterTimer = Buffer[5];
+  HotWaterTimer = Buffer[5];      //Prohibit DHW in FTC6?
   ProhibitHeatingZ1 = Buffer[6];  //Prohibit Heating Zone1
   ProhibitCoolingZ1 = Buffer[7];  //Prohibit Cooling Zone1
   ProhibitHeatingZ2 = Buffer[8];  //Prohibit Heating Zone2
@@ -683,40 +685,20 @@ void ECODANDECODER::EncodeDHW(uint8_t OnOff) {
   // DHW Boost Active
   TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
   TxMessage.Payload[1] = TX_MESSAGE_SETTING_DHW_Flag;
-  TxMessage.Payload[2] = 0;
   TxMessage.Payload[3] = OnOff;
-  TxMessage.Payload[4] = 0;
-  TxMessage.Payload[5] = 0;
-  TxMessage.Payload[6] = 0;
-  TxMessage.Payload[7] = 0;
-  TxMessage.Payload[8] = 0;
-  TxMessage.Payload[9] = 0;
-  TxMessage.Payload[10] = 0;
-  TxMessage.Payload[11] = 0;
-  TxMessage.Payload[12] = 0;
-  TxMessage.Payload[13] = 0;
-  TxMessage.Payload[14] = 0;
-  TxMessage.Payload[15] = 0;
-  TxMessage.Payload[16] = 0;
 }
 
 void ECODANDECODER::EncodeHolidayMode(uint8_t OnOff) {
   // Holiday Mode Active
   TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
   TxMessage.Payload[1] = TX_MESSAGE_SETTING_HOL_Flag;
-  TxMessage.Payload[2] = 0;
-  TxMessage.Payload[3] = 0;
   TxMessage.Payload[4] = OnOff;
-  TxMessage.Payload[5] = 0;
-  TxMessage.Payload[6] = 0;
-  TxMessage.Payload[7] = 0;
-  TxMessage.Payload[8] = 0;
-  TxMessage.Payload[9] = 0;
-  TxMessage.Payload[10] = 0;
-  TxMessage.Payload[11] = 0;
-  TxMessage.Payload[12] = 0;
-  TxMessage.Payload[13] = 0;
-  TxMessage.Payload[14] = 0;
-  TxMessage.Payload[15] = 0;
-  TxMessage.Payload[16] = 0;
+}
+
+void ECODANDECODER::EncodeServerControlMode(uint8_t OnOff) {
+  // Holiday Mode Active
+  TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
+  TxMessage.Payload[1] = TX_MESSAGE_SETTING_SRV_Flag;
+  TxMessage.Payload[3] = 1;
+  TxMessage.Payload[10] = OnOff;
 }

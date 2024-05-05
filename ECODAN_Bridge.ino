@@ -28,7 +28,7 @@
 #include <ESPTelnet.h>
 #include "Ecodan.h"
 
-String FirmwareVersion = "v4.1";
+String FirmwareVersion = "v4.2 Beta";
 
 
 int RxPin = 14;  //Rx
@@ -387,7 +387,7 @@ void Zone1Report(void) {
   doc[F("Setpoint")] = HeatPump.Status.Zone1TemperatureSetpoint;
   doc["HeatingControlMode"] = HeatingControlModeString[HeatPump.Status.HeatingControlModeZ1];
   doc["FSP"] = HeatPump.Status.Zone1FlowTemperatureSetpoint;
-  doc["PumpRunning"] = HeatPump.Status.Zone1PumpRunning;
+  doc["TwoZone_Z1Working"] = HeatPump.Status.TwoZone_Z1Working;
   doc["ProhibitHeating"] = HeatPump.Status.ProhibitHeatingZ1;
 
   serializeJson(doc, Buffer);
@@ -404,7 +404,7 @@ void Zone2Report(void) {
   doc[F("Setpoint")] = HeatPump.Status.Zone2TemperatureSetpoint;
   doc["HeatingControlMode"] = HeatingControlModeString[HeatPump.Status.HeatingControlModeZ2];
   doc["FSP"] = HeatPump.Status.Zone2FlowTemperatureSetpoint;
-  doc["PumpRunning"] = HeatPump.Status.Zone2PumpRunning;
+  doc["TwoZone_Z2Working"] = HeatPump.Status.TwoZone_Z2Working;
   doc["ProhibitHeating"] = HeatPump.Status.ProhibitHeatingZ2;
 
   serializeJson(doc, Buffer);
@@ -462,6 +462,13 @@ void AdvancedReport(void) {
   doc["BoilerFlow"] = HeatPump.Status.ExternalBoilerFlowTemperature;
   doc["BoilerReturn"] = HeatPump.Status.ExternalBoilerReturnTemperature;
   doc["ExternalFlowTemp"] = HeatPump.Status.ExternalFlowTemp;
+  doc["Immersion"] = HeatPump.Status.ImmersionActive;
+  doc["Booster"] = HeatPump.Status.BoosterActive;
+  doc["ThreeWayValve"] = HeatPump.Status.ThreeWayValve;
+  doc["PrimaryWaterPump"] = HeatPump.Status.PrimaryWaterPump;
+  doc["RefrigerantTemp"] = HeatPump.Status.RefrigeTemp;
+  doc["Zone1ThermostatDemand"] = HeatPump.Status.Zone1ThermostatDemand;
+  doc["Zone2ThermostatDemand"] = HeatPump.Status.Zone2ThermostatDemand;
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_ADVANCED.c_str(), Buffer, true);
@@ -493,15 +500,10 @@ void TestReport(void) {
   StaticJsonDocument<512> doc;
   char Buffer[512];
 
-  doc["Immersion"] = HeatPump.Status.ImmersionActive;
-  doc["Booster"] = HeatPump.Status.BoosterActive;
-  doc["ThreeWayValve"] = HeatPump.Status.ThreeWayValve;
-  doc["PrimaryWaterPump"] = HeatPump.Status.PrimaryWaterPump;
-  doc["RefridgeTemp"] = HeatPump.Status.RefridgeTemp;
-  doc["Zone1ThermostatDemand"] = HeatPump.Status.Zone1ThermostatDemand;
-  doc["Zone2ThermostatDemand"] = HeatPump.Status.Zone2ThermostatDemand;
   doc["HeatSource"] = HeatPump.Status.HeatSource;
-  doc["Unknown10"] = HeatPump.Status.Unknown10;
+  doc["WaterPump2"] = HeatPump.Status.WaterPump2;
+  doc["ThreeWayValve2"] = HeatPump.Status.ThreeWayValve2;
+  doc["Unknown9"] = HeatPump.Status.Unknown9;
   doc["Unknown13"] = HeatPump.Status.Unknown13;
   doc["Unknown15"] = HeatPump.Status.Unknown15;
 

@@ -39,6 +39,7 @@ public:
   void SetZoneFlowSetpoint(uint8_t Zone1Target, uint8_t Zone2Target, uint8_t Zones);
   void ForceDHW(uint8_t OnOff);
   void SetHolidayMode(uint8_t OnOff);
+  void SetSvrControlMode(uint8_t OnOff);
   void SetHotWaterSetpoint(uint8_t Target, uint8_t CurrentMode);
   void SetHeatingControlMode(String *Mode, uint8_t Zones);
   void SetSystemPowerMode(String *Mode);
