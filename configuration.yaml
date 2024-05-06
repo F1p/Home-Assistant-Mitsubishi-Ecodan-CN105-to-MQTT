@@ -296,17 +296,17 @@ mqtt:
           payload_available: "online"
           payload_not_available: "offline"
 
-       
-    - unique_id: "ashp_ecodhwrun"
-      name: "Eco Hot Water"
-      state_topic: "Ecodan/ASHP/Status/System"
-      value_template: "{{ 1 if (value_json.SystemOperationMode=='Hot Water' and states('sensor.forced_dhw')=='0') else 0 }}"
-      icon: "mdi:plus"
-      state_on: 1
-      state_off: 0
-      command_topic: "Ecodan/ASHP/Command/System/SvrControlMode"
-      payload_on: 1
-      payload_off: 0
+    ## NOTE: ENTERS "Server Control Mode", requires to be exited again once run complete  
+    #- unique_id: "ashp_ecodhwrun"
+    #  name: "Eco Hot Water"
+    #  state_topic: "Ecodan/ASHP/Status/System"
+    #  value_template: "{{ 1 if (value_json.SystemOperationMode=='Hot Water' and states('sensor.forced_dhw')=='0') else 0 }}"
+    #  icon: "mdi:plus"
+    #  state_on: 1
+    #  state_off: 0
+    #  command_topic: "Ecodan/ASHP/Command/System/SvrControlMode"
+    #  payload_on: 1
+    #  payload_off: 0
 
 
 template:
