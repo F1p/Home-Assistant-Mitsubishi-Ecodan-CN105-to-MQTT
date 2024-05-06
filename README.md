@@ -308,7 +308,7 @@ Several Unknown Temperatures
 ### 0x28 - Various Flags
 |   0   | 1 | 2 | 3 | 4  | 5  |  6 | 7  |  8 |  9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|----|----|----|----|----|----|----|----|----|----|----|----|----|
-| 0x28  |   |   |FHW| HM | HT |PHZ1|PCZ1|PHZ2|PCZ2|    |    |    |    |    |    |  
+| 0x28  |   |   |FHW| HM | HT |PHZ1|PCZ1|PHZ2|PCZ2| SC |    |    |    |    |    |    |
 * FHW : Forced DHW Mode Active
 * HM : Holiday Mode
 * HT : Hot Water Timer or Prohibit DHW?
@@ -316,6 +316,7 @@ Several Unknown Temperatures
 * PCZ1 : Prohibit Cooling Zone1
 * PHZ2 : Prohibit Heating Zone2
 * PCZ2 : Prohibit Cooling Zone2
+* SC : Server Control Mode Active (Suspected)
 ### 0x29 - 
 |   0   | 1 | 2 | 3 |  4  |  5  |  6  |  7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|-----|-----|-----|-----|---|---|----|----|----|----|----|----|----|
