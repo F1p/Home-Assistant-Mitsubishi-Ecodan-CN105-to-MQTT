@@ -719,6 +719,6 @@ void ECODANDECODER::EncodeServerControlMode(uint8_t OnOff) {
   // Holiday Mode Active
   TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
   TxMessage.Payload[1] = TX_MESSAGE_SETTING_SRV_Flag;
-  TxMessage.Payload[3] = 1;  // Testing
-  TxMessage.Payload[10] = OnOff;
+  TxMessage.Payload[3] = OnOff;                           // Enable HW Boost on Entry
+  TxMessage.Payload[10] = OnOff;                          // Enable the Mode
 }

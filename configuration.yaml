@@ -296,51 +296,37 @@ mqtt:
           payload_available: "online"
           payload_not_available: "offline"
 
-       
-
+      
 template:
   sensor:
     - name: "DHW CoP"
-      state: "{% if states('sensor.consumed_dhw')|float == 0 %}
-                {{ ('0' | float) }}
-              {% else %}
-                {{ (states('sensor.delivered_dhw')|float/states('sensor.consumed_dhw')|float)|round(2) }}
-              {% endif %}"
+      state: "{{(states('sensor.delivered_DHW')|float/states('sensor.consumed_DHW')|float)|round(2)}}"
     - name: "Heat CoP"
-      state: "{% if states('sensor.consumed_heat')|float == 0 %}
-                {{ ('0' | float) }}
-              {% else %}
-                {{ (states('sensor.delivered_heat')|float/states('sensor.consumed_heat')|float)|round(2) }}
-              {% endif %}"
+      state: "{{(states('sensor.delivered_heat')|float/states('sensor.consumed_heat')|float)|round(2)}}"
     - name: "ASHP Consumed Energy"
       unit_of_measurement: "kWh"
       icon: "mdi:meter-electric-outline"
-      state: "{{(states('sensor.consumed_dhw')|float + states('sensor.consumed_heat')|float)|round(2)}}"
-    - name: "ASHP Delivered Energy"
-      unit_of_measurement: "kWh"
-      icon: "mdi:meter-electric-outline"
-      state: "{{(states('sensor.delivered_dhw')|float + states('sensor.delivered_heat')|float)|round(2)}}"
-    - name: "Flow Return DeltaT"
-      unit_of_measurement: "Â°C"
-      icon: "mdi:thermometer"
-      state: "{{(states('sensor.heater_flow')|float - states('sensor.heater_return')|float)|round(1)}}"
+      state: "{{(states('sensor.consumed_DHW')|float + states('sensor.consumed_heat')|float)|round(2)}}"
     - name: "Total CoP"
-      state: "{{((states('sensor.ashp_delivered_energy')|float / states('sensor.ashp_consumed_energy')|float))|round(2)}}"
+      icon: "mdi:generator-stationary"
+      state: "{% if not states('sensor.heat_cop') == 'unavailable' %}
+                {% if not states('sensor.dhw_cop') == 'unavailable' %}
+                  {{ (states('sensor.dhw_cop')|float+states('sensor.heat_cop')|float)/2 | float | round(2) }}
+                {% else %}
+                  {{ states('sensor.heat_cop')|float|round(2) }}
+                {% endif %}
+              {% else %}
+                {% if not states('sensor.dhw_cop') == 'unavailable' %}
+                  {{states('sensor.dhw_cop')|float|round(2) }}
+                {% else %}
+                  {% set total_cop = 0|float|round(2) %}
+                {% endif %}
+              {% endif %}"
     - name: "ASHP Efficiency"
       icon: "mdi:generator-stationary"
       state: "{% if 0 < states('sensor.total_cop')|float < 2 %}Poor
               {% elif 2 < states('sensor.total_cop')|float < 3 %}Average
-              {% elif 3 < states('sensor.total_cop')|float < 3.5 %}Good
-              {% elif 3.5 < states('sensor.total_cop')|float < 4 %}Very Good
+              {% elif 3 < states('sensor.total_cop')|float < 4 %}Good
               {% elif states('sensor.total_cop')|float > 4 %}Excellent
               {% else %}Not Available
               {% endif %}"
-    - name: "Computed Power Output"
-      unique_id: "heatpump_computed_power_output"
-      unit_of_measurement: "kW"
-      state: >-
-        {% set ta = states('sensor.heater_flow') | default(0) | float %}
-        {% set tr = states('sensor.heater_return') | default(0) | float %}
-        {% set flow = states('sensor.flow_rate') | default(0) | float %}
-        {% set freq = states('sensor.compressor') | default(0) | float %}
-        {{ 0 if freq == 0 else (flow/60.0 * (ta - tr) * 4.18) | float | round(2) }}

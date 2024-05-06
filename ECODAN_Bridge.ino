@@ -377,6 +377,10 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
     DEBUG_PRINTLN("MQTT Set Heating Mode");
     HeatPump.SetHeatingControlMode(&Payload, ZONE1);
   }
+  if (Topic == MQTTCommandSystemSvrMode) {
+    DEBUG_PRINTLN("MQTT Enter Server Control Mode");
+    HeatPump.SetSvrControlMode(Payload.toInt());
+  }
   if (Topic == MQTTCommandSystemPower) {
     DEBUG_PRINTLN("MQTT Set System Power Mode");
     HeatPump.SetSystemPowerMode(&Payload);
