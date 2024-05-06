@@ -186,11 +186,13 @@ Responses so far identified.
 | 0x02  |   |   | D |   |   |   |   |   |   |    |    |    |    |    |    |    |  
 * D: Defrost
 ### 0x03 - Unknown
-|   0   |  1 | 2  |  3 | 4 | 5 | 6 | 7 |  8  | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
-|-------|----|----|----|---|---|---|---|-----|---|----|----|----|----|----|----|----|
-| 0x03  | RF | F1 | F2 |   |   |   |   |  M  | S |    |    |    |    |    |    |    |  
+|   0   |  1 | 2  |  3 |  4 |  5 | 6 | 7 |  8  | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|-------|----|----|----|----|----|---|---|-----|---|----|----|----|----|----|----|----|
+| 0x03  | RF | F1 | F2 | F3 | F4 |   |   |  M  | S |    |    |    |    |    |    |    |  
 * RF: Refrigerant Flt Code
-* F1: Fault Code * 100 + Flt Code (F2)
+* F1: Fault Code * 100 + Flt Code (F2) (Numbers)
+* F3: Fault Code (Letter) 1
+* F4: Fault Code (Letter) 2
 * M: Multi Zone Running Parameter (3 = Z2 Working, 2 = Z1 Working, 1 = Both Zones working, 0 = Idle)
 * S: Single Zone Running Parameter (TBC)?
 ### 0x04 - Various Flags
@@ -204,7 +206,7 @@ Responses so far identified.
 | 0x05 |   |   |   |   | DE | HS  | HW  |   |   |    |    |    |    |    |    |    |  
 * DE : Value of 7 given in various running modes
 * HS : Heat Source (Suspected) 0 = H/P, 1 = IH, 2 = BH, 3 = IH + BH, 4 = Boiler
-* HW : Hot Water Running Mode (1 = Normal Running? 2 = Immersion Legionella?)
+* HW : Hot Water Running Mode (0 = Off, 1 = Heat Pump Phase, 2 = Heater Phase (e.g. Immersion or Booster))
 ### 0x07 
 |   0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
@@ -219,7 +221,7 @@ Responses so far identified.
 * Z1SP : Zone 1 Flow SetFlow Setpoint * 100
 * Z2SP : Zone 3 Flow SetFlow Setpoint * 100
 * LSP  : Legionella Setpoint * 100;
-* HWD  : DHW Max Temp Drop;
+* HWD  : DHW Max Temp Drop
 ### 0x0b - Zone 1 & 2 and Outside Temperature
 |   0  |  1  |  2  |  3  | 4 | 5 | 6 | 7 |  8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |------|-----|-----|-----|---|---|---|---|----|---|----|----|----|----|----|----|----|
@@ -247,15 +249,16 @@ Responses so far identified.
 | 0x0e |   |   |   |   |   |   |   |   |   |    |    |    |    |    |    |    |
 Several Unknown Temperatures
 ### 0x10 - Hardwired Thermostats
-|   0   | 1  | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
-|-------|----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
-| 0x10  | Z1T | Z2T  |   |   |   |   |   |   |    |    |    |    |    |    |    |  
-* Z1T: Hardwired/External Thermostat 1 Demand
-* Z2T: Hardwired/External Thermostat 2 Demand
+|   0   |  1  |  2  |  3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|-------|-----|-----|----|---|---|---|---|---|---|----|----|----|----|----|----|----|
+| 0x10  | Z1T | Z2T | OT |   |   |   |   |   |   |    |    |    |    |    |    |    |
+* Z1T: Hardwired/External (IN1) Thermostat 1 Demand (On/Off)
+* Z2T: Hardwired/External (IN6) Thermostat 2 Demand (On/Off)
+* OT: Hardwired/External (IN5) Outdoor Thermostat Demand (On/Off)
 ### 0x13 - Run Hours
 |   0   | 1  | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
-| 0x13  | U  |   |RH | RH|RH |   |   |   |   |    | PF |    |    |    |    |    |  
+| 0x13  | U  |   |RH | RH|RH |   |   |   |   |    |    |    |    |    |    |    |  
 * U : Unknown
 * RH: Run Hours
 ### 0x14 - Primary Cct Flow Rate
@@ -278,10 +281,10 @@ Several Unknown Temperatures
 ### 0x16 - Pumps Running
 |   0   | 1  |  2 |  3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|----|----|---|---|---|---|---|---|----|----|----|----|----|----|----|
-| 0x16  | DHW| U1 | U2 |   |   |   |   |   |   |    |    |    |    |    |    |    |  
-* DHW : DHW Pump Running Flag? 3 Way Valve?
-* U1 : Heating Flag?
-* U2 : Heating Flag?
+| 0x16  | U1 | U2 | U3 |   |   |   |   |   |   |    |    |    |    |    |    |    |  
+* U1 : Unknown, Comes on about 10min into DHW
+* U2 : Unknown, Heating Flag?
+* U3 : Unknown, Heating Flag?
 ### 0x26
 | 0 | 1 | 2 |  3  | 4  | 5  | 6  |  7 |   8  |  9   |  10 |  11 | 12 | 13 | 14 |
 |---|---|---|-----|----|----|----|----|------|------|-----|-----|----|----|----|
@@ -304,7 +307,7 @@ Several Unknown Temperatures
   * 2 : Compensation Curve Mode
 * HWSP : HotWater SetPoint * 100;
 * HSP : Heating Flow SetPoint * 100;
-* SP : Unknown Setpoint:
+* SP : Unknown Setpoint
 ### 0x28 - Various Flags
 |   0   | 1 | 2 | 3 | 4  | 5  |  6 | 7  |  8 |  9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|----|----|----|----|----|----|----|----|----|----|----|----|----|
