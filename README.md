@@ -24,7 +24,9 @@ Serial, 2400, 8, E, 1
 |  0x42 | Get Request      | To Heat Pump   |
 |  0x62 | Get Response     | From Heat Pump |
 |  0x5A | Connect Request  | To Heat Pump   |
+|  0x5B | Get Request      | To Heat Pump   |
 |  0x7A | Connect Response | From Heat Pump |
+|  0x7B | Get Response     | From Heat Pump |
 |  0x5B | Extended Connect Request  | To Heat Pump   |
 |  0x7B | Extended Connect Responce | To Heat Pump   |
 ### Length
@@ -102,6 +104,11 @@ Identified so far, this must do far more that this!
 |-------|------|---|---|------|------|---|-----|-------|-------|------|------|------|------|----|----|----|
 | 0x35  | 0x02 |   |   | Z1SP | Z1SP |   |     |       |       |      |      |      |      |    |    |    |  
 * Z1SP : Zone 1 Setpoint (* 100)
+### 0xC9 - FTC Information
+|   0   |   1  | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|-------|------|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
+| 0xC9  | 0x5F |   |   |   |   |   |   |   |   |    |    |    |    |    |    |    |  
+* 0x5F: Request
 # Get Request - Packet Type 0x42
 ## Available Commands 
 Active commands so far identified, 0x00 to 0xff. Commands not listed appear to generate no resaponse. Some command listed have empty, payload 0x00, response.
@@ -340,3 +347,11 @@ Several Unknown Temperatures
 * Y: Year
 * M: Month
 * D: Day
+### 0xC9 - FTC Information
+|   0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|-------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
+| 0xC9  |U1 |   |U2 |   |U3 | V |   |   |   |    |    |    |    |    |    |    |  
+* U1: Unknown
+* U2: Unknown
+* U3: Unknown
+* V: FTC Version (0="FTC2B", 1="FTC4", 2="FTC5", 3="FTC6")
