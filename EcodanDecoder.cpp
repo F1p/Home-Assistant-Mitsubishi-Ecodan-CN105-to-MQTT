@@ -16,7 +16,6 @@
 */
 #include "EcodanDecoder.h"
 
-//#include <arduino.h>
 
 ECODANDECODER::ECODANDECODER(void) {
   memset(&RxMessage, 0, sizeof(MessageStruct));
@@ -225,21 +224,23 @@ void ECODANDECODER::Process0x01(uint8_t *Buffer, EcodanStatus *Status) {
 void ECODANDECODER::Process0x02(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t Defrost;
 
+  //Unknown = Buffer[1];  // Value 01
+  //Unknown = Buffer[2];  // Value 02
   Defrost = Buffer[3];
 
   Status->Defrost = Defrost;
 }
 
 void ECODANDECODER::Process0x03(uint8_t *Buffer, EcodanStatus *Status) {
-  uint8_t Unknown15;
-  uint8_t RefFltCode, FltCode1, FltCode2;
+  uint8_t RefrigeFltCode, ErrCode1, ErrCode2, FltCode1, FltCode2;
   uint8_t TwoZone_Z1Working, TwoZone_Z2Working;
+  uint8_t SingleZoneParam;
 
-  //RefFltCode = Buffer[1];
-  //FltCode1 = Buffer[2]*100+Buffer[3];
-  //FltCode2 = Buffer[4]Buffer[5];
-
-  Unknown15 = Buffer[9];  // Flag only in Single Zone Systems?
+  RefrigeFltCode = Buffer[1];
+  ErrCode1 = Buffer[2];
+  ErrCode2 = Buffer[3];
+  FltCode1 = Buffer[4];
+  FltCode2 = Buffer[5];
 
   if (Buffer[8] == 1) {
     TwoZone_Z1Working = 1;
@@ -255,10 +256,16 @@ void ECODANDECODER::Process0x03(uint8_t *Buffer, EcodanStatus *Status) {
     TwoZone_Z2Working = 0;
   }
 
+  SingleZoneParam = Buffer[9];  // Single Zone Running Parameter?
+
+  Status->RefrigeFltCode = RefrigeFltCode;
+  Status->ErrCode1 = ErrCode1;
+  Status->ErrCode2 = ErrCode2;
+  Status->FltCode1 = FltCode1;
+  Status->FltCode2 = FltCode2;
   Status->TwoZone_Z1Working = TwoZone_Z1Working;
   Status->TwoZone_Z2Working = TwoZone_Z2Working;
-
-  Status->Unknown15 = Unknown15;
+  Status->SingleZoneParam = SingleZoneParam;
 }
 
 
@@ -272,23 +279,23 @@ void ECODANDECODER::Process0x04(uint8_t *Buffer, EcodanStatus *Status) {
 
 
 void ECODANDECODER::Process0x05(uint8_t *Buffer, EcodanStatus *Status) {
-  uint8_t HotWaterBoost, TempDropActive;
+  uint8_t HotWaterBoost, DHWActive;
   uint8_t DHWHeatSourcePhase;
 
   //TempDropActive = Buffer[5];     // 0 in Timer or Inhibit, was 7 in on Temp Drop mode (Play)
   if (Buffer[5] == 7) {
-    TempDropActive = 1;
+    DHWActive = 1;
   } else {
-    TempDropActive = 0;
+    DHWActive = 0;
   }
 
   //HeatSource = Buffer[6];     // 0 = H/P, 1 = IH, 2 = BH, 3 = IH + BH, 4 = Boiler but doesn't seem to change
-  DHWHeatSourcePhase = Buffer[7];    // Heat Source Phase for DHW (0 = Normal, 1 = HP, 2 = Immersion or Booster)
+  DHWHeatSourcePhase = Buffer[7];  // Heat Source Phase for DHW (0 = Normal, 1 = HP, 2 = Immersion or Booster)
   //Unknown = Buffer[9];        // Always 6?
 
   //Status->HeatSource = HeatSource;
   Status->DHWHeatSourcePhase = DHWHeatSourcePhase;
-  Status->TempDropActive = TempDropActive;
+  Status->DHWActive = DHWActive;
 }
 
 
@@ -372,13 +379,15 @@ void ECODANDECODER::Process0x0D(uint8_t *Buffer, EcodanStatus *Status) {
 
 
 void ECODANDECODER::Process0x10(uint8_t *Buffer, EcodanStatus *Status) {
-  uint8_t Zone1ThermostatDemand, Zone2ThermostatDemand;
+  uint8_t Zone1ThermostatDemand, Zone2ThermostatDemand, OutdoorThermostatDemand;
 
   Zone1ThermostatDemand = Buffer[1];
-  Zone2ThermostatDemand = Buffer[3];
+  Zone2ThermostatDemand = Buffer[2];
+  OutdoorThermostatDemand = Buffer[3];
 
   Status->Zone1ThermostatDemand = Zone1ThermostatDemand;
   Status->Zone2ThermostatDemand = Zone2ThermostatDemand;
+  Status->OutdoorThermostatDemand = OutdoorThermostatDemand;
 }
 
 
@@ -421,19 +430,17 @@ void ECODANDECODER::Process0x14(uint8_t *Buffer, EcodanStatus *Status) {
 
 
 void ECODANDECODER::Process0x15(uint8_t *Buffer, EcodanStatus *Status) {
-  uint8_t Unknown9;
   uint8_t PrimaryWaterPump, WaterPump2, ThreeWayValve, ThreeWayValve2;
 
   PrimaryWaterPump = Buffer[1];  // 01 when running (Primary Water Pump)
   //Unknown8 = Buffer[2];        // Aligns with Unknown4
-  Unknown9 = Buffer[3];        // 23 or 22? Li/Min?
+  //Unknown9 = Buffer[3];        // 23 or 22? Li/Min?
   WaterPump2 = Buffer[4];      // Water Pump 2 Active
   ThreeWayValve = Buffer[6];   // 3 Way Valve Position
   ThreeWayValve2 = Buffer[7];  // 3 Way Valve 2 Position
   //Unknown12 = Buffer[11];      // 4 or very briefly 0 during one DHW run
 
   Status->PrimaryWaterPump = PrimaryWaterPump;
-  Status->Unknown9 = Unknown9;
   Status->WaterPump2 = WaterPump2;
   Status->ThreeWayValve = ThreeWayValve;
   Status->ThreeWayValve2 = ThreeWayValve2;
@@ -441,13 +448,13 @@ void ECODANDECODER::Process0x15(uint8_t *Buffer, EcodanStatus *Status) {
 
 
 void ECODANDECODER::Process0x16(uint8_t *Buffer, EcodanStatus *Status) {
-  uint8_t Unknown13;
+  //uint8_t Unknown13;
 
   //Unknown13 = Buffer[1];    // On in DHW after 10min or so, off in Heating
   //Unknown = Buffer[2];      // On in Heating, off in DHW
   //Unknown = Buffer[3];      // On in Heating, off in DHW
 
-  Status->Unknown13 = Unknown13;
+  //Status->Unknown13 = Unknown13;
 }
 
 
@@ -477,32 +484,33 @@ void ECODANDECODER::Process0x26(uint8_t *Buffer, EcodanStatus *Status) {
 
 
 void ECODANDECODER::Process0x28(uint8_t *Buffer, EcodanStatus *Status) {
-  uint8_t HotWaterTimer;
-  uint8_t HolidayMode;
+  uint8_t HotWaterBoostActive, HolidayModeActive, ProhibitDHW;
   uint8_t ProhibitHeatingZ1, ProhibitHeatingZ2;
   uint8_t ProhibitCoolingZ1, ProhibitCoolingZ2;
-  uint8_t HotWaterBoostActive;
+  uint8_t SvrControlMode;
 
   HotWaterBoostActive = Buffer[3];  //Forced DHW Mode (Booster)
-  HolidayMode = Buffer[4];
-  HotWaterTimer = Buffer[5];      //Prohibit DHW in FTC6?
-  ProhibitHeatingZ1 = Buffer[6];  //Prohibit Heating Zone1
-  ProhibitCoolingZ1 = Buffer[7];  //Prohibit Cooling Zone1
-  ProhibitHeatingZ2 = Buffer[8];  //Prohibit Heating Zone2
-  ProhibitCoolingZ2 = Buffer[9];  //Prohibit Cooling Zone2
+  HolidayModeActive = Buffer[4];    // Holiday Mode
+  ProhibitDHW = Buffer[5];          //Prohibit DHW (by Timer or Manually)
+  ProhibitHeatingZ1 = Buffer[6];    //Prohibit Heating Zone1
+  ProhibitCoolingZ1 = Buffer[7];    //Prohibit Cooling Zone1
+  ProhibitHeatingZ2 = Buffer[8];    //Prohibit Heating Zone2
+  ProhibitCoolingZ2 = Buffer[9];    //Prohibit Cooling Zone2
+  SvrControlMode = Buffer[10];      //Server Control Mode
 
   Status->HotWaterBoostActive = HotWaterBoostActive;  // Hot Water Forced (Boost) Active
-  Status->HolidayModeActive = HolidayMode;
-  Status->HotWaterTimerActive = HotWaterTimer;  // Check if inhibit or Timer
+  Status->HolidayModeActive = HolidayModeActive;
+  Status->ProhibitDHW = ProhibitDHW;  // Check if inhibit or Timer
   Status->ProhibitHeatingZ1 = ProhibitHeatingZ1;
   Status->ProhibitCoolingZ1 = ProhibitCoolingZ1;
   Status->ProhibitHeatingZ2 = ProhibitHeatingZ2;
   Status->ProhibitCoolingZ2 = ProhibitCoolingZ2;
+  Status->SvrControlMode = SvrControlMode;
 }
 
 void ECODANDECODER::Process0x29(uint8_t *Buffer, EcodanStatus *Status) {
+  // Suspected Duplication
   //float fZone1, fZone2;
-
   //fZone1 = ((float)ExtractUInt16(Buffer, 4) / 100);
   //fZone2 = ((float)ExtractUInt16(Buffer, 6) / 100);
 }
@@ -708,7 +716,6 @@ void ECODANDECODER::EncodeHolidayMode(uint8_t OnOff) {
   TxMessage.Payload[4] = OnOff;
 }
 
-
 void ECODANDECODER::EncodeFTCVersion() {
   // Get FTC Version
   TxMessage.Payload[0] = 0xC9;
@@ -716,9 +723,40 @@ void ECODANDECODER::EncodeFTCVersion() {
 }
 
 void ECODANDECODER::EncodeServerControlMode(uint8_t OnOff) {
-  // Holiday Mode Active
+  // Heating & DHW "Server Control" Mode
   TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
   TxMessage.Payload[1] = TX_MESSAGE_SETTING_SRV_Flag;
-  TxMessage.Payload[3] = OnOff;                           // Enable HW Boost on Entry
-  TxMessage.Payload[10] = OnOff;                          // Enable the Mode
+  TxMessage.Payload[10] = OnOff;  // Enable the Mode
+}
+
+
+void ECODANDECODER::EncodeProhibit(uint8_t Flags, uint8_t OnOff) {
+  // Heating & DHW Inhibit "Server Control" Mode
+  TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
+  TxMessage.Payload[1] = Flags;
+
+  if ((Flags & TX_MESSAGE_SETTING_Normal_DHW_Flag) == TX_MESSAGE_SETTING_Normal_DHW_Flag) {
+    TxMessage.Payload[5] = 1 - OnOff;  // Disable or Enable the Inhibit
+    TxMessage.Payload[10] = OnOff;     // Enable the Mode (1) = Disable the Inhibit (0)
+  }
+  if ((Flags & TX_MESSAGE_SETTING_DHW_INH_Flag) == TX_MESSAGE_SETTING_DHW_INH_Flag) {
+    TxMessage.Payload[5] = OnOff;
+  }
+  if ((Flags & TX_MESSAGE_SETTING_HEAT_Z1_INH_Flag) == TX_MESSAGE_SETTING_HEAT_Z1_INH_Flag) {
+    TxMessage.Payload[6] = OnOff;
+  }
+  if ((Flags & TX_MESSAGE_SETTING_COOL_Z1_INH_Flag) == TX_MESSAGE_SETTING_COOL_Z1_INH_Flag) {
+    TxMessage.Payload[7] = OnOff;
+  }
+  if ((Flags & TX_MESSAGE_SETTING_HEAT_Z2_INH_Flag) == TX_MESSAGE_SETTING_HEAT_Z2_INH_Flag) {
+    TxMessage.Payload[8] = OnOff;
+  }
+  if ((Flags & TX_MESSAGE_SETTING_COOL_Z2_INH_Flag) == TX_MESSAGE_SETTING_COOL_Z2_INH_Flag) {
+    TxMessage.Payload[9] = OnOff;
+  }
+}
+
+
+void ECODANDECODER::EncodeNormalDHW(uint8_t OnOff) {
+  // Enters Server Control Mode with DHW Inhibit Off to run DHW on Entry
 }

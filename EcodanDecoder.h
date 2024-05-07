@@ -36,7 +36,14 @@
 
 #define TX_MESSAGE_SETTINGS_1 0x032
 #define TX_MESSAGE_SETTINGS_2 0x034
-#define TX_MESSAGE_SETTING_TST_Flag 0x04
+
+#define TX_MESSAGE_SETTING_DHW_INH_Flag 0x04
+#define TX_MESSAGE_SETTING_HEAT_Z1_INH_Flag 0x08
+#define TX_MESSAGE_SETTING_COOL_Z1_INH_Flag 0x10
+#define TX_MESSAGE_SETTING_HEAT_Z2_INH_Flag 0x20
+#define TX_MESSAGE_SETTING_COOL_Z2_INH_Flag 0x40
+
+#define TX_MESSAGE_SETTING_Normal_DHW_Flag 0x84
 
 #define TX_MESSAGE_SETTING_DHW_Flag 0x01
 #define TX_MESSAGE_SETTING_HOL_Flag 0x02
@@ -106,6 +113,8 @@ const char HotWaterTimerString[2][4] = { "On", "Off" };
 #define COMPRESSOR_WAIT 3
 const char COMPRESSORString[4][8] = { "Normal", "Standby", "Defrost", "Wait" };
 
+const char FltCodeLetterOne[9][2] = {"A","B","E","F","J","L","P","U"};
+const char FltCodeLetterTwo[22][2] = {"1","2","3","4","5","6","7","8","9","A","B","C","D","E","F","O","H","J","L","P","U"};
 
 #define FTC2 0
 #define FTC4 1
@@ -149,15 +158,15 @@ typedef struct _EcodanStatus {
   uint8_t Defrost;
 
   //From Message 0x03
+  uint8_t RefrigeFltCode, ErrCode1, ErrCode2, FltCode1, FltCode2;
   uint8_t TwoZone_Z1Working, TwoZone_Z2Working;
-  uint8_t Unknown15;
-  uint8_t RefFltCode, FltCode1, FltCode2;
+  uint8_t SingleZoneParam;
 
   // From Message 0x04
   uint8_t CompressorFrequency;
 
   // From Message 0x05
-  uint8_t TempDropActive;
+  uint8_t DHWActive;
   uint8_t DHWHeatSourcePhase;
 
   // From Message 0x07
@@ -190,7 +199,7 @@ typedef struct _EcodanStatus {
   // Several Unused Temperatures
 
   //From Message 0x10
-  uint8_t Zone1ThermostatDemand, Zone2ThermostatDemand;
+  uint8_t Zone1ThermostatDemand, Zone2ThermostatDemand, OutdoorThermostatDemand;
 
   //From Message 0x11
   // Unknowns
@@ -203,7 +212,6 @@ typedef struct _EcodanStatus {
   uint8_t BoosterActive, ImmersionActive;
 
   //From Message 0x15
-  uint8_t Unknown9, Unknown10;
   uint8_t PrimaryWaterPump, WaterPump2, ThreeWayValve, ThreeWayValve2;
 
   //From Message 0x16
@@ -220,12 +228,10 @@ typedef struct _EcodanStatus {
   float ExternalFlowTemp;
 
   //From Message 0x28
-  uint8_t HotWaterBoostActive;
-  uint8_t HotWaterTimerActive;
-  uint8_t HolidayModeActive;
+  uint8_t HotWaterBoostActive, HolidayModeActive, ProhibitDHW;
   uint8_t ProhibitHeatingZ1, ProhibitHeatingZ2;
   uint8_t ProhibitCoolingZ1, ProhibitCoolingZ2;
-  uint8_t Unknown13;
+  uint8_t SvrControlMode;
 
   //From Message 0x29
   //float Zone1TemperatureSetpoint;  Already Defined Above
@@ -269,6 +275,10 @@ public:
   void EncodeHolidayMode(uint8_t OnOff);
   void EncodeFTCVersion(void);
   void EncodeServerControlMode(uint8_t OnOff);
+  void EncodeProhibit(uint8_t Flags, uint8_t OnOff);
+  void EncodeNormalDHW(uint8_t OnOff);
+  
+
   
   EcodanStatus Status;
 protected:

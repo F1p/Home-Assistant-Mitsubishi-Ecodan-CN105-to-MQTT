@@ -8,8 +8,8 @@ String MQTT_STATUS_ZONE1 = MQTT_STATUS + "/Zone1";
 String MQTT_STATUS_ZONE2 = MQTT_STATUS + "/Zone2";
 String MQTT_STATUS_HOTWATER = MQTT_STATUS + "/HotWater";
 String MQTT_STATUS_SYSTEM = MQTT_STATUS + "/System";
-String MQTT_STATUS_TEST = MQTT_STATUS + "/Test";
 String MQTT_STATUS_ADVANCED = MQTT_STATUS + "/Advanced";
+String MQTT_STATUS_ADVANCED_TWO = MQTT_STATUS + "/AdvancedTwo";
 String MQTT_STATUS_ENERGY = MQTT_STATUS + "/Energy";
 String MQTT_STATUS_WIFISTATUS = MQTT_STATUS + "/WiFiStatus";
 
@@ -20,12 +20,19 @@ String MQTT_COMMAND_SYSTEM = MQTT_COMMAND + "/System";
 
 String MQTT_COMMAND_ZONE1_FLOW_SETPOINT = MQTT_COMMAND_ZONE1 + "/FlowSetpoint";
 String MQTT_COMMAND_ZONE1_NOMODE_SETPOINT = MQTT_COMMAND_ZONE1 + "/ThermostatSetpoint";
+String MQTT_COMMAND_ZONE1_HEAT_PROHIBIT = MQTT_COMMAND_ZONE1 + "/ProhibitHeating";
+String MQTT_COMMAND_ZONE1_COOL_PROHIBIT = MQTT_COMMAND_ZONE1 + "/ProhibitCooling";
 
 String MQTT_COMMAND_ZONE2_FLOW_SETPOINT = MQTT_COMMAND_ZONE2 + "/FlowSetpoint";
 String MQTT_COMMAND_ZONE2_NOMODE_SETPOINT = MQTT_COMMAND_ZONE2 + "/ThermostatSetpoint";
+String MQTT_COMMAND_ZONE2_HEAT_PROHIBIT = MQTT_COMMAND_ZONE2 + "/ProhibitHeating";
+String MQTT_COMMAND_ZONE2_COOL_PROHIBIT = MQTT_COMMAND_ZONE2 + "/ProhibitCooling";
 
 String MQTT_COMMAND_HOTWATER_SETPOINT = MQTT_COMMAND_HOTWATER + "/Setpoint";
 String MQTT_COMMAND_HOTWATER_BOOST = MQTT_COMMAND_HOTWATER + "/Boost";
+String MQTT_COMMAND_HOTWATER_NORM_BOOST = MQTT_COMMAND_HOTWATER + "/NormalBoost";
+String MQTT_COMMAND_HOTWATER_PROHIBIT = MQTT_COMMAND_HOTWATER + "/Prohibit";
+
 String MQTT_COMMAND_SYSTEM_HOLIDAYMODE = MQTT_COMMAND_SYSTEM + "/HolidayMode";
 String MQTT_COMMAND_SYSTEM_HEATINGMODE = MQTT_COMMAND_SYSTEM + "/HeatingMode";
 String MQTT_COMMAND_SYSTEM_SVRMODE = MQTT_COMMAND_SYSTEM + "/SvrControlMode";
@@ -33,12 +40,18 @@ String MQTT_COMMAND_SYSTEM_POWER = MQTT_COMMAND_SYSTEM + "/Power";
 
 String MQTTCommandZone1FlowSetpoint = MQTT_COMMAND_ZONE1_FLOW_SETPOINT;
 String MQTTCommandZone1NoModeSetpoint = MQTT_COMMAND_ZONE1_NOMODE_SETPOINT;
+String MQTTCommandZone1ProhibitHeating = MQTT_COMMAND_ZONE1_HEAT_PROHIBIT;
+String MQTTCommandZone1ProhibitCooling = MQTT_COMMAND_ZONE1_COOL_PROHIBIT;
 
 String MQTTCommandZone2FlowSetpoint = MQTT_COMMAND_ZONE2_FLOW_SETPOINT;
 String MQTTCommandZone2NoModeSetpoint = MQTT_COMMAND_ZONE2_NOMODE_SETPOINT;
+String MQTTCommandZone2ProhibitHeating = MQTT_COMMAND_ZONE2_HEAT_PROHIBIT;
+String MQTTCommandZone2ProhibitCooling = MQTT_COMMAND_ZONE2_COOL_PROHIBIT;
 
 String MQTTCommandHotwaterSetpoint = MQTT_COMMAND_HOTWATER_SETPOINT;
 String MQTTCommandHotwaterBoost = MQTT_COMMAND_HOTWATER_BOOST;
+String MQTTCommandHotwaterNormalBoost = MQTT_COMMAND_HOTWATER_NORM_BOOST;
+String MQTTCommandHotwaterProhibit = MQTT_COMMAND_HOTWATER_PROHIBIT;
 
 String MQTTCommandSystemHolidayMode = MQTT_COMMAND_SYSTEM_HOLIDAYMODE;
 String MQTTCommandSystemHeatingMode = MQTT_COMMAND_SYSTEM_HEATINGMODE;
@@ -127,8 +140,8 @@ void RecalculateMQTTTopics() {
   MQTT_STATUS_ZONE2 = MQTT_STATUS + "/Zone2";
   MQTT_STATUS_HOTWATER = MQTT_STATUS + "/HotWater";
   MQTT_STATUS_SYSTEM = MQTT_STATUS + "/System";
-  MQTT_STATUS_TEST = MQTT_STATUS + "/Test";
   MQTT_STATUS_ADVANCED = MQTT_STATUS + "/Advanced";
+  MQTT_STATUS_ADVANCED_TWO = MQTT_STATUS + "/AdvancedTwo";
   MQTT_STATUS_ENERGY = MQTT_STATUS + "/Energy";
   MQTT_STATUS_WIFISTATUS = MQTT_STATUS + "/WiFiStatus";
 
@@ -139,12 +152,19 @@ void RecalculateMQTTTopics() {
 
   MQTT_COMMAND_ZONE1_FLOW_SETPOINT = MQTT_COMMAND_ZONE1 + "/FlowSetpoint";
   MQTT_COMMAND_ZONE1_NOMODE_SETPOINT = MQTT_COMMAND_ZONE1 + "/ThermostatSetpoint";
+  MQTT_COMMAND_ZONE1_HEAT_PROHIBIT = MQTT_COMMAND_ZONE1 + "/ProhibitHeating";
+  MQTT_COMMAND_ZONE1_COOL_PROHIBIT = MQTT_COMMAND_ZONE1 + "/ProhibitCooling";
 
   MQTT_COMMAND_ZONE2_FLOW_SETPOINT = MQTT_COMMAND_ZONE2 + "/FlowSetpoint";
   MQTT_COMMAND_ZONE2_NOMODE_SETPOINT = MQTT_COMMAND_ZONE2 + "/ThermostatSetpoint";
+  MQTT_COMMAND_ZONE2_HEAT_PROHIBIT = MQTT_COMMAND_ZONE2 + "/ProhibitHeating";
+  MQTT_COMMAND_ZONE2_COOL_PROHIBIT = MQTT_COMMAND_ZONE2 + "/ProhibitCooling";
 
   MQTT_COMMAND_HOTWATER_SETPOINT = MQTT_COMMAND_HOTWATER + "/Setpoint";
   MQTT_COMMAND_HOTWATER_BOOST = MQTT_COMMAND_HOTWATER + "/Boost";
+  MQTT_COMMAND_HOTWATER_NORM_BOOST = MQTT_COMMAND_HOTWATER + "/NormalBoost";
+  MQTT_COMMAND_HOTWATER_PROHIBIT = MQTT_COMMAND_HOTWATER + "/Prohibit";
+
   MQTT_COMMAND_SYSTEM_HOLIDAYMODE = MQTT_COMMAND_SYSTEM + "/HolidayMode";
   MQTT_COMMAND_SYSTEM_HEATINGMODE = MQTT_COMMAND_SYSTEM + "/HeatingMode";
   MQTT_COMMAND_SYSTEM_SVRMODE = MQTT_COMMAND_SYSTEM + "/SvrControlMode";
@@ -152,12 +172,18 @@ void RecalculateMQTTTopics() {
 
   MQTTCommandZone1FlowSetpoint = MQTT_COMMAND_ZONE1_FLOW_SETPOINT;
   MQTTCommandZone1NoModeSetpoint = MQTT_COMMAND_ZONE1_NOMODE_SETPOINT;
+  MQTTCommandZone1ProhibitHeating = MQTT_COMMAND_ZONE1_HEAT_PROHIBIT;
+  MQTTCommandZone1ProhibitCooling = MQTT_COMMAND_ZONE1_COOL_PROHIBIT;
 
   MQTTCommandZone2FlowSetpoint = MQTT_COMMAND_ZONE2_FLOW_SETPOINT;
   MQTTCommandZone2NoModeSetpoint = MQTT_COMMAND_ZONE2_NOMODE_SETPOINT;
+  MQTTCommandZone2ProhibitHeating = MQTT_COMMAND_ZONE2_HEAT_PROHIBIT;
+  MQTTCommandZone2ProhibitCooling = MQTT_COMMAND_ZONE2_COOL_PROHIBIT;
 
   MQTTCommandHotwaterSetpoint = MQTT_COMMAND_HOTWATER_SETPOINT;
   MQTTCommandHotwaterBoost = MQTT_COMMAND_HOTWATER_BOOST;
+  MQTTCommandHotwaterNormalBoost = MQTT_COMMAND_HOTWATER_NORM_BOOST;
+  MQTTCommandHotwaterProhibit = MQTT_COMMAND_HOTWATER_PROHIBIT;
 
   MQTTCommandSystemHolidayMode = MQTT_COMMAND_SYSTEM_HOLIDAYMODE;
   MQTTCommandSystemHeatingMode = MQTT_COMMAND_SYSTEM_HEATINGMODE;
@@ -268,12 +294,22 @@ void MQTTonConnect(void) {
 
   MQTTClient.subscribe(MQTTCommandZone1FlowSetpoint.c_str());
   MQTTClient.subscribe(MQTTCommandZone1NoModeSetpoint.c_str());
+  MQTTClient.subscribe(MQTTCommandZone1ProhibitHeating.c_str());
+  MQTTClient.subscribe(MQTTCommandZone1ProhibitCooling.c_str());
+
   MQTTClient.subscribe(MQTTCommandZone2FlowSetpoint.c_str());
   MQTTClient.subscribe(MQTTCommandZone2NoModeSetpoint.c_str());
+  MQTTClient.subscribe(MQTTCommandZone2ProhibitHeating.c_str());
+  MQTTClient.subscribe(MQTTCommandZone2ProhibitCooling.c_str());
+
   MQTTClient.subscribe(MQTTCommandSystemHolidayMode.c_str());
   MQTTClient.subscribe(MQTTCommandSystemHeatingMode.c_str());
+
   MQTTClient.subscribe(MQTTCommandHotwaterSetpoint.c_str());
   MQTTClient.subscribe(MQTTCommandHotwaterBoost.c_str());
+  MQTTClient.subscribe(MQTTCommandHotwaterNormalBoost.c_str());
+  MQTTClient.subscribe(MQTTCommandHotwaterProhibit.c_str());
+
   MQTTClient.subscribe(MQTTCommandSystemPower.c_str());
   MQTTClient.subscribe(MQTTCommandSystemSvrMode.c_str());
 }

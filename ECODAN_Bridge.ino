@@ -28,7 +28,7 @@
 #include <ESPTelnet.h>
 #include "Ecodan.h"
 
-String FirmwareVersion = "v4.2 Beta";
+String FirmwareVersion = "v5.0";
 
 
 int RxPin = 14;  //Rx
@@ -102,8 +102,8 @@ void Zone1Report(void);
 void HotWaterReport(void);
 void SystemReport(void);
 void AdvancedReport(void);
+void AdvancedTwoReport(void);
 void EnergyReport(void);
-void TestReport(void);
 
 TimerCallBack HeatPumpQuery1(500, HeatPumpQueryStateEngine);
 TimerCallBack HeatPumpQuery2(60000, HeatPumpKeepAlive);
@@ -114,6 +114,7 @@ int WiFiOneShot = true;
 int HeatPumpQueryOneShot = true;
 int Zone1_Update_in_Progress = 0;
 int Zone2_Update_in_Progress = 0;
+int DHW_Normal_in_Progress = 0;
 int DHW_Update_in_Progress = 0;
 int HeatPump_Update_in_Progress = 0;
 int CycleCounter = 0;
@@ -246,7 +247,6 @@ void HeatPumpQueryStateEngine(void) {
   }
 
 
-
   // Call Once Full Update is complete
   if (HeatPump.UpdateComplete()) {
     DEBUG_PRINTLN("Update Complete");
@@ -261,8 +261,8 @@ void HeatPumpQueryStateEngine(void) {
       HotWaterReport();
       SystemReport();
       AdvancedReport();
+      AdvancedTwoReport();
       EnergyReport();
-      TestReport();
       StatusReport();
     }
   }
@@ -328,6 +328,30 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
   }
 
 
+  // Prohibits for Server Control Mode
+  if (Topic == MQTTCommandZone1ProhibitHeating) {
+    DEBUG_PRINTLN("MQTT Zone 1 Prohibit Heating");
+    HeatPump.SetProhibits(TX_MESSAGE_SETTING_HEAT_Z1_INH_Flag, Payload.toInt());
+  }
+  if (Topic == MQTTCommandZone1ProhibitCooling) {
+    DEBUG_PRINTLN("MQTT Zone 1 Prohibit Cooling");
+    HeatPump.SetProhibits(TX_MESSAGE_SETTING_COOL_Z1_INH_Flag, Payload.toInt());
+  }
+  if (Topic == MQTTCommandZone2ProhibitHeating) {
+    DEBUG_PRINTLN("MQTT Zone 2 Prohibit Heating");
+    HeatPump.SetProhibits(TX_MESSAGE_SETTING_HEAT_Z2_INH_Flag, Payload.toInt());
+  }
+  if (Topic == MQTTCommandZone2ProhibitCooling) {
+    DEBUG_PRINTLN("MQTT Zone 2 Prohibit Cooling");
+    HeatPump.SetProhibits(TX_MESSAGE_SETTING_COOL_Z2_INH_Flag, Payload.toInt());
+  }
+  if (Topic == MQTTCommandHotwaterProhibit) {
+    DEBUG_PRINTLN("MQTT DHW Prohibit");
+    HeatPump.SetProhibits(TX_MESSAGE_SETTING_DHW_INH_Flag, Payload.toInt());
+  }
+
+
+
   // Flow Setpoint Commands
   // Heating Zone 1 Commands
   if (Topic == MQTTCommandZone1FlowSetpoint) {
@@ -365,6 +389,11 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
     }
     HeatPump.ForceDHW(Payload.toInt());
   }
+
+  if (Topic == MQTTCommandHotwaterNormalBoost) {
+    DEBUG_PRINTLN("MQTT Normal DHW Boost Run");
+    HeatPump.SetProhibits(TX_MESSAGE_SETTING_Normal_DHW_Flag, Payload.toInt());
+  }
   if (Topic == MQTTCommandSystemHolidayMode) {
     DEBUG_PRINTLN("MQTT Set Holiday Mode");
     HeatPump.SetHolidayMode(Payload.toInt());
@@ -377,8 +406,10 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
     DEBUG_PRINTLN("MQTT Set Heating Mode");
     HeatPump.SetHeatingControlMode(&Payload, ZONE1);
   }
+
+
   if (Topic == MQTTCommandSystemSvrMode) {
-    DEBUG_PRINTLN("MQTT Enter Server Control Mode");
+    DEBUG_PRINTLN("MQTT Server Control Mode");
     HeatPump.SetSvrControlMode(Payload.toInt());
   }
   if (Topic == MQTTCommandSystemPower) {
@@ -398,11 +429,11 @@ void Zone1Report(void) {
   doc["FSP"] = HeatPump.Status.Zone1FlowTemperatureSetpoint;
   doc["TwoZone_Z1Working"] = HeatPump.Status.TwoZone_Z1Working;
   doc["ProhibitHeating"] = HeatPump.Status.ProhibitHeatingZ1;
+  doc["ProhibitCooling"] = HeatPump.Status.ProhibitCoolingZ1;
 
   serializeJson(doc, Buffer);
 
   MQTTClient.publish(MQTT_STATUS_ZONE1.c_str(), Buffer, true);
-  //DEBUG_PRINTLN(Buffer);
 }
 
 void Zone2Report(void) {
@@ -415,10 +446,10 @@ void Zone2Report(void) {
   doc["FSP"] = HeatPump.Status.Zone2FlowTemperatureSetpoint;
   doc["TwoZone_Z2Working"] = HeatPump.Status.TwoZone_Z2Working;
   doc["ProhibitHeating"] = HeatPump.Status.ProhibitHeatingZ2;
+  doc["ProhibitCooling"] = HeatPump.Status.ProhibitCoolingZ2;
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_ZONE2.c_str(), Buffer, true);
-  //DEBUG_PRINTLN(Buffer);
 }
 
 void HotWaterReport(void) {
@@ -428,8 +459,8 @@ void HotWaterReport(void) {
   doc["Temperature"] = HeatPump.Status.HotWaterTemperature;
   doc["Setpoint"] = HeatPump.Status.HotWaterSetpoint;
   doc["HotWaterBoostActive"] = HeatPump.Status.HotWaterBoostActive;
-  doc["HotWaterTimerActive"] = HeatPump.Status.HotWaterTimerActive;
-  doc["HotWaterTDropActive"] = HeatPump.Status.TempDropActive;
+  doc["ProhibitDHW"] = HeatPump.Status.ProhibitDHW;
+  doc["DHWActive"] = HeatPump.Status.DHWActive;
   doc["HotWaterControlMode"] = HowWaterControlModeString[HeatPump.Status.HotWaterControlMode];
   doc["LegionellaSetpoint"] = HeatPump.Status.LegionellaSetpoint;
   doc["HotWaterMaxTDrop"] = HeatPump.Status.HotWaterMaximumTempDrop;
@@ -437,7 +468,6 @@ void HotWaterReport(void) {
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_HOTWATER.c_str(), Buffer, true);
-  //DEBUG_PRINTLN(Buffer);
 }
 
 void SystemReport(void) {
@@ -459,7 +489,6 @@ void SystemReport(void) {
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_SYSTEM.c_str(), Buffer, true);
-  //DEBUG_PRINTLN(Buffer);
 }
 
 void AdvancedReport(void) {
@@ -473,15 +502,12 @@ void AdvancedReport(void) {
   doc["ExternalFlowTemp"] = HeatPump.Status.ExternalFlowTemp;
   doc["Immersion"] = HeatPump.Status.ImmersionActive;
   doc["Booster"] = HeatPump.Status.BoosterActive;
-  doc["3WayValve"] = HeatPump.Status.ThreeWayValve;
+  doc["ThreeWayValve"] = HeatPump.Status.ThreeWayValve;
   doc["PrimaryWaterPump"] = HeatPump.Status.PrimaryWaterPump;
   doc["RefrigeTemp"] = HeatPump.Status.RefrigeTemp;
-  doc["Z1TstatDemand"] = HeatPump.Status.Zone1ThermostatDemand;
-  doc["Z2TstatDemand"] = HeatPump.Status.Zone2ThermostatDemand;
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_ADVANCED.c_str(), Buffer, true);
-  //DEBUG_PRINTLN(Buffer);
 }
 
 
@@ -489,35 +515,100 @@ void EnergyReport(void) {
   StaticJsonDocument<512> doc;
   char Buffer[512];
 
-  doc["CHEAT"] = HeatPump.Status.ConsumedHeatingEnergy;
-  doc["CDHW"] = HeatPump.Status.ConsumedHotWaterEnergy;
-  doc["DHEAT"] = HeatPump.Status.DeliveredHeatingEnergy;
-  doc["DDHW"] = HeatPump.Status.DeliveredHotWaterEnergy;
-  doc["CTOTAL"] = (HeatPump.Status.ConsumedHeatingEnergy + HeatPump.Status.ConsumedHotWaterEnergy);
-  doc["DTOTAL"] = (HeatPump.Status.DeliveredHeatingEnergy + HeatPump.Status.DeliveredHotWaterEnergy);
-  doc["HEAT_CoP"] = (HeatPump.Status.DeliveredHeatingEnergy / HeatPump.Status.ConsumedHeatingEnergy);
-  doc["DHW_CoP"] = (HeatPump.Status.DeliveredHotWaterEnergy / HeatPump.Status.ConsumedHotWaterEnergy);
-  doc["TOTAL_COP"] = ((HeatPump.Status.DeliveredHeatingEnergy + HeatPump.Status.DeliveredHotWaterEnergy) / (HeatPump.Status.ConsumedHeatingEnergy + HeatPump.Status.ConsumedHotWaterEnergy));
+  float heat_cop, cool_cop, dhw_cop, ctotal, dtotal, total_cop;
+
+  // A check for errors before calculating CoP
+  if ((HeatPump.Status.DeliveredHeatingEnergy == 0) && (HeatPump.Status.ConsumedHeatingEnergy > 0)) {
+    HeatPump.Status.ConsumedHeatingEnergy = 0;  // Re-write
+  }
+  if ((HeatPump.Status.DeliveredCoolingEnergy == 0) && (HeatPump.Status.ConsumedCoolingEnergy > 0)) {
+    HeatPump.Status.ConsumedCoolingEnergy = 0;  // Re-write
+  }
+  if ((HeatPump.Status.DeliveredHotWaterEnergy == 0) && (HeatPump.Status.ConsumedHotWaterEnergy > 0)) {
+    HeatPump.Status.ConsumedHotWaterEnergy = 0;  // Re-write
+  }
+
+  // CoP Calculations to avoid divide by 0 occuring
+  if (HeatPump.Status.ConsumedHeatingEnergy > 0) {
+    heat_cop = HeatPump.Status.DeliveredHeatingEnergy / HeatPump.Status.ConsumedHeatingEnergy;
+  } else {
+    heat_cop = 0;
+  }
+  if (HeatPump.Status.ConsumedCoolingEnergy > 0) {
+    cool_cop = HeatPump.Status.DeliveredCoolingEnergy / HeatPump.Status.ConsumedCoolingEnergy;
+  } else {
+    cool_cop = 0;
+  }
+  if (HeatPump.Status.ConsumedHotWaterEnergy > 0) {
+    dhw_cop = (HeatPump.Status.DeliveredHotWaterEnergy / HeatPump.Status.ConsumedHotWaterEnergy);
+  } else {
+    dhw_cop = 0;
+  }
+
+  // CoP Totals
+  ctotal = (HeatPump.Status.ConsumedHeatingEnergy + HeatPump.Status.DeliveredCoolingEnergy + HeatPump.Status.ConsumedHotWaterEnergy);
+  dtotal = (HeatPump.Status.DeliveredHeatingEnergy + HeatPump.Status.DeliveredCoolingEnergy + HeatPump.Status.DeliveredHotWaterEnergy);
+
+  if (ctotal != 0) {
+    total_cop = dtotal / ctotal;
+  } else {
+    total_cop = 0;
+  }
+
+
+  // Write into the JSON with 2dp rounding
+
+  doc["CHEAT"] = round2(HeatPump.Status.ConsumedHeatingEnergy);
+  doc["CCOOL"] = round2(HeatPump.Status.ConsumedCoolingEnergy);
+  doc["CDHW"] = round2(HeatPump.Status.ConsumedHotWaterEnergy);
+  doc["DHEAT"] = round2(HeatPump.Status.DeliveredHeatingEnergy);
+  doc["DCOOL"] = round2(HeatPump.Status.DeliveredCoolingEnergy);
+  doc["DDHW"] = round2(HeatPump.Status.DeliveredHotWaterEnergy);
+  doc["CTOTAL"] = round2(ctotal);
+  doc["DTOTAL"] = round2(dtotal);
+  doc["HEAT_CoP"] = round2(heat_cop);
+  doc["COOL_CoP"] = round2(cool_cop);
+  doc["DHW_CoP"] = round2(dhw_cop);
+  doc["TOTAL_COP"] = round2(total_cop);
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_ENERGY.c_str(), Buffer, true);
-  //DEBUG_PRINTLN(Buffer);
 }
 
 
-void TestReport(void) {
+void AdvancedTwoReport(void) {
   StaticJsonDocument<512> doc;
   char Buffer[512];
 
+  int ErrorCode = ((String(HeatPump.Status.ErrCode1, HEX)).toInt() * 100) + (String(HeatPump.Status.ErrCode2, HEX)).toInt();
+
+
+
+  doc["SvrControlMode"] = HeatPump.Status.SvrControlMode;
   doc["WaterPump2"] = HeatPump.Status.WaterPump2;
   doc["ThreeWayValve2"] = HeatPump.Status.ThreeWayValve2;
-  doc["Unknown9"] = HeatPump.Status.Unknown9;
-  doc["Unknown13"] = HeatPump.Status.Unknown13;
-  doc["Unknown15"] = HeatPump.Status.Unknown15;
+  doc["RefrigeFltCode"] = String(HeatPump.Status.RefrigeFltCode);
+
+  if (ErrorCode == 8000) {
+    doc["ErrCode"] = String("None");
+  } else {
+    doc["ErrCode"] = ErrorCode;
+  }
+
+  String FltCodeString = String(FltCodeLetterOne[HeatPump.Status.FltCode1]) + String(FltCodeLetterTwo[HeatPump.Status.FltCode2]);
+  if (FltCodeString == "A1") {
+    doc["FltCode"] = String("None");
+  } else {
+    doc["FltCode"] = String(FltCodeString);
+  }
+
+  doc["SingleZoneRun"] = HeatPump.Status.SingleZoneParam;
+  doc["Z1TstatDemand"] = HeatPump.Status.Zone1ThermostatDemand;
+  doc["Z2TstatDemand"] = HeatPump.Status.Zone2ThermostatDemand;
+  doc["OTstatDemand"] = HeatPump.Status.OutdoorThermostatDemand;
 
   serializeJson(doc, Buffer);
-  MQTTClient.publish(MQTT_STATUS_TEST.c_str(), Buffer, true);
-  //DEBUG_PRINTLN(Buffer);
+  MQTTClient.publish(MQTT_STATUS_ADVANCED_TWO.c_str(), Buffer, true);
 }
 
 void StatusReport(void) {
@@ -533,7 +624,6 @@ void StatusReport(void) {
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_WIFISTATUS.c_str(), Buffer, true);
   MQTTClient.publish(MQTT_LWT.c_str(), "online");
-  //DEBUG_PRINTLN(Buffer);
 }
 
 
@@ -582,4 +672,8 @@ void onTelnetConnectionAttempt(String ip) {
   DEBUG_PRINT("Telnet: ");
   DEBUG_PRINT(ip);
   DEBUG_PRINTLN(" tried to connected");
+}
+
+double round2(double value) {
+  return (int)(value * 100 + 0.5) / 100.0;
 }
