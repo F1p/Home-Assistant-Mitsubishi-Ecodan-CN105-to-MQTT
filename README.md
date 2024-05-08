@@ -88,11 +88,11 @@ Identified so far, this must do far more that this!
 * Flags : Flags to Indicate which fields are active
   * 0x01 : Hot Water Force (Boost)
   * 0x02 : Holiday Mode
-  * 0x04 : DHW Inhibit   -- Suspected
-  * 0x08 : Heating Z1 Inhibit  -- Suspected
-  * 0x10 : Cooling Z1 Inhibit  -- Suspected
-  * 0x20 : Heating Z2 Inhibit  -- Suspected
-  * 0x40 : Cooling Z2 Inhibit  -- Suspected
+  * 0x04 : DHW Inhibit (Only When in "Server Control Mode")
+  * 0x08 : Heating Z1 Inhibit (Only When in "Server Control Mode")
+  * 0x10 : Cooling Z1 Inhibit (Only When in "Server Control Mode")
+  * 0x20 : Heating Z2 Inhibit (Only When in "Server Control Mode")
+  * 0x40 : Cooling Z2 Inhibit (Only When in "Server Control Mode")
   * 0x80 : Server Control Mode
 * DHW : On (1) / Off (0)
 * HOL : On (1) / Off (0)
