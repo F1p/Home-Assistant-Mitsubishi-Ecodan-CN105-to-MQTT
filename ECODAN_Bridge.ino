@@ -203,7 +203,7 @@ void loop() {
     digitalWrite(Red_RGB_LED, LOW);  // Turn the Red LED Off
   }
 
-  if (digitalRead(Reset_Button) == LOW) {  // Inverted (Pushed is LOW)
+  if (digitalRead(Reset_Button) == LOW) {  // Inverted (Button Pushed is LOW)
     digitalWrite(Red_RGB_LED, HIGH);       // Flash the Red LED
     delay(500);
     digitalWrite(Red_RGB_LED, LOW);
@@ -213,7 +213,9 @@ void loop() {
     digitalWrite(Red_RGB_LED, LOW);
     delay(500);
     digitalWrite(Red_RGB_LED, HIGH);
-    ESP.reset();  // Then reset
+    HeatPump.SetSvrControlMode(0);         // Exit Server Control Mode
+    delay(500);
+    ESP.reset();                           // Then reset
   }
 }
 
