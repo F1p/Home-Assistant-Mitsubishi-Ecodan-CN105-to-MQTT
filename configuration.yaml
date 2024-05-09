@@ -174,7 +174,7 @@ mqtt:
       state_topic: "Ecodan/ASHP/Status/HotWater"
       value_template: "{{ value_json.LegionellaSetpoint }}"
     - unique_id: "ashp_dhw_max_tempdrop"
-      name: "Legionella Setpoint"
+      name: "Hot Water Max Temperature Drop"
       unit_of_measurement: "°C"
       state_topic: "Ecodan/ASHP/Status/HotWater"
       value_template: "{{ value_json.HotWaterMaxTDrop }}"
