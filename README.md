@@ -226,7 +226,7 @@ Responses so far identified.
 * Z1T  : Zone1 Target Temperature * 100
 * Z2T  : Zone2 Target Temperature * 100;
 * Z1SP : Zone 1 Flow SetFlow Setpoint * 100
-* Z2SP : Zone 3 Flow SetFlow Setpoint * 100
+* Z2SP : Zone 2 Flow SetFlow Setpoint * 100
 * LSP  : Legionella Setpoint * 100;
 * HWD  : DHW Max Temp Drop
 ### 0x0b - Zone 1 & 2 and Outside Temperature
