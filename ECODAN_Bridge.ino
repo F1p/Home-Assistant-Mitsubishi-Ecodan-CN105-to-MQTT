@@ -457,7 +457,7 @@ void HotWaterReport(void) {
   char Buffer[512];
 
   doc[F("Temperature")] = HeatPump.Status.HotWaterTemperature;
-  doc[F("TempTHW5B")] = HeatPump.Status.HotWaterTemperatureTHW5B;
+  doc[F("TempTHW5A")] = HeatPump.Status.HotWaterTemperatureTHW5A;
   doc[F("Setpoint")] = HeatPump.Status.HotWaterSetpoint;
   doc["HotWaterBoostActive"] = HeatPump.Status.HotWaterBoostActive;
   doc["ProhibitDHW"] = HeatPump.Status.ProhibitDHW;
