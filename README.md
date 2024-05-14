@@ -238,12 +238,13 @@ Responses so far identified.
 * RT : Refrigerant Temperature * 100 (Where TH2 is installed)
 * O : Outside Temp  +40 x 2 
 ### 0x0c - Heater Flow Temps
-|  0   | 1  | 2  | 3 | 4  | 5  | 6 | 7  |  8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
-|------|----|----|---|----|----|---|----|----|---|----|----|----|----|----|----|----|
-| 0x0c | OF | OF |   | RF | RF |   | HW | HW |   |    |    |    |    |    |    |    |
+|  0   | 1  | 2  | 3 | 4  | 5  | 6 | 7  |  8 | 9 |  10 |  11 | 12 | 13 | 14 | 15 | 16 |
+|------|----|----|---|----|----|---|----|----|---|-----|-----|----|----|----|----|----|
+| 0x0c | OF | OF |   | RF | RF |   | HW | HW |   | HW2 | HW2 |    |    |    |    |    |
 * OF : Heater Water Out Flow  * 100
 * RF : Heater Return Flow Temperature * 100
-* HW : Hot Water Temperature * 100
+* HW : Hot Water Temperature * 100 (THW5 or THW5A)
+* HW2 : Hot Water Temperature * 100 (THW5B if installed)
 ### 0x0d - Boiler Temps
 |  0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
