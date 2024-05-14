@@ -243,8 +243,8 @@ Responses so far identified.
 | 0x0c | OF | OF |   | RF | RF |   | HW | HW |   | HW2 | HW2 |    |    |    |    |    |
 * OF : Heater Water Out Flow  * 100
 * RF : Heater Return Flow Temperature * 100
-* HW : Hot Water Temperature * 100 (THW5 or THW5A)
-* HW2 : Hot Water Temperature * 100 (THW5B if installed)
+* HW : Hot Water Temperature * 100 (THW5 or THW5B)
+* HW2 : Hot Water Temperature * 100 (THW5A if installed)
 ### 0x0d - Boiler Temps
 |  0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
