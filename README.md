@@ -273,7 +273,7 @@ Several Unknown Temperatures
 |   0   | 1  | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
 | 0x14  |    | B |   |   | I |   |   |   |   |    | PF |    |    |    |    |    |  
-* B : Booster Heater Active (Suspected)
+* B : Booster Heater Active
 * I : Immersion Heater Active
 * PF : Primary Flow Rate (l/min)
 ### 0x15 - Unknown
@@ -327,7 +327,7 @@ Several Unknown Temperatures
 * PCZ1 : Prohibit Cooling Zone1
 * PHZ2 : Prohibit Heating Zone2
 * PCZ2 : Prohibit Cooling Zone2
-* SC : Server Control Mode Active (Suspected)
+* SC : Server Control Mode Active
 ### 0x29 - 
 |   0   | 1 | 2 | 3 |  4  |  5  |  6  |  7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|-----|-----|-----|-----|---|---|----|----|----|----|----|----|----|
