@@ -189,7 +189,7 @@ typedef struct _EcodanStatus {
   //From Message 0x0C
   float HeaterOutputFlowTemperature;
   float HeaterReturnFlowTemperature;
-  float HotWaterTemperature;
+  float HotWaterTemperature, HotWaterTemperatureTHW5B;
 
   //From Message 0x0D
   float ExternalBoilerFlowTemperature;

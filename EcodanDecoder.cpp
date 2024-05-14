@@ -339,7 +339,12 @@ void ECODANDECODER::Process0x0B(uint8_t *Buffer, EcodanStatus *Status) {
   float RefrigeTemp;
 
   fZone1 = ((float)ExtractUInt16(Buffer, 1) / 100);
-  fZone2 = ((float)ExtractUInt16(Buffer, 3) / 100);
+  if (Buffer[3] != 0xf0) {
+    fZone2 = ((float)ExtractUInt16(Buffer, 3) / 100);
+  } else {
+    fZone2 = 0;
+  }
+
   //Unknown = ((float)ExtractUInt16(Buffer, 5) / 100);
   //Unknown = ((float)ExtractUInt16(Buffer, 7) / 100);
   RefrigeTemp = ((float)ExtractUInt16(Buffer, 8) / 100);
@@ -353,7 +358,7 @@ void ECODANDECODER::Process0x0B(uint8_t *Buffer, EcodanStatus *Status) {
 }
 
 void ECODANDECODER::Process0x0C(uint8_t *Buffer, EcodanStatus *Status) {
-  float fWaterHeatingFeed, fWaterHeatingReturn, fHotWater;
+  float fWaterHeatingFeed, fWaterHeatingReturn, fHotWater, fHotWaterTHW5B;
 
   fWaterHeatingFeed = ((float)ExtractUInt16(Buffer, 1) / 100);
   //Unknown = ((float)Buffer[3] / 2) - 40;
@@ -361,10 +366,13 @@ void ECODANDECODER::Process0x0C(uint8_t *Buffer, EcodanStatus *Status) {
   //Unknown = ((float)Buffer[6] / 2) - 40;
   fHotWater = ((float)ExtractUInt16(Buffer, 7) / 100);
   //Unknown = ((float)Buffer[9] / 2) - 40;
+  fHotWaterTHW5B = ((float)ExtractUInt16(Buffer, 10) / 100);
+  //Unknown = ((float)Buffer[12] / 2) - 40;
 
   Status->HeaterOutputFlowTemperature = fWaterHeatingFeed;
   Status->HeaterReturnFlowTemperature = fWaterHeatingReturn;
   Status->HotWaterTemperature = fHotWater;
+  Status->HotWaterTemperatureTHW5B = fHotWaterTHW5B;
 }
 
 void ECODANDECODER::Process0x0D(uint8_t *Buffer, EcodanStatus *Status) {

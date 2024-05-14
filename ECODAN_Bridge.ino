@@ -28,7 +28,7 @@
 #include <ESPTelnet.h>
 #include "Ecodan.h"
 
-String FirmwareVersion = "v5.0";
+String FirmwareVersion = "v5.1";
 
 
 int RxPin = 14;  //Rx
@@ -213,9 +213,9 @@ void loop() {
     digitalWrite(Red_RGB_LED, LOW);
     delay(500);
     digitalWrite(Red_RGB_LED, HIGH);
-    HeatPump.SetSvrControlMode(0);         // Exit Server Control Mode
+    HeatPump.SetSvrControlMode(0);  // Exit Server Control Mode
     delay(500);
-    ESP.reset();                           // Then reset
+    ESP.reset();  // Then reset
   }
 }
 
@@ -408,8 +408,6 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
     DEBUG_PRINTLN("MQTT Set Heating Mode");
     HeatPump.SetHeatingControlMode(&Payload, ZONE1);
   }
-
-
   if (Topic == MQTTCommandSystemSvrMode) {
     DEBUG_PRINTLN("MQTT Server Control Mode");
     HeatPump.SetSvrControlMode(Payload.toInt());
@@ -458,8 +456,9 @@ void HotWaterReport(void) {
   StaticJsonDocument<512> doc;
   char Buffer[512];
 
-  doc["Temperature"] = HeatPump.Status.HotWaterTemperature;
-  doc["Setpoint"] = HeatPump.Status.HotWaterSetpoint;
+  doc[F("Temperature")] = HeatPump.Status.HotWaterTemperature;
+  doc[F("TempTHW5B")] = HeatPump.Status.HotWaterTemperatureTHW5B;
+  doc[F("Setpoint")] = HeatPump.Status.HotWaterSetpoint;
   doc["HotWaterBoostActive"] = HeatPump.Status.HotWaterBoostActive;
   doc["ProhibitDHW"] = HeatPump.Status.ProhibitDHW;
   doc["DHWActive"] = HeatPump.Status.DHWActive;
