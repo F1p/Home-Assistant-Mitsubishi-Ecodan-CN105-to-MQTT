@@ -237,7 +237,7 @@ Responses so far identified.
 * Z2T : Zone2 Temperature * 100
 * RT : Refrigerant Temperature * 100 (Where TH2 is installed)
 * CT : Condensing Temperature /2 - 40
-* O : Outside Temp  +40 x 2 
+* O : Outside Temp  /2 - 40
 ### 0x0c - Heater Flow Temps
 |  0   | 1  | 2  | 3 | 4  | 5  | 6 | 7  |  8 | 9 |  10 |  11 | 12 | 13 | 14 | 15 | 16 |
 |------|----|----|---|----|----|---|----|----|---|-----|-----|----|----|----|----|----|
