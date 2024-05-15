@@ -106,18 +106,15 @@ void AdvancedTwoReport(void);
 void EnergyReport(void);
 
 TimerCallBack HeatPumpQuery1(500, HeatPumpQueryStateEngine);
-TimerCallBack HeatPumpQuery2(60000, HeatPumpKeepAlive);
+TimerCallBack HeatPumpQuery2(15000, HeatPumpKeepAlive);
 
 
 unsigned long wifipreviousMillis = 0;  // variable for comparing millis counter
-int WiFiOneShot = true;
-int HeatPumpQueryOneShot = true;
+bool WiFiOneShot = true;
+bool HeatPumpQueryOneShot = true;
+bool PostWriteUpdateRequired = false;
 int Zone1_Update_in_Progress = 0;
 int Zone2_Update_in_Progress = 0;
-int DHW_Normal_in_Progress = 0;
-int DHW_Update_in_Progress = 0;
-int HeatPump_Update_in_Progress = 0;
-int CycleCounter = 0;
 float Zone1TemperatureSetpoint_UpdateValue, Zone2TemperatureSetpoint_UpdateValue;
 int Zone1FlowSetpoint_UpdateValue, Zone2FlowSetpoint_UpdateValue;
 
@@ -230,49 +227,17 @@ void HeatPumpQueryStateEngine(void) {
   // Full Read trigged by CurrentMessage
   HeatPump.StatusStateMachine();
 
-  // DHW Boost Latch Status Check Every 15s
-  if ((DHW_Update_in_Progress == 1) && (CycleCounter > 28)) {
-    // First Cycle Send
-    if (CycleCounter == 29) { HeatPump.StatusStateMachineTarget(0x28); }
-    if (CycleCounter == 30) {
-      if (HeatPump.Status.HotWaterBoostActive == 1) {
-        DEBUG_PRINTLN("DHW Seen Active");
-        DHW_Update_in_Progress = 0;
-      } else {
-        DEBUG_PRINTLN("DHW Failed - retrying");
-        HeatPump.ForceDHW(1);
-      }
-      CycleCounter = 0;
-    }
-    CycleCounter++;
-  } else if (DHW_Update_in_Progress == 1) {
-    CycleCounter++;
-  }
-
-
   // Call Once Full Update is complete
   if (HeatPump.UpdateComplete()) {
     DEBUG_PRINTLN("Update Complete");
     Zone1_Update_in_Progress = 0;
     Zone2_Update_in_Progress = 0;
-    HeatPump_Update_in_Progress = 0;
-    digitalWrite(Green_RGB_LED, HIGH);  // Flash the Green LED full brightness
-    delay(10);                          // Hold for 10ms then WiFi brightness will return it to 25%
-    if (MQTTReconnect()) {              // If MQTT is connected
-      Zone1Report();
-      Zone2Report();
-      HotWaterReport();
-      SystemReport();
-      AdvancedReport();
-      AdvancedTwoReport();
-      EnergyReport();
-      StatusReport();
-    }
+    if (MQTTReconnect()) { PublishAllReports(); }
   }
 }
 
-
 void MQTTonDisconnect(void* response) {
+    DEBUG_PRINTLN("MQTT Disconnect");
 }
 
 void MQTTonData(char* topic, byte* payload, unsigned int length) {
@@ -385,11 +350,6 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
   // Other Commands
   if (Topic == MQTTCommandHotwaterBoost) {
     DEBUG_PRINTLN("MQTT Set HW Boost");
-    if (Payload.toInt() == 1) {
-      DHW_Update_in_Progress = 1;
-    } else {
-      DHW_Update_in_Progress = 0;
-    }
     HeatPump.ForceDHW(Payload.toInt());
   }
 
@@ -629,6 +589,24 @@ void StatusReport(void) {
   MQTTClient.publish(MQTT_LWT.c_str(), "online");
 }
 
+
+void PublishAllReports(void) {
+  Zone1Report();
+  Zone2Report();
+  HotWaterReport();
+  SystemReport();
+  AdvancedReport();
+  AdvancedTwoReport();
+  EnergyReport();
+  StatusReport();
+
+  FlashGreenLED();
+}
+
+void FlashGreenLED(void) {
+  digitalWrite(Green_RGB_LED, HIGH);  // Flash the Green LED full brightness
+  delay(10);                          // Hold for 10ms then WiFi brightness will return it to 25%
+}
 
 void setupTelnet() {
   TelnetServer.onConnect(onTelnetConnect);
