@@ -34,11 +34,10 @@ public:
   void KeepAlive(void);
   uint8_t UpdateComplete(void);
 
-  void SetZoneTempSetpoint(float Zone1Target, float Zone2Target, uint8_t Zones);
-  void SetZoneCurveSetpoint(float Zone1Target, float Zone2Target, uint8_t Zones);
-  void SetZoneFlowSetpoint(uint8_t Zone1Target, uint8_t Zone2Target, uint8_t Zones);
+  void SetZoneTempSetpoint(float Zone1Target, float Zone2Target, uint8_t Zones, uint8_t Mode);
   void SetProhibits(uint8_t Flags, uint8_t OnOff);
   void ForceDHW(uint8_t OnOff);
+  void SetDHWMode(uint8_t Mode);
   void SetHolidayMode(uint8_t OnOff);
   void SetSvrControlMode(uint8_t OnOff);
   void GetFTCVersion(void);

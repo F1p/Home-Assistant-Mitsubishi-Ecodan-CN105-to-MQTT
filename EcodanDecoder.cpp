@@ -712,6 +712,13 @@ void ECODANDECODER::EncodeSystemUpdate(uint8_t Flags, float Zone1TempSetpoint, f
   }
 }
 
+void ECODANDECODER::EncodeDHWMode(uint8_t Mode) {
+  // DHW Mode Normal/Eco
+  TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_1;
+  TxMessage.Payload[1] = TX_MESSAGE_SETTING_DHWMode_Flag;
+  TxMessage.Payload[5] = Mode;
+}
+
 void ECODANDECODER::EncodeDHW(uint8_t OnOff) {
   // DHW Boost Active
   TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
@@ -764,9 +771,4 @@ void ECODANDECODER::EncodeProhibit(uint8_t Flags, uint8_t OnOff) {
   if ((Flags & TX_MESSAGE_SETTING_COOL_Z2_INH_Flag) == TX_MESSAGE_SETTING_COOL_Z2_INH_Flag) {
     TxMessage.Payload[9] = OnOff;
   }
-}
-
-
-void ECODANDECODER::EncodeNormalDHW(uint8_t OnOff) {
-  // Enters Server Control Mode with DHW Inhibit Off to run DHW on Entry
 }

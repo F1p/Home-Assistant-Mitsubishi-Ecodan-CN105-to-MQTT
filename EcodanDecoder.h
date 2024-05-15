@@ -46,6 +46,7 @@
 #define TX_MESSAGE_SETTING_Normal_DHW_Flag 0x84
 
 #define TX_MESSAGE_SETTING_DHW_Flag 0x01
+#define TX_MESSAGE_SETTING_DHWMode_Flag 0x04
 #define TX_MESSAGE_SETTING_HOL_Flag 0x02
 #define TX_MESSAGE_SETTING_SRV_Flag 0x80
 
@@ -271,14 +272,12 @@ public:
                           uint8_t HeatingControlModeZ1, uint8_t HeatingControlModeZ2,
                           uint8_t HotWaterMode, uint8_t Power);
 
+  void EncodeDHWMode(uint8_t Mode);
   void EncodeDHW(uint8_t OnOff);
   void EncodeHolidayMode(uint8_t OnOff);
   void EncodeFTCVersion(void);
   void EncodeServerControlMode(uint8_t OnOff);
   void EncodeProhibit(uint8_t Flags, uint8_t OnOff);
-  void EncodeNormalDHW(uint8_t OnOff);
-  
-
   
   EcodanStatus Status;
 protected:
