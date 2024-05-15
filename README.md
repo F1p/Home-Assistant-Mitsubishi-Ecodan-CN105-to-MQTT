@@ -232,10 +232,11 @@ Responses so far identified.
 ### 0x0b - Zone 1 & 2 and Outside Temperature
 |   0  |  1  |  2  |  3  | 4 | 5 | 6 | 7 |  8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |------|-----|-----|-----|---|---|---|---|----|---|----|----|----|----|----|----|----|
-| 0x0b | Z1T |     | Z2T |   |   |   |   | RT |   |    | O  |    |    |    |    |    |
+| 0x0b | Z1T |     | Z2T |   |   |   |   | RT |   | CT | O  |    |    |    |    |    |
 * Z1T : Zone1 Temperature * 100
 * Z2T : Zone2 Temperature * 100
 * RT : Refrigerant Temperature * 100 (Where TH2 is installed)
+* CT : Condensing Temperature /2 - 40
 * O : Outside Temp  +40 x 2 
 ### 0x0c - Heater Flow Temps
 |  0   | 1  | 2  | 3 | 4  | 5  | 6 | 7  |  8 | 9 |  10 |  11 | 12 | 13 | 14 | 15 | 16 |
@@ -355,4 +356,17 @@ Several Unknown Temperatures
 * U1: Unknown
 * U2: Unknown
 * U3: Unknown
-* V: FTC Version (0="FTC2B", 1="FTC4", 2="FTC5", 3="FTC6")
+* V: FTC Version:
+      0: FTC2B
+      1: FTC4
+      2: FTC5
+      3: FTC6
+      128: CAHV1A
+      129: CAHV1B
+      130: CRHV1A
+      131: CRHV1B
+      132: EAHV1A
+      133: EAHV1B
+      134: QAHV1A
+      135: QAHV1B
+      144: PWFY1
