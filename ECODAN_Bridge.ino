@@ -28,7 +28,7 @@
 #include <ESPTelnet.h>
 #include "Ecodan.h"
 
-String FirmwareVersion = "v5.1";
+String FirmwareVersion = "v5.1.1";
 
 
 int RxPin = 14;  //Rx
@@ -151,6 +151,7 @@ void setup() {
 
   OTASetup(HostName.c_str());
 
+  MQTTClient.setBufferSize(1024);                                   // Increase MQTT Buffer Size
   RecalculateMQTTTopics();
   initializeMqttClient();
   MQTTClient.setCallback(MQTTonData);
@@ -506,6 +507,7 @@ void AdvancedReport(void) {
   doc["ThreeWayValve"] = HeatPump.Status.ThreeWayValve;
   doc["PrimaryWaterPump"] = HeatPump.Status.PrimaryWaterPump;
   doc["RefrigeTemp"] = HeatPump.Status.RefrigeTemp;
+  doc["CondensingTemp"] = HeatPump.Status.CondensingTemp;
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_ADVANCED.c_str(), Buffer, true);

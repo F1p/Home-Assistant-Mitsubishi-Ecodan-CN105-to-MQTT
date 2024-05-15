@@ -349,14 +349,14 @@ void ECODANDECODER::Process0x0B(uint8_t *Buffer, EcodanStatus *Status) {
   //Unknown = ((float)ExtractUInt16(Buffer, 7) / 100);
   RefrigeTemp = ((float)ExtractUInt16(Buffer, 8) / 100);
   //Unknown = ((float)ExtractUInt16(Buffer, 9) / 100);
-  //CondensingTemp = ((float)Buffer[10] / 2) - 40;
+  CondensingTemp = ((float)Buffer[10] / 2) - 40;
   fOutside = ((float)Buffer[11] / 2) - 40;
 
   Status->Zone1Temperature = fZone1;
   Status->Zone2Temperature = fZone2;
   Status->OutsideTemperature = fOutside;
-  Status->RefrigeTemp = RefrigeTemp;
   Status->CondensingTemp = CondensingTemp;
+  Status->RefrigeTemp = RefrigeTemp;
 }
 
 void ECODANDECODER::Process0x0C(uint8_t *Buffer, EcodanStatus *Status) {
