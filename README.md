@@ -97,7 +97,7 @@ Identified so far, this must do far more that this!
 * DHW : On (1) / Off (0)
 * HOL : On (1) / Off (0)
 * SCM : Server Control Mode On (1) / Off (0)
-* IDHW : Inhibit DHW On (1) / Off (0)  -- Suspected
+* IDHW : Inhibit DHW On (1) / Off (0)
 ### 0x35 - Set Zone 1 Setpoint 
 Identified so far, this must do far more that this!
 |   0   |   1  | 2 | 3 |   4  |  5   | 6 |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
