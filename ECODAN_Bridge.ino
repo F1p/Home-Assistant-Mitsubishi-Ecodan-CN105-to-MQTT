@@ -28,7 +28,7 @@
 #include <ESPTelnet.h>
 #include "Ecodan.h"
 
-String FirmwareVersion = "v5.1.1";
+String FirmwareVersion = "v5.1.2";
 
 
 int RxPin = 14;  //Rx
@@ -106,7 +106,7 @@ void AdvancedTwoReport(void);
 void EnergyReport(void);
 
 TimerCallBack HeatPumpQuery1(500, HeatPumpQueryStateEngine);
-TimerCallBack HeatPumpQuery2(15000, HeatPumpKeepAlive);
+TimerCallBack HeatPumpQuery2(60000, HeatPumpKeepAlive);
 
 
 unsigned long wifipreviousMillis = 0;  // variable for comparing millis counter
@@ -331,7 +331,7 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
   // Other Commands
   if (Topic == MQTTCommandHotwaterMode) {
     DEBUG_PRINTLN("MQTT Set HW Mode");
-    HeatPump.ForceDHW(Payload.toInt());
+    HeatPump.SetDHWMode(&Payload);
   }
   if (Topic == MQTTCommandHotwaterBoost) {
     DEBUG_PRINTLN("MQTT Set HW Boost");
@@ -516,7 +516,7 @@ void EnergyReport(void) {
   doc["HEAT_CoP"] = round2(heat_cop);
   doc["COOL_CoP"] = round2(cool_cop);
   doc["DHW_CoP"] = round2(dhw_cop);
-  doc["TOTAL_COP"] = round2(total_cop);
+  doc["TOTAL_CoP"] = round2(total_cop);
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_ENERGY.c_str(), Buffer, true);
@@ -532,7 +532,7 @@ void AdvancedTwoReport(void) {
   doc["SvrControlMode"] = HeatPump.Status.SvrControlMode;
   doc["WaterPump2"] = HeatPump.Status.WaterPump2;
   doc["ThreeWayValve2"] = HeatPump.Status.ThreeWayValve2;
-  doc["RefrigeFltCode"] = String(HeatPump.Status.RefrigeFltCode);
+  doc["RefrigeFltCode"] = RefrigeFltCodeString[HeatPump.Status.RefrigeFltCode];
 
   if (ErrorCode == 8000) {
     doc["ErrCode"] = String("None");

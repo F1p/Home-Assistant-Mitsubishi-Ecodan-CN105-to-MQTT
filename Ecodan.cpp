@@ -205,17 +205,22 @@ void ECODAN::SetZoneTempSetpoint(float Zone1Target, float Zone2Target, uint8_t Z
 }
 
 
-void ECODAN::SetDHWMode(uint8_t Mode) {
+void ECODAN::SetDHWMode(String *Mode) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
   uint8_t i;
 
   StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
-  ECODANDECODER::EncodeDHWMode(Mode);
+  if (*Mode == String("Normal")) {
+    ECODANDECODER::EncodeDHWMode(0);
+  } else if (*Mode == String("Eco")) {
+    ECODANDECODER::EncodeDHWMode(1);
+  }
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
   DeviceStream->flush();
+
 
   for (i = 0; i < CommandSize; i++) {
     if (Buffer[i] < 0x10) DEBUG_PRINT("0");
@@ -268,7 +273,7 @@ void ECODAN::SetHolidayMode(uint8_t OnOff) {
 }
 
 
-void ECODAN::SetProhibits(uint8_t Flags, uint8_t OnOff){
+void ECODAN::SetProhibits(uint8_t Flags, uint8_t OnOff) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
   uint8_t i;
@@ -330,33 +335,22 @@ void ECODAN::SetHeatingControlMode(String *Mode, uint8_t Zones) {
 
   StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
-
   if (*Mode == String("Temperature Control")) {
     ECODANDECODER::EncodeSystemUpdate(SET_HEATING_CONTROL_MODE, 0, 0, Zones, 0, HEATING_CONTROL_MODE_ZONE_TEMP, HEATING_CONTROL_MODE_ZONE_TEMP, 0, 1);
-    CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
-    DeviceStream->write(Buffer, CommandSize);
-    DeviceStream->flush();
   } else if (*Mode == String("Fixed Flow")) {
     ECODANDECODER::EncodeSystemUpdate(SET_HEATING_CONTROL_MODE, 0, 0, Zones, 0, HEATING_CONTROL_MODE_FLOW_TEMP, HEATING_CONTROL_MODE_FLOW_TEMP, 0, 1);
-    CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
-    DeviceStream->write(Buffer, CommandSize);
-    DeviceStream->flush();
   } else if (*Mode == String("Compensation Flow")) {
     ECODANDECODER::EncodeSystemUpdate(SET_HEATING_CONTROL_MODE, 0, 0, Zones, 0, HEATING_CONTROL_MODE_COMPENSATION, HEATING_CONTROL_MODE_COMPENSATION, 0, 1);
-    CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
-    DeviceStream->write(Buffer, CommandSize);
-    DeviceStream->flush();
   } else if (*Mode == String("Cool Temperature")) {
     ECODANDECODER::EncodeSystemUpdate(SET_HEATING_CONTROL_MODE, 0, 0, Zones, 0, HEATING_CONTROL_MODE_COOL_ZONE_TEMP, HEATING_CONTROL_MODE_COOL_ZONE_TEMP, 0, 1);
-    CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
-    DeviceStream->write(Buffer, CommandSize);
-    DeviceStream->flush();
   } else if (*Mode == String("Cool Flow")) {
     ECODANDECODER::EncodeSystemUpdate(SET_HEATING_CONTROL_MODE, 0, 0, Zones, 0, HEATING_CONTROL_MODE_COOL_FLOW_TEMP, HEATING_CONTROL_MODE_COOL_FLOW_TEMP, 0, 1);
-    CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
-    DeviceStream->write(Buffer, CommandSize);
-    DeviceStream->flush();
   }
+  CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
+  DeviceStream->write(Buffer, CommandSize);
+  DeviceStream->flush();
+
+
   for (i = 0; i < CommandSize; i++) {
     if (Buffer[i] < 0x10) DEBUG_PRINT("0");
     DEBUG_PRINT(String(Buffer[i], HEX));
@@ -373,18 +367,15 @@ void ECODAN::SetSystemPowerMode(String *Mode) {
 
   StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
-
   if (*Mode == String("On")) {
     ECODANDECODER::EncodeSystemUpdate(SET_SYSTEM_POWER, 0, 0, 0, 0, 0, 0, 0, SYSTEM_POWER_MODE_ON);
-    CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
-    DeviceStream->write(Buffer, CommandSize);
-    DeviceStream->flush();
   } else if (*Mode == String("Standby")) {
     ECODANDECODER::EncodeSystemUpdate(SET_SYSTEM_POWER, 0, 0, 0, 0, 0, 0, 0, SYSTEM_POWER_MODE_STANDBY);
-    CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
-    DeviceStream->write(Buffer, CommandSize);
-    DeviceStream->flush();
   }
+  CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
+  DeviceStream->write(Buffer, CommandSize);
+  DeviceStream->flush();
+
   for (i = 0; i < CommandSize; i++) {
     if (Buffer[i] < 0x10) DEBUG_PRINT("0");
     DEBUG_PRINT(String(Buffer[i], HEX));

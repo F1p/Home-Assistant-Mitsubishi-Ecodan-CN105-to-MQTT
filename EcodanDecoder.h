@@ -114,6 +114,7 @@ const char HotWaterTimerString[2][4] = { "On", "Off" };
 #define COMPRESSOR_WAIT 3
 const char COMPRESSORString[4][8] = { "Normal", "Standby", "Defrost", "Wait" };
 
+const char RefrigeFltCodeString[4][12] = { "Normal", "System", "Startup", "Maintenance" };
 const char FltCodeLetterOne[9][2] = {"A","B","E","F","J","L","P","U"};
 const char FltCodeLetterTwo[22][2] = {"1","2","3","4","5","6","7","8","9","A","B","C","D","E","F","O","H","J","L","P","U"};
 
