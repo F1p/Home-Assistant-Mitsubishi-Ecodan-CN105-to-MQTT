@@ -1,4 +1,4 @@
-# Configuration for Firmware v5
+# Configuration for Firmware v5.1.1
 
 # Loads default set of integrations. Do not remove.
 default_config:
@@ -156,12 +156,12 @@ mqtt:
       unit_of_measurement: "°C"
       icon: "mdi:water-thermometer"
       value_template: "{{ value_json.Temperature }}"      
-    - unique_id: "ashp_dhw_temp_thw5b"
+    - unique_id: "ashp_dhw_temp_thw5a"
       name: "Hot Water Temperature Upper"
       state_topic: "Ecodan/ASHP/Status/HotWater"
       unit_of_measurement: "°C"
       icon: "mdi:water-thermometer"
-      value_template: "{{ value_json.TempTHW5B }}"
+      value_template: "{{ value_json.TempTHW5A }}"
     - unique_id: "ashp_dhw_prohibit"
       name: "Prohibit DHW"
       state_topic: "Ecodan/ASHP/Status/HotWater"
@@ -631,7 +631,7 @@ template:
         {% set freq = states('sensor.compressor_frequency') | default(0) | float %}
         {{ 0 if freq == 0 else (flow/60.0 * (ta - tr) * 4.18) | float | round(2) }}
         
-    - unique_id: "ashp_computed_power_output"
+    - unique_id: "ashp_computed_power_output_kWh"
       name: "Computed Power Output"
       unit_of_measurement: "kWh"
       state_class: total
