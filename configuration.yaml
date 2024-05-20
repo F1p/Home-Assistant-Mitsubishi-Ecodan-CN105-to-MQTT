@@ -1,4 +1,4 @@
-# Configuration for Firmware v5.1
+# Configuration for Firmware v5
 
 # Loads default set of integrations. Do not remove.
 default_config:
@@ -156,12 +156,12 @@ mqtt:
       unit_of_measurement: "°C"
       icon: "mdi:water-thermometer"
       value_template: "{{ value_json.Temperature }}"      
-    - unique_id: "ashp_dhw_temp_thw5a"
+    - unique_id: "ashp_dhw_temp_thw5b"
       name: "Hot Water Temperature Upper"
       state_topic: "Ecodan/ASHP/Status/HotWater"
       unit_of_measurement: "°C"
       icon: "mdi:water-thermometer"
-      value_template: "{{ value_json.TempTHW5A }}"
+      value_template: "{{ value_json.TempTHW5B }}"
     - unique_id: "ashp_dhw_prohibit"
       name: "Prohibit DHW"
       state_topic: "Ecodan/ASHP/Status/HotWater"
@@ -431,17 +431,34 @@ mqtt:
           payload_not_available: "offline"
 
   select:
-    command_topic: "Ecodan/ASHP/Command/System/HeatingMode"
-    name: "System Heating Mode"
-    state_topic: "Ecodan/ASHP/Status/Zone1"
-    value_template:
-      "{{ 'Temperature Control' if value_json.HeatingControlMode=='Temp' else
-      'Fixed Flow' if value_json.HeatingControlMode=='Flow' else
-      'Compensation Flow' if value_json.HeatingControlMode=='Compensation' }} "
-    options:
-      - "Temperature Control"
-      - "Fixed Flow"
-      - "Compensation Flow"
+    - unique_id: "ashp_operation_mode"
+      name: "System Operation Mode"
+      command_topic: "Ecodan/ASHP/Command/System/HeatingMode"
+      state_topic: "Ecodan/ASHP/Status/Zone1"
+      value_template:
+        "{{ 'Temperature Control' if value_json.HeatingControlMode=='Temp' else
+        'Fixed Flow' if value_json.HeatingControlMode=='Flow' else
+        'Compensation Flow' if value_json.HeatingControlMode=='Compensation' else
+        'Cooling Temperature' if value_json.HeatingControlMode=='Cool' else
+        'Cooling Flow' if value_json.HeatingControlMode=='Cool Flow' else
+        'Dry Up' if value_json.HeatingControlMode=='Dry Up' }} "
+      options:
+        - "Temperature Control"
+        - "Fixed Flow"
+        - "Compensation Flow"
+        - "Cool Temperature"
+        - "Cool Flow"
+
+    - unique_id: "ashp_dhw_mode"
+      name: "System DHW Mode"
+      command_topic: "Ecodan/ASHP/Command/HotWater/Mode"
+      state_topic: "Ecodan/ASHP/Status/HotWater"
+      value_template:
+        "{{ 'Normal' if value_json.HotWaterControlMode=='Normal' else
+        'Eco' if value_json.HotWaterControlMode=='Eco' }} "
+      options:
+        - "Normal"
+        - "Eco"
 
   switch:
     - name: "Hot Water Boost"
@@ -614,7 +631,7 @@ template:
         {% set freq = states('sensor.compressor_frequency') | default(0) | float %}
         {{ 0 if freq == 0 else (flow/60.0 * (ta - tr) * 4.18) | float | round(2) }}
         
-    - unique_id: "ashp_computed_power_output_kWh"
+    - unique_id: "ashp_computed_power_output"
       name: "Computed Power Output"
       unit_of_measurement: "kWh"
       state_class: total
