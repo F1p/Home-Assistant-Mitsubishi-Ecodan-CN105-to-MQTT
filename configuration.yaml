@@ -17,7 +17,7 @@ mqtt:
     - unique_id: "ashp_bridge_lwt"
       name: "ASHP Status"
       state_topic: "Ecodan/ASHP/LWT"
-      value_template: "{{ value_json }}"
+      value_template: "{{ value if value is defined else 'Unknown' }}"
     - unique_id: "ashp_bridge_firmware"
       name: "ASHP Firmware"
       state_topic: "Ecodan/ASHP/Status/WiFiStatus"
