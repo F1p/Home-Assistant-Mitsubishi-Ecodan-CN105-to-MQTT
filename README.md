@@ -69,19 +69,17 @@ Active commands so far identified.
 * DHW : Hot Water Mode
   * 0x00 : Normal
   * 0x01 : Eco
-* HC1 : Heating Control Mode Zone 1
-  * 0 : Temperature Mode
-  * 1 : Flow Control Mode
-  * 2 : Compensation Curve Mode
-* HC2 : Heating Control Mode Zone 2
-  * 0 : Temperature Mode
-  * 1 : Flow Control Mode
-  * 2 : Compensation Curve Mode
+* HC1 / HC2 : Heating Control Mode Zone 1 / 2
+  * 0 : Heating Temperature Mode
+  * 1 : Heating Flow Control Mode
+  * 2 : Heating Compensation Curve Mode
+  * 3 : Cooling Temperature Mode
+  * 4 : Cooling Flow Control Mode
+  * 5 : Dry Up
 * DHWSP : Hot Water Setpoint (Temperature * 100)
 * Z1SP : Zone 1 Setpoint (* 100)
-* Z2SP : Zone 1 Setpoint (* 100)
+* Z2SP : Zone 2 Setpoint (* 100)
 ### 0x34 - Hot Water and Holiday Mode
-Identified so far, this must do far more that this!
 |   0   |  1  | 2 | 3 |   4  |  5   |   6  |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
 |-------|-----|---|---|------|------|------|-----|-------|-------|------|------|------|------|----|----|----|
 | 0x34  |Flags|   |DHW|  HOL | IDHW | Z1HI | Z1CI| Z2HI  | CZ2I  | SCM  |      |      |      |    |    |    |  
@@ -98,12 +96,18 @@ Identified so far, this must do far more that this!
 * HOL : On (1) / Off (0)
 * SCM : Server Control Mode On (1) / Off (0)
 * IDHW : Inhibit DHW On (1) / Off (0)
-### 0x35 - Set Zone 1 Setpoint 
-Identified so far, this must do far more that this!
-|   0   |   1  | 2 | 3 |   4  |  5   | 6 |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
-|-------|------|---|---|------|------|---|-----|-------|-------|------|------|------|------|----|----|----|
-| 0x35  | 0x02 |   |   | Z1SP | Z1SP |   |     |       |       |      |      |      |      |    |    |    |  
+### 0x35 - Set Thermostat Setpoints 
+|   0   |   1  | 2 |  3  |   4  |  5   |   6  |   7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
+|-------|------|---|-----|------|------|------|------|-------|-------|------|------|------|------|----|----|----|
+| 0x35  | Flag |   | CH  | Z1SP | Z1SP | Z2SP | Z2SP |       |       |      |      |      |      |    |    |    |  
+* Flag :
+  * 0x02: Zone 1
+  * 0x08: Zone 2
+* CH : Cooling/Heating
+  * Heating = 0
+  * Cooling = 1
 * Z1SP : Zone 1 Setpoint (* 100)
+* Z2SP : Zone 2 Setpoint (* 100)
 ### 0xC9 - FTC Information
 |   0   |   1  | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|------|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
@@ -311,9 +315,12 @@ Several Unknown Temperatures
   * 0 : Normal
   * 1 : Economy
 * Op - Operation Mode (Zone 1 / Zone 2): 
-  * 0 : Temperature Mode
-  * 1 : Flow Control Mode
-  * 2 : Compensation Curve Mode
+  * 0 : Heating Temperature Mode
+  * 1 : Heating Flow Control Mode
+  * 2 : Heating Compensation Curve Mode
+  * 3 : Cooling Temperature Mode
+  * 4 : Cooling Flow Control Mode
+  * 5 : Dry Up
 * HWSP : HotWater SetPoint * 100;
 * HSP : Heating Flow SetPoint * 100;
 * SP : Unknown Setpoint
