@@ -431,23 +431,24 @@ mqtt:
           payload_not_available: "offline"
 
   select:
-    - unique_id: "ashp_operation_mode"
-      name: "System Operation Mode"
+    - unique_id: "ashp_heat_cool_mode"
+      name: "Heating/Cooling Operation Mode"
       command_topic: "Ecodan/ASHP/Command/System/HeatingMode"
       state_topic: "Ecodan/ASHP/Status/Zone1"
       value_template:
-        "{{ 'Temperature Control' if value_json.HeatingControlMode=='Temp' else
-        'Fixed Flow' if value_json.HeatingControlMode=='Flow' else
-        'Compensation Flow' if value_json.HeatingControlMode=='Compensation' else
+        "{{ 'Heating Temperature' if value_json.HeatingControlMode=='Temp' else
+        'Heating Flow' if value_json.HeatingControlMode=='Flow' else
+        'Heating Compensation' if value_json.HeatingControlMode=='Compensation' else
         'Cooling Temperature' if value_json.HeatingControlMode=='Cool' else
         'Cooling Flow' if value_json.HeatingControlMode=='Cool Flow' else
-        'Dry Up' if value_json.HeatingControlMode=='Dry Up' }} "
+        'Dry Up' if value_json.HeatingControlMode=='Dry Up' }}"
       options:
-        - "Temperature Control"
-        - "Fixed Flow"
-        - "Compensation Flow"
-        - "Cool Temperature"
-        - "Cool Flow"
+        - "Heating Temperature"
+        - "Heating Flow"
+        - "Heating Compensation"
+        - "Cooling Temperature"
+        - "Cooling Flow"
+        - "Dry Up"
 
     - unique_id: "ashp_dhw_mode"
       name: "System DHW Mode"
