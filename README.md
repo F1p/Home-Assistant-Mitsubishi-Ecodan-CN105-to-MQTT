@@ -42,7 +42,7 @@ Checksum = 0xfc - Sum ( PacketBytes[0..20]) ;
 Active commands so far identified.
 | Command | Brief Description |
 | ------- | ----------- |
-| 0x32 |  Update Settings |
+| 0x32 | Update Settings |
 | 0x34 | Hot Water and Holiday |
 | 0x35 | Unknown |
 ### 0x32 - Set Options
@@ -51,7 +51,7 @@ Active commands so far identified.
 | 0x32  | Flags | Z | P |   | DHW | HC1 | HC2 | DHWSP | DHWSP | Z1SP | Z1SP | Z2SP | Z2SP |    |    |    |  
 
 * Flags : Flags to Indicate which fields are active
-  * 0x80 : Set Zone Setpoints, Byte[2] determines which Zones 
+  * 0x80 : Set Zone Setpoints, Byte[2] determines which Zones
   * 0x40 : Unknown 
   * 0x20 : Set Hotwater Setpoint
   * 0x10 : Unknown
@@ -59,10 +59,9 @@ Active commands so far identified.
   * 0x04 : Set Hot Water Mode
   * 0x02 : Unknown
   * 0x01 : Set System Power Power
-* Z : Zones the Command Applies to
+* Z : Zones the Command Applies to (Setpoint & Mode)
   * 0x00 : Zone 1
-  * 0x02 : BOTH
-  * 0x03 : Zone 2
+  * 0x02 : Zone 2
 * P : System Power
   * 0x00 : Standby
   * 0x01 : Power On
@@ -78,7 +77,7 @@ Active commands so far identified.
   * 5 : Dry Up
 * DHWSP : Hot Water Setpoint (Temperature * 100)
 * Z1SP : Zone 1 Setpoint (* 100)
-* Z2SP : Zone 2 Setpoint (* 100)
+* Z2SP : Zone 2 Setpoint (* 100) + Flag 0x00
 ### 0x34 - Hot Water and Holiday Mode
 |   0   |  1  | 2 | 3 |   4  |  5   |   6  |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
 |-------|-----|---|---|------|------|------|-----|-------|-------|------|------|------|------|----|----|----|
