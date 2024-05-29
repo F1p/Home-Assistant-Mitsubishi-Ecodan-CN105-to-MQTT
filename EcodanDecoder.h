@@ -34,8 +34,9 @@
 #define EXCONNECT_REQUEST 0x5B
 #define EXCONNECT_RESPONSE 0x7B
 
-#define TX_MESSAGE_SETTINGS_1 0x032
-#define TX_MESSAGE_SETTINGS_2 0x034
+#define TX_MESSAGE_BASIC 0x032
+#define TX_MESSAGE_CONTROLLER 0x034
+#define TX_MESSAGE_ROOM_STAT 0x035
 
 #define TX_MESSAGE_SETTING_DHW_INH_Flag 0x04
 #define TX_MESSAGE_SETTING_HEAT_Z1_INH_Flag 0x08
@@ -46,7 +47,6 @@
 #define TX_MESSAGE_SETTING_Normal_DHW_Flag 0x84
 
 #define TX_MESSAGE_SETTING_DHW_Flag 0x01
-#define TX_MESSAGE_SETTING_DHWMode_Flag 0x04
 #define TX_MESSAGE_SETTING_HOL_Flag 0x02
 #define TX_MESSAGE_SETTING_SRV_Flag 0x80
 
@@ -138,8 +138,10 @@ const char FTCString[4][6] = { "FTC2B", "FTC4", "FTC5", "FTC6" };
 #define SET_HOT_WATER_BOOST 0x01
 
 #define ZONE1 0x00  // Zone1
-#define ZONE2 0x03  // Zone2
-#define BOTH 0x02   // BOTH
+#define ZONE1_TSTAT 0x02 // Zone 1 Thermostat
+#define ZONE2 0x02  // Zone2
+#define ZONE2_TSTAT 0x08 // Zone 2 Thermostat
+#define BOTH 0x03   // BOTH
 
 
 
@@ -266,14 +268,12 @@ public:
   void CreateBlankTxMessage(uint8_t PacketType, uint8_t PayloadSize);
   void SetPayloadByte(uint8_t Data, uint8_t Location);
   uint8_t PrepareTxCommand(uint8_t *Buffer);
-
-  void EncodeSystemUpdate(uint8_t Flags, float Zone1TempSetpoint, float Zone2TempSetpoint,
-                          uint8_t Zones,
-                          float HotWaterSetpoint,
-                          uint8_t HeatingControlModeZ1, uint8_t HeatingControlModeZ2,
-                          uint8_t HotWaterMode, uint8_t Power);
-
-  void EncodeDHWMode(uint8_t Mode);
+  void EncodePower(uint8_t Power);
+  void EncodeControlMode(uint8_t ControlMode);
+  void EncodeDHWMode(uint8_t HotWaterMode);
+  void EncodeDHWSetpoint(float HotWaterSetpoint);
+  void EncodeRoomThermostat(float Setpoint, uint8_t ControlMode, uint8_t Zone);
+  void EncodeFlowTemperature(float Setpoint, uint8_t ControlMode, uint8_t Zone);
   void EncodeDHW(uint8_t OnOff);
   void EncodeHolidayMode(uint8_t OnOff);
   void EncodeFTCVersion(void);
@@ -325,6 +325,8 @@ private:
   void Process0xA1(uint8_t *Payload, EcodanStatus *Status);
   void Process0xA2(uint8_t *Payload, EcodanStatus *Status);
   void Process0xC9(uint8_t *Payload, EcodanStatus *Status);
+  
+  bool WriteOK(uint8_t *Payload, EcodanStatus *Status);
 };
 
 #endif

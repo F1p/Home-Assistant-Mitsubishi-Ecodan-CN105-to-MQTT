@@ -34,15 +34,16 @@ public:
   void KeepAlive(void);
   uint8_t UpdateComplete(void);
 
-  void SetZoneTempSetpoint(float Zone1Target, float Zone2Target, uint8_t Zones, uint8_t Mode);
+  void SetZoneTempSetpoint(float Setpoint, uint8_t Mode, uint8_t Zone);
+  void SetFlowSetpoint(float Setpoint, uint8_t Mode, uint8_t Zone);
   void SetProhibits(uint8_t Flags, uint8_t OnOff);
   void ForceDHW(uint8_t OnOff);
   void SetDHWMode(String *Mode);
   void SetHolidayMode(uint8_t OnOff);
   void SetSvrControlMode(uint8_t OnOff);
   void GetFTCVersion(void);
-  void SetHotWaterSetpoint(uint8_t Target, uint8_t CurrentMode);
-  void SetHeatingControlMode(String *Mode, uint8_t Zones);
+  void SetHotWaterSetpoint(uint8_t Target);
+  void SetHeatingControlMode(String *Mode);
   void SetSystemPowerMode(String *Mode);
 
 protected:

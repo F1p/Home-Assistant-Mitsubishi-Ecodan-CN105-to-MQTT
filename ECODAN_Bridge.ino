@@ -28,7 +28,7 @@
 #include <ESPTelnet.h>
 #include "Ecodan.h"
 
-String FirmwareVersion = "v5.1.2";
+String FirmwareVersion = "v5.1.2 Pre-Release";
 
 
 int RxPin = 14;  //Rx
@@ -98,7 +98,7 @@ WiFiManagerParameter custom_mqtt_basetopic("basetopic", "MQTT Base Topic", "TEMP
 void HeatPumpQueryStateEngine(void);
 void HeatPumpKeepAlive(void);
 void Zone1Report(void);
-void Zone1Report(void);
+void Zone2Report(void);
 void HotWaterReport(void);
 void SystemReport(void);
 void AdvancedReport(void);
@@ -106,7 +106,7 @@ void AdvancedTwoReport(void);
 void EnergyReport(void);
 
 TimerCallBack HeatPumpQuery1(500, HeatPumpQueryStateEngine);
-TimerCallBack HeatPumpQuery2(60000, HeatPumpKeepAlive);
+TimerCallBack HeatPumpQuery2(15000, HeatPumpKeepAlive);
 
 
 unsigned long wifipreviousMillis = 0;  // variable for comparing millis counter
@@ -131,10 +131,10 @@ void setup() {
   pinMode(Green_RGB_LED, OUTPUT);                                   // Green (RGB) LED
   pinMode(Blue_RGB_LED, OUTPUT);                                    // Blue (RGB) LED
 
-  digitalWrite(Activity_LED, HIGH);                                 // Set On (Inverted)
-  digitalWrite(Red_RGB_LED, LOW);                                   // Set Off
-  digitalWrite(Green_RGB_LED, LOW);                                 // Set Off
-  digitalWrite(Blue_RGB_LED, LOW);                                  // Set Off
+  digitalWrite(Activity_LED, HIGH);  // Set On (Inverted)
+  digitalWrite(Red_RGB_LED, LOW);    // Set Off
+  digitalWrite(Green_RGB_LED, LOW);  // Set Off
+  digitalWrite(Blue_RGB_LED, LOW);   // Set Off
 
   HeatPump.SetStream(&HEATPUMP_STREAM);
 
@@ -211,7 +211,7 @@ void loop() {
     digitalWrite(Red_RGB_LED, LOW);
     delay(500);
     digitalWrite(Red_RGB_LED, HIGH);
-    HeatPump.SetSvrControlMode(0);         // Exit Server Control Mode
+    HeatPump.SetSvrControlMode(0);  // Exit Server Control Mode
     delay(500);
     ESP.reset();  // Then reset
   }
@@ -254,54 +254,26 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
   // Heating & Cooling Zone 1 Commands
   if (Topic == MQTTCommandZone1NoModeSetpoint) {
     DEBUG_PRINTLN("MQTT Set Zone1 Temperature Setpoint");
-    Zone1TemperatureSetpoint_UpdateValue = Payload.toFloat();
-    Zone1_Update_in_Progress = true;
-    if (Zone2_Update_in_Progress) {
-      DEBUG_PRINTLN("Zone2 Update is currently in progress");
-      HeatPump.SetZoneTempSetpoint(Payload.toFloat(), Zone2TemperatureSetpoint_UpdateValue, ZONE1, HeatPump.Status.HeatingControlModeZ1);
-    } else {
-      HeatPump.SetZoneTempSetpoint(Payload.toFloat(), HeatPump.Status.Zone2TemperatureSetpoint, ZONE1, HeatPump.Status.HeatingControlModeZ1);
-    }
+    HeatPump.SetZoneTempSetpoint(Payload.toFloat(), HeatPump.Status.HeatingControlModeZ1, ZONE1);
   }
   // Flow Setpoint Commands
   // Heating & Cooling Zone 1 Commands
   if (Topic == MQTTCommandZone1FlowSetpoint) {
     DEBUG_PRINTLN("MQTT Set Zone1 Flow Setpoint");
-    Zone1FlowSetpoint_UpdateValue = Payload.toInt();
-    Zone1_Update_in_Progress = true;
-    if (Zone2_Update_in_Progress) {
-      DEBUG_PRINTLN("Zone2 Update is currently in progress");
-      HeatPump.SetZoneTempSetpoint(Payload.toInt(), Zone2FlowSetpoint_UpdateValue, ZONE1, HeatPump.Status.HeatingControlModeZ1);
-    } else {
-      HeatPump.SetZoneTempSetpoint(Payload.toInt(), HeatPump.Status.Zone2FlowTemperatureSetpoint, ZONE1, HeatPump.Status.HeatingControlModeZ1);
-    }
+    HeatPump.SetFlowSetpoint(Payload.toInt(), HeatPump.Status.HeatingControlModeZ1, ZONE1);
   }
 
   // Thermostat Setpoint
   // Heating & Cooling Zone 2 Commands
   if (Topic == MQTTCommandZone2NoModeSetpoint) {
-    Zone2TemperatureSetpoint_UpdateValue = Payload.toFloat();
-    Zone2_Update_in_Progress = true;
     DEBUG_PRINTLN("MQTT Set Zone2 Temperature Setpoint");
-    if (Zone1_Update_in_Progress) {
-      DEBUG_PRINTLN("Zone1 Update is currently in progress");
-      HeatPump.SetZoneTempSetpoint(Zone1TemperatureSetpoint_UpdateValue, Payload.toFloat(), ZONE2, HeatPump.Status.HeatingControlModeZ2);
-    } else {
-      HeatPump.SetZoneTempSetpoint(HeatPump.Status.Zone1TemperatureSetpoint, Payload.toFloat(), ZONE2, HeatPump.Status.HeatingControlModeZ2);
-    }
+    HeatPump.SetZoneTempSetpoint(Payload.toFloat(), HeatPump.Status.HeatingControlModeZ2, ZONE2);
   }
   // Flow Setpoint Commands
   // Heating & Cooling Zone 2 Commands
   if (Topic == MQTTCommandZone2FlowSetpoint) {
     DEBUG_PRINTLN("MQTT Set Zone2 Flow Setpoint");
-    Zone2FlowSetpoint_UpdateValue = Payload.toInt();
-    Zone2_Update_in_Progress = true;
-    if (Zone1_Update_in_Progress) {
-      DEBUG_PRINTLN("Zone1 Update is currently in progress");
-      HeatPump.SetZoneTempSetpoint(Zone1FlowSetpoint_UpdateValue, Payload.toInt(), ZONE2, HeatPump.Status.HeatingControlModeZ2);  // Set the Payload and the Zone2 value that is in progress of being written
-    } else {
-      HeatPump.SetZoneTempSetpoint(HeatPump.Status.Zone1FlowTemperatureSetpoint, Payload.toInt(), ZONE2, HeatPump.Status.HeatingControlModeZ2);  // Set the new value and the current value of the other zone
-    }
+    HeatPump.SetFlowSetpoint(Payload.toInt(), HeatPump.Status.HeatingControlModeZ2, ZONE2);
   }
 
 
@@ -347,11 +319,11 @@ void MQTTonData(char* topic, byte* payload, unsigned int length) {
   }
   if (Topic == MQTTCommandHotwaterSetpoint) {
     DEBUG_PRINTLN("MQTT Set HW Setpoint");
-    HeatPump.SetHotWaterSetpoint(Payload.toInt(), HeatPump.Status.HeatingControlModeZ1);
+    HeatPump.SetHotWaterSetpoint(Payload.toInt());
   }
   if (Topic == MQTTCommandSystemHeatingMode) {
     DEBUG_PRINTLN("MQTT Set Heating Mode");
-    HeatPump.SetHeatingControlMode(&Payload, ZONE1);
+    HeatPump.SetHeatingControlMode(&Payload);
   }
   if (Topic == MQTTCommandSystemSvrMode) {
     DEBUG_PRINTLN("MQTT Server Control Mode");
@@ -516,7 +488,7 @@ void EnergyReport(void) {
   doc["HEAT_CoP"] = round2(heat_cop);
   doc["COOL_CoP"] = round2(cool_cop);
   doc["DHW_CoP"] = round2(dhw_cop);
-  doc["TOTAL_CoP"] = round2(total_cop);
+  doc["TOTAL_COP"] = round2(total_cop);
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_ENERGY.c_str(), Buffer, true);

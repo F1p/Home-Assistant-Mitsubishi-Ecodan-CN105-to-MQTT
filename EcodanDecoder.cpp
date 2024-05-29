@@ -103,6 +103,8 @@ uint8_t ECODANDECODER::Process(uint8_t c) {
           Process0xC9(RxMessage.Payload, &Status);
           break;
       }
+    } else if (RxMessage.PacketType == SET_RESPONSE) {
+      WriteOK(RxMessage.Payload, &Status);  // Write OK
     }
   }
   return ReturnValue;
@@ -576,6 +578,11 @@ void ECODANDECODER::Process0xC9(uint8_t *Buffer, EcodanStatus *Status) {
   Status->FTCVersion = FTCVersion;
 }
 
+
+bool ECODANDECODER::WriteOK(uint8_t *Buffer, EcodanStatus *Status) {
+  return true;
+}
+
 float ECODANDECODER::ExtractEnergy(uint8_t *Buffer, uint8_t index) {
   float Energy;
 
@@ -659,51 +666,89 @@ uint8_t ECODANDECODER::CheckSum(uint8_t *Buffer, uint8_t len) {
   return sum;
 }
 
-void ECODANDECODER::EncodeSystemUpdate(uint8_t Flags, float Zone1TempSetpoint, float Zone2TempSetpoint,
-                                       uint8_t Zones,
-                                       float HotWaterSetpoint,
-                                       uint8_t HeatingControlModeZ1, uint8_t HeatingControlModeZ2,
-                                       uint8_t HotWaterMode, uint8_t Power) {
+
+
+void ECODANDECODER::EncodeDHWSetpoint(float HotWaterSetpoint) {
   uint8_t UpperByte, LowerByte;
   uint16_t ScaledTarget;
 
-  TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_1;
-  TxMessage.Payload[1] = Flags;
+  TxMessage.Payload[0] = TX_MESSAGE_BASIC;
+  TxMessage.Payload[1] = SET_HOT_WATER_SETPOINT;
 
-  TxMessage.Payload[2] = Zones;
+  ScaledTarget = HotWaterSetpoint;
+  ScaledTarget *= 100;
+  UpperByte = (uint8_t)(ScaledTarget >> 8);
+  LowerByte = (uint8_t)(ScaledTarget & 0x00ff);
+
+  TxMessage.Payload[8] = UpperByte;
+  TxMessage.Payload[9] = LowerByte;
+}
+
+
+void ECODANDECODER::EncodeControlMode(uint8_t ControlMode) {
+  TxMessage.Payload[0] = TX_MESSAGE_BASIC;
+  TxMessage.Payload[1] = SET_HEATING_CONTROL_MODE;
+  TxMessage.Payload[6] = ControlMode;
+  TxMessage.Payload[7] = ControlMode;
+}
+
+
+void ECODANDECODER::EncodePower(uint8_t Power) {
+  TxMessage.Payload[0] = TX_MESSAGE_BASIC;
+  TxMessage.Payload[1] = SET_SYSTEM_POWER;
   TxMessage.Payload[3] = Power;
-  TxMessage.Payload[4] = 0;
+}
 
 
-  if ((Flags & SET_HOT_WATER_MODE) == SET_HOT_WATER_MODE) {
-    TxMessage.Payload[5] = HotWaterMode;
+void ECODANDECODER::EncodeRoomThermostat(float Setpoint, uint8_t ControlMode, uint8_t Zone) {
+  uint8_t UpperByte, LowerByte;
+  uint16_t ScaledTarget;
+
+  ScaledTarget = Setpoint * 100;
+  UpperByte = (uint8_t)(ScaledTarget >> 8);
+  LowerByte = (uint8_t)(ScaledTarget & 0x00ff);
+
+  TxMessage.Payload[0] = TX_MESSAGE_ROOM_STAT;
+
+  if (ControlMode == HEATING_CONTROL_MODE_COOL_ZONE_TEMP) {
+    TxMessage.Payload[3] = ControlMode == HEATING_CONTROL_MODE_COOL_ZONE_TEMP ? 1 : 0;
   }
 
-  if ((Flags & SET_HEATING_CONTROL_MODE) == SET_HEATING_CONTROL_MODE) {
-    TxMessage.Payload[6] = HeatingControlModeZ1;
-    TxMessage.Payload[7] = HeatingControlModeZ2;
+  if (Zone == ZONE1) {
+    TxMessage.Payload[1] = ZONE1_TSTAT;
+    TxMessage.Payload[4] = UpperByte;
+    TxMessage.Payload[5] = LowerByte;
+  } else if (Zone == ZONE2) {
+    TxMessage.Payload[1] = ZONE2_TSTAT;
+    TxMessage.Payload[6] = UpperByte;
+    TxMessage.Payload[7] = LowerByte;
   }
+}
 
 
-  if ((Flags & SET_HOT_WATER_SETPOINT) == SET_HOT_WATER_SETPOINT) {
-    ScaledTarget = HotWaterSetpoint;
-    ScaledTarget *= 100;
-    UpperByte = (uint8_t)(ScaledTarget >> 8);
-    LowerByte = (uint8_t)(ScaledTarget & 0x00ff);
+void ECODANDECODER::EncodeFlowTemperature(float Setpoint, uint8_t ControlMode, uint8_t Zone) {
+  uint8_t UpperByte, LowerByte;
+  uint16_t ScaledTarget;
 
-    TxMessage.Payload[8] = UpperByte;
-    TxMessage.Payload[9] = LowerByte;
-  }
+  TxMessage.Payload[0] = TX_MESSAGE_BASIC;
+  TxMessage.Payload[2] = Zone;
 
-  if ((Flags & SET_ZONE_SETPOINT) == SET_ZONE_SETPOINT) {
-    ScaledTarget = Zone1TempSetpoint * 100;
+
+  if (Zone == ZONE1) {
+    TxMessage.Payload[1] = 0x80;
+    TxMessage.Payload[6] = ControlMode;          // Thermostat or Flow Setpoint Flag (Thermostat = 0x00, Flow = 0x01/0x03 for Cooling)
+
+    ScaledTarget = Setpoint * 100;
     UpperByte = (uint8_t)(ScaledTarget >> 8);
     LowerByte = (uint8_t)(ScaledTarget & 0x00ff);
 
     TxMessage.Payload[10] = UpperByte;
     TxMessage.Payload[11] = LowerByte;
 
-    ScaledTarget = Zone2TempSetpoint * 100;
+  } else if (Zone == ZONE2) {
+    TxMessage.Payload[7] = ControlMode;         // Thermostat or Flow Setpoint Flag
+
+    ScaledTarget = Setpoint * 100;
     UpperByte = (uint8_t)(ScaledTarget >> 8);
     LowerByte = (uint8_t)(ScaledTarget & 0x00ff);
 
@@ -712,23 +757,24 @@ void ECODANDECODER::EncodeSystemUpdate(uint8_t Flags, float Zone1TempSetpoint, f
   }
 }
 
+
 void ECODANDECODER::EncodeDHWMode(uint8_t Mode) {
   // DHW Mode Normal/Eco
-  TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_1;
-  TxMessage.Payload[1] = TX_MESSAGE_SETTING_DHWMode_Flag;
+  TxMessage.Payload[0] = TX_MESSAGE_BASIC;
+  TxMessage.Payload[1] = SET_HOT_WATER_MODE;
   TxMessage.Payload[5] = Mode;
 }
 
 void ECODANDECODER::EncodeDHW(uint8_t OnOff) {
   // DHW Boost Active
-  TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
+  TxMessage.Payload[0] = TX_MESSAGE_CONTROLLER;
   TxMessage.Payload[1] = TX_MESSAGE_SETTING_DHW_Flag;
   TxMessage.Payload[3] = OnOff;
 }
 
 void ECODANDECODER::EncodeHolidayMode(uint8_t OnOff) {
   // Holiday Mode Active
-  TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
+  TxMessage.Payload[0] = TX_MESSAGE_CONTROLLER;
   TxMessage.Payload[1] = TX_MESSAGE_SETTING_HOL_Flag;
   TxMessage.Payload[4] = OnOff;
 }
@@ -741,7 +787,7 @@ void ECODANDECODER::EncodeFTCVersion() {
 
 void ECODANDECODER::EncodeServerControlMode(uint8_t OnOff) {
   // Heating & DHW "Server Control" Mode
-  TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
+  TxMessage.Payload[0] = TX_MESSAGE_CONTROLLER;
   TxMessage.Payload[1] = TX_MESSAGE_SETTING_SRV_Flag;
   TxMessage.Payload[10] = OnOff;  // Enable the Mode
 }
@@ -749,7 +795,7 @@ void ECODANDECODER::EncodeServerControlMode(uint8_t OnOff) {
 
 void ECODANDECODER::EncodeProhibit(uint8_t Flags, uint8_t OnOff) {
   // Heating & DHW Inhibit "Server Control" Mode
-  TxMessage.Payload[0] = TX_MESSAGE_SETTINGS_2;
+  TxMessage.Payload[0] = TX_MESSAGE_CONTROLLER;
   TxMessage.Payload[1] = Flags;
 
   if ((Flags & TX_MESSAGE_SETTING_Normal_DHW_Flag) == TX_MESSAGE_SETTING_Normal_DHW_Flag) {
