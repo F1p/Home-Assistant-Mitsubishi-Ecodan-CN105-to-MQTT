@@ -298,9 +298,9 @@ Several Unknown Temperatures
 * U2 : Unknown, Heating Flag?
 * U3 : Unknown, Heating Flag?
 ### 0x26
-|  0  | 1 | 2 |  3  | 4  | 5  | 6  |  7 |   8  |  9   |  10 |  11 | 12 | 13 | 14 |
-|-----|---|---|-----|----|----|----|----|------|------|-----|-----|----|----|----|
-| 0x26|   |   | Pwr | OM | HW |OpZ1|OpZ2| HWPS | HWSP | HSP | HSP | SP | SP |    |
+|  0  | 1 | 2 |  3  | 4  | 5  | 6  |  7 |   8  |  9   |  10 |  11 | 12 | 13 | 14 | 15 | 16 |
+|-----|---|---|-----|----|----|----|----|------|------|-----|-----|----|----|----|----|----|
+| 0x26|   |   | Pwr | OM | HW |OpZ1|OpZ2| HWSP | HWSP | HSP | HSP | SP | SP | ?? |    |    | 
 * Pwr - Power
   * 0 : Standby
   * 1 : On
@@ -322,7 +322,8 @@ Several Unknown Temperatures
   * 5 : Dry Up
 * HWSP : HotWater SetPoint * 100;
 * HSP : Heating Flow SetPoint * 100;
-* SP : Unknown Setpoint
+* SP : External Flow SetPoint
+* ?? : 1 for a few cycles when writing to 0x32 byte 14
 ### 0x28 - Various Flags
 |   0   | 1 | 2 | 3 | 4  | 5  |  6 | 7  |  8 |  9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|----|----|----|----|----|----|----|----|----|----|----|----|----|
