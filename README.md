@@ -52,7 +52,7 @@ Active commands so far identified.
 
 * Flags (2 Bytes) : Flags to Indicate which fields are active
   * 0x01 0x00 : Set System Power Power
-  * 0x02 0x00 : Unknown
+  * 0x02 0x00 : Unknown (Byte 4)
   * 0x04 0x00 : Set Hot Water Mode
   * 0x08 0x00 : Set Heating Control Mode Zone 1
   * 0x10 0x00 : Set Heating Control Mode Zone 2
@@ -62,7 +62,8 @@ Active commands so far identified.
   * 0x00 0x01 : Not Required (uint16)
   * 0x00 0x02 : Set Zone 2 Setpoints
   * 0x00 0x04 : Not Required (uint16)
-  * 0x00 0x08 : Unknown
+  * 0x00 0x08 : Unknown (Byte 14)
+  * 0x00 0x10 : Unknown (Byte 15)
 * P : System Power
   * 0x00 : Standby
   * 0x01 : Power On
@@ -94,11 +95,11 @@ Active commands so far identified.
   * 0x20 0x00 : Heating Z2 Inhibit (Only When in "Server Control Mode")
   * 0x40 0x00 : Cooling Z2 Inhibit (Only When in "Server Control Mode")
   * 0x80 0x00 : Server Control Mode
-  * 0x00 0x01 : Unknown 1
-  * 0x00 0x02 : Unknown 2
-  * 0x00 0x04 : Unknown 3
-  * 0x00 0x08 : Unknown 4
-  * 0x00 0x10 : Unknown 5
+  * 0x00 0x01 : Unknown 1 (Byte 11)
+  * 0x00 0x02 : Unknown 2 (Byte 12)
+  * 0x00 0x04 : Unknown 3 (Byte 13)
+  * 0x00 0x08 : Unknown 4 (Byte 14)
+  * 0x00 0x10 : Unknown 5 (Byte 15)
 * DHW : On (1) / Off (0)
 * HOL : On (1) / Off (0)
 * SCM : Server Control Mode On (1) / Off (0)
