@@ -46,22 +46,23 @@ Active commands so far identified.
 | 0x34 | Hot Water and Holiday |
 | 0x35 | Unknown |
 ### 0x32 - Set Options
-|   0   |   1   | 2 | 3 | 4 |  5  |  6  |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
-|-------|-------|---|---|---|-----|-----|-----|-------|-------|------|------|------|------|----|----|----|
-| 0x32  | Flags | Z | P |   | DHW | HC1 | HC2 | DHWSP | DHWSP | Z1SP | Z1SP | Z2SP | Z2SP |    |    |    |  
+|   0   |   1   |   2   | 3 | 4 |  5  |  6  |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
+|-------|-------|-------|---|---|-----|-----|-----|-------|-------|------|------|------|------|----|----|----|
+| 0x32  | Flags | Flags | P |   | DHW | HC1 | HC2 | DHWSP | DHWSP | Z1SP | Z1SP | Z2SP | Z2SP | Unk|    |    |  
 
-* Flags : Flags to Indicate which fields are active
-  * 0x80 : Set Zone Setpoints, Byte[2] determines which Zones
-  * 0x40 : Unknown 
-  * 0x20 : Set Hotwater Setpoint
-  * 0x10 : Unknown
-  * 0x08 : Set Heating Control Mode
-  * 0x04 : Set Hot Water Mode
-  * 0x02 : Unknown
-  * 0x01 : Set System Power Power
-* Z : Zones the Command Applies to (Setpoint & Mode)
-  * 0x00 : Zone 1
-  * 0x02 : Zone 2
+* Flags (2 Bytes) : Flags to Indicate which fields are active
+  * 0x01 0x00 : Set System Power Power
+  * 0x02 0x00 : Unknown
+  * 0x04 0x00 : Set Hot Water Mode
+  * 0x08 0x00 : Set Heating Control Mode Zone 1
+  * 0x10 0x00 : Set Heating Control Mode Zone 2
+  * 0x20 0x00 : Set Hotwater Setpoint
+  * 0x40 0x00 : Not Required (uint16)
+  * 0x80 0x00 : Set Zone 1 Setpoints
+  * 0x00 0x01 : Not Required (uint16)
+  * 0x00 0x02 : Set Zone 2 Setpoints
+  * 0x00 0x04 : Not Required (uint16)
+  * 0x00 0x08 : Unknown
 * P : System Power
   * 0x00 : Standby
   * 0x01 : Power On
@@ -78,33 +79,46 @@ Active commands so far identified.
 * DHWSP : Hot Water Setpoint (Temperature * 100)
 * Z1SP : Zone 1 Setpoint (* 100)
 * Z2SP : Zone 2 Setpoint (* 100) + Flag 0x00
+* Unk : Unknown (Sets 0x26 Byte 14)
 ### 0x34 - Hot Water and Holiday Mode
-|   0   |  1  | 2 | 3 |   4  |  5   |   6  |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
-|-------|-----|---|---|------|------|------|-----|-------|-------|------|------|------|------|----|----|----|
-| 0x34  |Flags|   |DHW|  HOL | IDHW | Z1HI | Z1CI| Z2HI  | CZ2I  | SCM  |      |      |      |    |    |    |  
-* Flags : Flags to Indicate which fields are active
-  * 0x01 : Hot Water Force (Boost)
-  * 0x02 : Holiday Mode
-  * 0x04 : DHW Inhibit (Only When in "Server Control Mode")
-  * 0x08 : Heating Z1 Inhibit (Only When in "Server Control Mode")
-  * 0x10 : Cooling Z1 Inhibit (Only When in "Server Control Mode")
-  * 0x20 : Heating Z2 Inhibit (Only When in "Server Control Mode")
-  * 0x40 : Cooling Z2 Inhibit (Only When in "Server Control Mode")
-  * 0x80 : Server Control Mode
+|   0   |  1  |  2  | 3 |   4  |  5   |   6  |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
+|-------|-----|-----|---|------|------|------|-----|-------|-------|------|------|------|------|----|----|----|
+| 0x34  |Flags|Flags|DHW|  HOL | IDHW | Z1HI | Z1CI| Z2HI  | CZ2I  | SCM  | Unk1 | Unk2 | Unk3 |Unk4|Unk5|    |  
+
+* Flags (2 Bytes) : Flags to Indicate which fields are active
+  * 0x01 0x00 : Hot Water Force (Boost)
+  * 0x02 0x00 : Holiday Mode
+  * 0x04 0x00 : DHW Inhibit (Only When in "Server Control Mode")
+  * 0x08 0x00 : Heating Z1 Inhibit (Only When in "Server Control Mode")
+  * 0x10 0x00 : Cooling Z1 Inhibit (Only When in "Server Control Mode")
+  * 0x20 0x00 : Heating Z2 Inhibit (Only When in "Server Control Mode")
+  * 0x40 0x00 : Cooling Z2 Inhibit (Only When in "Server Control Mode")
+  * 0x80 0x00 : Server Control Mode
+  * 0x00 0x01 : Unknown 1
+  * 0x00 0x02 : Unknown 2
+  * 0x00 0x04 : Unknown 3
+  * 0x00 0x08 : Unknown 4
+  * 0x00 0x10 : Unknown 5
 * DHW : On (1) / Off (0)
 * HOL : On (1) / Off (0)
 * SCM : Server Control Mode On (1) / Off (0)
 * IDHW : Inhibit DHW On (1) / Off (0)
+* Unk1 : Unknown (Sets 0x28 Byte 11)
+* Unk2 : Unknown (Sets 0x28 Byte 12 - suspected)
+* Unk3 : Unknown (Sets 0x28 Byte 13 - suspected)
+* Unk4 : Unknown (Sets 0x28 Byte 14 - suspected)
+* Unk5 : Unknown (Sets 0x28 Byte 15 - suspected)
 ### 0x35 - Set Thermostat Setpoints 
-|   0   |   1  | 2 |  3  |   4  |  5   |   6  |   7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
-|-------|------|---|-----|------|------|------|------|-------|-------|------|------|------|------|----|----|----|
-| 0x35  | Flag |   | CH  | Z1SP | Z1SP | Z2SP | Z2SP |       |       |      |      |      |      |    |    |    |  
-* Flag :
-  * 0x02: Zone 1
-  * 0x08: Zone 2
-* CH : Cooling/Heating
-  * Heating = 0
-  * Cooling = 1
+|   0   |  1  |  2  | 3  |   4  |  5   |   6  |   7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
+|-------|-----|-----|----|------|------|------|------|-------|-------|------|------|------|------|----|----|----|
+| 0x35  |Flags|Flags| CH | Z1SP | Z1SP | Z2SP | Z2SP |       |       |      |      |      |      |    |    |    |  
+
+* Flags (2 Bytes) : Flags to Indicate which fields are active
+  * 0x01 0x00 : Cooling/Heating
+  * 0x02 0x00 : Zone 1 Setpoint
+  * 0x04 0x00 : Not Required (uint16)
+  * 0x08 0x00 : Zone 2 Setpoint
+* CH : Cooling (1) /Heating (0)
 * Z1SP : Zone 1 Setpoint (* 100)
 * Z2SP : Zone 2 Setpoint (* 100)
 ### 0xC9 - FTC Information
