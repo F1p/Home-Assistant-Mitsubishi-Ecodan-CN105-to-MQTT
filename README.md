@@ -117,7 +117,16 @@ Active commands so far identified.
   * 0x01 0x00 : Cooling/Heating
   * 0x02 0x00 : Zone 1 Setpoint
   * 0x04 0x00 : Not Required (uint16)
-  * 0x08 0x00 : Zone 2 Setpoint
+  * 0x08 0x00 : Zone 2 Setpoint  * 
+  * 0x10 0x00 : Not Required (uint16)
+  * 0x20 0x00 : Unknown (Byte 8)
+  * 0x40 0x00 : Unknown (Byte 9)
+  * 0x80 0x00 : Unknown (Byte 10)
+  * 0x00 0x01 : Unknown (Byte 11)
+  * 0x00 0x02 : Unknown (Byte 12)
+  * 0x00 0x04 : Unknown (Byte 13)
+  * 0x00 0x08 : Unknown (Byte 14)
+  * 0x00 0x10 : Unknown (Byte 15)
 * CH : Cooling (1) /Heating (0)
 * Z1SP : Zone 1 Setpoint (* 100)
 * Z2SP : Zone 2 Setpoint (* 100)
