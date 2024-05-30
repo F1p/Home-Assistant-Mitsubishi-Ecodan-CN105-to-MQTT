@@ -34,7 +34,7 @@ Payload Size (Bytes)
 ## Payload
 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |---|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
-| Command | x | x | x | x | x | x | x | x | x | x  | x  |  x |  x |  x |  x |  x |
+| Command | x | x | x | x | x | x | x | x | x | x  | x  |  x |  x |  x |  x |CHK |
 ## Checksum
 Checksum = 0xfc - Sum ( PacketBytes[0..20]) ;
 # Set Request - Packet Type 0x41
@@ -48,7 +48,7 @@ Active commands so far identified.
 ### 0x32 - Set Options
 |   0   |   1   |   2   | 3 | 4 |  5  |  6  |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
 |-------|-------|-------|---|---|-----|-----|-----|-------|-------|------|------|------|------|----|----|----|
-| 0x32  | Flags | Flags | P |   | DHW | HC1 | HC2 | DHWSP | DHWSP | Z1SP | Z1SP | Z2SP | Z2SP | Unk|    |    |  
+| 0x32  | Flags | Flags | P |Unk| DHW | HC1 | HC2 | DHWSP | DHWSP | Z1SP | Z1SP | Z2SP | Z2SP | Unk| Unk|CHK |  
 
 * Flags (2 Bytes) : Flags to Indicate which fields are active
   * 0x01 0x00 : Set System Power Power
@@ -84,7 +84,7 @@ Active commands so far identified.
 ### 0x34 - Hot Water and Holiday Mode
 |   0   |  1  |  2  | 3 |   4  |  5   |   6  |  7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
 |-------|-----|-----|---|------|------|------|-----|-------|-------|------|------|------|------|----|----|----|
-| 0x34  |Flags|Flags|DHW|  HOL | IDHW | Z1HI | Z1CI| Z2HI  | CZ2I  | SCM  | Unk1 | Unk2 | Unk3 |Unk4|Unk5|    |  
+| 0x34  |Flags|Flags|DHW|  HOL | IDHW | Z1HI | Z1CI| Z2HI  | CZ2I  | SCM  | Unk1 | Unk2 | Unk3 |Unk4|Unk5|CHK |  
 
 * Flags (2 Bytes) : Flags to Indicate which fields are active
   * 0x01 0x00 : Hot Water Force (Boost)
@@ -112,7 +112,7 @@ Active commands so far identified.
 ### 0x35 - Set Thermostat Setpoints 
 |   0   |  1  |  2  | 3  |   4  |  5   |   6  |   7  |   8   |   9   |  10  |  11  |  12  |  13  | 14 | 15 | 16 |
 |-------|-----|-----|----|------|------|------|------|-------|-------|------|------|------|------|----|----|----|
-| 0x35  |Flags|Flags| CH | Z1SP | Z1SP | Z2SP | Z2SP |       |       |      |      |      |      |    |    |    |  
+| 0x35  |Flags|Flags| CH | Z1SP | Z1SP | Z2SP | Z2SP |       |       |      |      |      |      |    |    |CHK |  
 
 * Flags (2 Bytes) : Flags to Indicate which fields are active
   * 0x01 0x00 : Cooling/Heating
