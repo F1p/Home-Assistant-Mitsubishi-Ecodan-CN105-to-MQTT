@@ -143,7 +143,7 @@ Active commands so far identified, 0x00 to 0xff. Commands not listed appear to g
 | ------- | ----------- |
 | 0x01 | Time & Date |
 | 0x02 | Defrost |
-| 0x03 | Unknown Running Parameter |
+| 0x03 | Refrigerant and Zone Running Information |
 | 0x04 | Compressor Frequency |
 | 0x05 | Hot Water Boot Flag |
 | 0x06 | Unknown - Empty Response |
@@ -219,7 +219,7 @@ Responses so far identified.
 |-------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
 | 0x02  |   |   | D |   |   |   |   |   |   |    |    |    |    |    |    |    |  
 * D: Defrost
-### 0x03 - Unknown
+### 0x03 - Refrigerant and Zone Running Information
 |   0   |  1 | 2  |  3 |  4 |  5 | 6 | 7 |  8  | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|----|----|----|----|---|---|-----|---|----|----|----|----|----|----|----|
 | 0x03  | RF | F1 | F2 | F3 | F4 |   |   |  M  | S |    |    |    |    |    |    |    |  
@@ -241,7 +241,7 @@ Responses so far identified.
 * DE : Value of 7 given in various running modes
 * HS : Heat Source (Suspected) 0 = H/P, 1 = IH, 2 = BH, 3 = IH + BH, 4 = Boiler
 * HW : Hot Water Running Mode (0 = Off, 1 = Heat Pump Phase, 2 = Heater Phase (e.g. Immersion or Booster))
-### 0x07 
+### 0x07 - Heater Power
 |   0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
 | 0x07  |   |   |   |   |   |   |   |   | P |    |    |    |    |    |    |    |  
@@ -297,7 +297,7 @@ Several Unknown Temperatures
 | 0x13  | U  |   |RH | RH|RH |   |   |   |   |    |    |    |    |    |    |    |  
 * U : Unknown
 * RH: Run Hours
-### 0x14 - Primary Cct Flow Rate
+### 0x14 - Immerson/Booster and Primary Flow Rate
 |   0   | 1  | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
 | 0x14  |    | B |   |   | I |   |   |   |   |    | PF |    |    |    |    |    |  
@@ -321,7 +321,7 @@ Several Unknown Temperatures
 * U1 : Unknown, Comes on about 10min into DHW
 * U2 : Unknown, Heating Flag?
 * U3 : Unknown, Heating Flag?
-### 0x26
+### 0x26 - Operation Information
 |  0  | 1 | 2 |  3  | 4  | 5  | 6  |  7 |   8  |  9   |  10 |  11 | 12 | 13 | 14 | 15 | 16 |
 |-----|---|---|-----|----|----|----|----|------|------|-----|-----|----|----|----|----|----|
 | 0x26|   |   | Pwr | OM | HW |OpZ1|OpZ2| HWSP | HWSP | HSP | HSP | SP | SP | ?? |    |    | 
@@ -360,7 +360,7 @@ Several Unknown Temperatures
 * PHZ2 : Prohibit Heating Zone2
 * PCZ2 : Prohibit Cooling Zone2
 * SC : Server Control Mode Active
-### 0x29 - 
+### 0x29 - Thermostats
 |   0   | 1 | 2 | 3 |  4  |  5  |  6  |  7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|-----|-----|-----|-----|---|---|----|----|----|----|----|----|----|
 | 0x29  |   |   |   | Z1T | Z1T | Z2T | Z2T |   |   |    |    |    |    |    |    |    |  
