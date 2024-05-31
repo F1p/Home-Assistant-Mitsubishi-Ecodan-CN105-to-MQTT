@@ -363,7 +363,8 @@ Several Unknown Temperatures
 ### 0x29 - Thermostats
 |   0   | 1 | 2 | 3 |  4  |  5  |  6  |  7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|-----|-----|-----|-----|---|---|----|----|----|----|----|----|----|
-| 0x29  |   |   |   | Z1T | Z1T | Z2T | Z2T |   |   |    |    |    |    |    |    |    |  
+| 0x29  |   |   | HC| Z1T | Z1T | Z2T | Z2T |   |   |    |    |    |    |    |    |    |  
+* HC : Heating (0) / Cooling (1)
 * Z1T : Zone1 Temperature * 100
 * Z2T : Zone2 Temperature * 100
 ### 0xA1 - Consumed Energy
