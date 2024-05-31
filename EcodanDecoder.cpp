@@ -63,7 +63,7 @@ uint8_t ECODANDECODER::Process(uint8_t c) {
         case 0x0d:
           Process0x0D(RxMessage.Payload, &Status);
           break;
-        case 0x0e:
+        case 0x10:
           Process0x10(RxMessage.Payload, &Status);
           break;
         case 0x11:
@@ -521,10 +521,16 @@ void ECODANDECODER::Process0x28(uint8_t *Buffer, EcodanStatus *Status) {
 }
 
 void ECODANDECODER::Process0x29(uint8_t *Buffer, EcodanStatus *Status) {
-  // Suspected Duplication
-  //float fZone1, fZone2;
-  //fZone1 = ((float)ExtractUInt16(Buffer, 4) / 100);
-  //fZone2 = ((float)ExtractUInt16(Buffer, 6) / 100);
+  uint8_t HeatCool;
+  //float fZone1TempSetpoint, fZone2TempSetpoint;
+
+  HeatCool = Buffer[3];
+  //fZone1TempSetpoint = ((float)ExtractUInt16(Buffer, 4) / 100);
+  //fZone2TempSetpoint = ((float)ExtractUInt16(Buffer, 6) / 100);
+
+  Status->HeatCool = HeatCool;
+  //Status->Zone1TemperatureSetpoint = fZone1TempSetpoint;
+  //Status->Zone2TemperatureSetpoint = fZone2TempSetpoint;
 }
 
 void ECODANDECODER::Process0xA1(uint8_t *Buffer, EcodanStatus *Status) {

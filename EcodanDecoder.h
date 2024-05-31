@@ -90,7 +90,9 @@ const char SystemOperationModeString[8][14] = { "Off", "Hot Water", "Heating", "
 
 #define HOT_WATER_CONTROL_MODE_NORMAL 0
 #define HOT_WATER_CONTROL_MODE_ECO 1
-const char HowWaterControlModeString[2][7] = { "Normal", "Eco" };
+const char HotWaterControlModeString[2][7] = { "Normal", "Eco" };
+
+const char HPControlModeString[2][5] = { "Heat", "Cool" };
 
 #define HEATING_CONTROL_MODE_ZONE_TEMP 0x00
 #define HEATING_CONTROL_MODE_FLOW_TEMP 0x01
@@ -238,6 +240,7 @@ typedef struct _EcodanStatus {
   uint8_t SvrControlMode;
 
   //From Message 0x29
+  uint8_t HeatCool;
   //float Zone1TemperatureSetpoint;  Already Defined Above
   //float Zone2TemperatureSetpoint;  Already Defined Above
 

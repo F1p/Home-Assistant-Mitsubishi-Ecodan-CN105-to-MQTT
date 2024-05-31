@@ -30,10 +30,10 @@ uint8_t Init3[] = { 0xfc, 0x5a, 0x02, 0x7a, 0x02, 0xca, 0x01, 0x5d };
 uint8_t Init4[] = { 0xfc, 0x5b, 0x02, 0x7a, 0x01, 0xc9, 0x5f };
 uint8_t Init5[] = { 0xfc, 0x41, 0x02, 0x7a, 0x10, 0x34, 0x00, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0xfd };
 
-#define NUMBER_COMMANDS 20
+#define NUMBER_COMMANDS 21
 uint8_t ActiveCommand[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x07, 0x09, 0x0B, 0x0C, 0x0D,
                             0x10, 0x13, 0x14, 0x15, 0x16,
-                            0x26, 0x28,
+                            0x26, 0x28, 0x29,
                             0xA1, 0xA2,
                             0x00 };
 
@@ -365,15 +365,15 @@ void ECODAN::SetHeatingControlMode(String *Mode) {
 
   StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
-  if (*Mode == String("Temperature Control")) {
+  if (*Mode == String("Heating Temperature")) {
     ECODANDECODER::EncodeControlMode(HEATING_CONTROL_MODE_ZONE_TEMP);
-  } else if (*Mode == String("Fixed Flow")) {
+  } else if (*Mode == String("Heating Flow")) {
     ECODANDECODER::EncodeControlMode(HEATING_CONTROL_MODE_FLOW_TEMP);
-  } else if (*Mode == String("Compensation Flow")) {
+  } else if (*Mode == String("Heating Compensation")) {
     ECODANDECODER::EncodeControlMode(HEATING_CONTROL_MODE_COMPENSATION);
-  } else if (*Mode == String("Cool Temperature")) {
+  } else if (*Mode == String("Cooling Temperature")) {
     ECODANDECODER::EncodeControlMode(HEATING_CONTROL_MODE_COOL_ZONE_TEMP);
-  } else if (*Mode == String("Cool Flow")) {
+  } else if (*Mode == String("Cooling Flow")) {
     ECODANDECODER::EncodeControlMode(HEATING_CONTROL_MODE_COOL_FLOW_TEMP);
   } else if (*Mode == String("Dry Up")) {
     ECODANDECODER::EncodeControlMode(HEATING_CONTROL_MODE_DRY_UP);

@@ -379,7 +379,7 @@ void HotWaterReport(void) {
   doc["HotWaterBoostActive"] = HeatPump.Status.HotWaterBoostActive;
   doc["ProhibitDHW"] = HeatPump.Status.ProhibitDHW;
   doc["DHWActive"] = HeatPump.Status.DHWActive;
-  doc["HotWaterControlMode"] = HowWaterControlModeString[HeatPump.Status.HotWaterControlMode];
+  doc["HotWaterControlMode"] = HotWaterControlModeString[HeatPump.Status.HotWaterControlMode];
   doc["LegionellaSetpoint"] = HeatPump.Status.LegionellaSetpoint;
   doc["HotWaterMaxTDrop"] = HeatPump.Status.HotWaterMaximumTempDrop;
   doc["HotWaterPhase"] = DHWPhaseString[HeatPump.Status.DHWHeatSourcePhase];
@@ -523,6 +523,7 @@ void AdvancedTwoReport(void) {
   doc["Z1TstatDemand"] = HeatPump.Status.Zone1ThermostatDemand;
   doc["Z2TstatDemand"] = HeatPump.Status.Zone2ThermostatDemand;
   doc["OTstatDemand"] = HeatPump.Status.OutdoorThermostatDemand;
+  doc["OpMode"] = HPControlModeString[HeatPump.Status.HeatCool];
 
   serializeJson(doc, Buffer);
   MQTTClient.publish(MQTT_STATUS_ADVANCED_TWO.c_str(), Buffer, true);
