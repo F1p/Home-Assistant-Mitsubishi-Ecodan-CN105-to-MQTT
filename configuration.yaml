@@ -441,7 +441,7 @@ mqtt:
         'Heating Compensation' if value_json.HeatingControlMode=='Compensation' else
         'Cooling Temperature' if value_json.HeatingControlMode=='Cool' else
         'Cooling Flow' if value_json.HeatingControlMode=='Cool Flow' else
-        'Dry Up' if value_json.HeatingControlMode=='Dry Up' }}"
+        'Dry Up' if value_json.HeatingControlMode=='Dry Up' }} "
       options:
         - "Heating Temperature"
         - "Heating Flow"
@@ -449,6 +449,7 @@ mqtt:
         - "Cooling Temperature"
         - "Cooling Flow"
         - "Dry Up"
+
 
     - unique_id: "ashp_dhw_mode"
       name: "System DHW Mode"
