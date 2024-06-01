@@ -28,7 +28,7 @@
 #include <ESPTelnet.h>
 #include "Ecodan.h"
 
-String FirmwareVersion = "v5.1.2 Pre-Release";
+String FirmwareVersion = "v5.1.2";
 
 
 int RxPin = 14;  //Rx
@@ -106,7 +106,7 @@ void AdvancedTwoReport(void);
 void EnergyReport(void);
 
 TimerCallBack HeatPumpQuery1(500, HeatPumpQueryStateEngine);
-TimerCallBack HeatPumpQuery2(15000, HeatPumpKeepAlive);
+TimerCallBack HeatPumpQuery2(30000, HeatPumpKeepAlive);
 
 
 unsigned long wifipreviousMillis = 0;  // variable for comparing millis counter
