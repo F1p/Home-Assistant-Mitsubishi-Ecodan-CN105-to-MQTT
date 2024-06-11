@@ -349,10 +349,10 @@ mqtt:
       temperature_state_template: "{{ value_json.Setpoint }}"
       mode_state_topic: "Ecodan/ASHP/Status/System"
       # One Zone System:
-      #mode_state_template: "{{ 'heat' if value_json.SystemOperationMode=='Heating' else 'off' }}"
+      #mode_state_template: "{{ 'heat' if value_json.SystemOperationMode=='Heating' else 'cool' if value_json.SystemOperationMode=='Cooling' else 'off' }}"
       # Two Zone Systems:
-      mode_state_template: "{{ 'heat' if (value_json.SystemOperationMode=='Heating' and states('sensor.zone_1_working')=='1') else 'off' }}"
-      modes: ["heat", "off"]
+      mode_state_template: "{{ 'heat' if (value_json.SystemOperationMode=='Heating' and states('sensor.zone_1_working')=='1') else 'cool' if (value_json.SystemOperationMode=='Cooling' and states('sensor.zone_1_working')=='1') else 'off' }}"
+      modes: ["heat", "cool", "off"]
       availability:
         - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
@@ -375,8 +375,39 @@ mqtt:
       temperature_state_topic: "Ecodan/ASHP/Status/Zone2"
       temperature_state_template: "{{ value_json.Setpoint }}"
       mode_state_topic: "Ecodan/ASHP/Status/System"
-      mode_state_template: "{{ 'heat' if (value_json.SystemOperationMode=='Heating' and states('sensor.zone_2_working')=='1') else 'off' }}"
-      modes: ["heat", "off"]
+      mode_state_template: "{{ 'heat' if (value_json.SystemOperationMode=='Heating' and states('sensor.zone_2_working')=='1') else 'cool' if (value_json.SystemOperationMode=='Cooling' and states('sensor.zone_2_working')=='1') else 'off' }}"
+      modes: ["heat", "cool", "off"]
+      availability:
+        - topic: "Ecodan/ASHP/LWT"
+          template: "{{ value_json }}"
+          payload_available: "online"
+          payload_not_available: "offline"
+
+  water_heater:
+    - unique_id: "DHW_Heater"
+      name: DHW Heater
+      modes:
+        - "off"
+        - "eco"
+        - "performance"
+      min_temp: 40.0
+      max_temp: 60.0
+      temperature_unit: "C"
+      mode_state_topic: "Ecodan/ASHP/Status/HotWater"
+      mode_state_template: >-
+        {% if (value_json.HotWaterControlMode=="Eco" and value_json.DHWActive=='1') %} eco 
+        {% elif (value_json.HotWaterControlMode=="Normal" and value_json.DHWActive=='1') %} performance 
+        {% else %} off {% endif %}
+      mode_command_topic: "Ecodan/ASHP/Command/HotWater/Mode"
+      mode_command_template: >-
+        {% set values = { 'eco':'Eco', 'performance':'Normal'} %}
+        {{ values[value] if value in values.keys() else 'off' }}
+      temperature_state_topic: "Ecodan/ASHP/Status/HotWater"
+      temperature_state_template: "{{ value_json.Setpoint }}"
+      temperature_command_topic: "Ecodan/ASHP/Command/HotWater/Setpoint"
+      current_temperature_topic: "Ecodan/ASHP/Status/HotWater"
+      current_temperature_template: "{{ value_json.Temperature }}"
+      precision: 0.5
       availability:
         - topic: "Ecodan/ASHP/LWT"
           template: "{{ value_json }}"
