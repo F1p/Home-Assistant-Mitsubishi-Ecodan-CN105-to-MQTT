@@ -1,7 +1,26 @@
-# Mitsubishi-CN105-Protocol-Decode
-For Ecodan ASHP Units
-I have included my reference implemenataion, but all very much work in progress
+# Mitsubishi Ecodan Bridge CN105
 
+This software between the Mitsubishi Ecodan FTC controller and a MQTT Broker allows data to be read and commands to be sent.
+
+# Hardware
+
+Supported Hardware is ESP8266 ebay sold hardware: https://www.ebay.co.uk/itm/325967595655
+
+
+
+M5Stack Atom S3 Lite
+Pre-compiled M5Stack Atom S3 Lite can be found in the /build folder and flashed with:
+    ```
+    "C:\Users\User\AppData\Local\Arduino15\packages\esp32\tools\esptool_py\4.5.1/esptool.exe" --chip esp32s3 --port "COM10" --baud 921600  --before default_reset --after hard_reset write_flash -e -z --flash_mode dio --flash_freq 80m --flash_size 4MB 0x0 "C:\Users\User\AppData\Local\Temp\arduino\sketches\0DE0390D9C96CA421EFCBB845697D0C1/ECODAN_Bridge_ESP32_5.1.5.ino.bootloader.bin" 0x8000 "C:\Users\User\AppData\Local\Temp\arduino\sketches\0DE0390D9C96CA421EFCBB845697D0C1/ECODAN_Bridge_ESP32_5.1.5.ino.partitions.bin" 0xe000 "C:\Users\User\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.17/tools/partitions/boot_app0.bin" 0x10000 "C:\Users\User\AppData\Local\Temp\arduino\sketches\0DE0390D9C96CA421EFCBB845697D0C1/ECODAN_Bridge_ESP32_5.1.5.ino.bin"
+    ```
+
+
+
+
+
+
+# Mitsubishi CN105 Protocol Decode
+For Ecodan ASHP Units this is the protocol decode information
 https://gitter.im/Mitsubishi-CN105-Protocol-Decode/community
 
 # Physical
