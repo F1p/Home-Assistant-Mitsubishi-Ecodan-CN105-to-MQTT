@@ -148,7 +148,6 @@ unsigned long looppreviousMillis = 0;  // variable for comparing millis counter
 int CPULoopSpeed;                      // variable for holding loop time in ms
 unsigned long ftcpreviousMillis = 0;   // variable for comparing millis counter
 int FTCLoopSpeed;                      // variable for holding loop time in ms
-
 unsigned long wifipreviousMillis = 0;  // variable for comparing millis counter
 bool WiFiOneShot = true;
 bool HeatPumpQueryOneShot = true;
@@ -222,6 +221,7 @@ void loop() {
   if (HeatPump.Status.Write_To_Ecodan_OK && PostWriteUpdateRequired) {  // A write command has just been written (Not Keep Alive)
     DEBUG_PRINTLN("Write OK!");                                         // Pause normal processsing until complete
     HeatPump.Status.Write_To_Ecodan_OK = false;                         // Set back to false
+    delay(100);                                                         // Short delay before read back
     PostWriteUpdateRequired = false;                                    // Set back to false
     HeatPump.RequestStatus(MessageNumber);                              // Initate a readback
     HeatPump.Status.PostWriteReadComplete = false;                      // Set false, will return true when Rx message comes in
