@@ -299,16 +299,21 @@ Responses so far identified.
 * RF : Heater Return Flow Temperature * 100
 * HW : Hot Water Temperature * 100 (THW5 or THW5B)
 * HW2 : Hot Water Temperature * 100 (THW5A if installed)
-### 0x0d - Boiler Temps
+### 0x0d - Thermistors 1
 |  0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
-| 0x0d | F | F |   | R | R |   |   |   |   |    |    |    |    |    |    |    |
-* F : Boiler Flow Temperature * 100 (Where THWB1 installed)
-* R : Boiler Return Temperature * 100  (Where THWB2 is installed)
-### 0x0e - Unknown Temps
+| 0x0d | F1 | F1 |   | R1 | R1 |   | F2 | F2 |   |  R2 |  R2  |    |    |    |    |    |
+* F1 : Zone 1 Flow Temperature * 100 (Where THW6 installed)
+* R1 : Zone 1 Return Temperature * 100  (Where THW7 is installed)
+* F1 : Zone 2 Flow Temperature * 100 (Where THW8 installed)
+* R1 : Zone 2 Return Temperature * 100  (Where THW9 is installed)
+### 0x0e - Thermistors 2
 |  0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
-| 0x0e |   |   |   |   |   |   |   |   |   |    |    |    |    |    |    |    |
+| 0x0e | F | F |   | R | R |   | X | X |   |    |    |    |    |    |    |    |
+* F : Boiler Flow Temperature * 100    Suspected (Where THWB1 installed)
+* R : Boiler Return Temperature * 100     Suspected (Where THWB2 is installed)
+* X : Mixing Tank Temperature * 100        Suspected (Where THW10 is installed)  
 ### 0x10 - Hardwired Thermostats
 |   0   |  1  |  2  |  3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|-----|-----|----|---|---|---|---|---|---|----|----|----|----|----|----|----|
