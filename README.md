@@ -10,7 +10,7 @@ Supported Hardware is ESP8266 ebay sold hardware: https://www.ebay.co.uk/itm/325
 
 M5Stack Atom S3 Lite
 
-1. Download the files from the [/build](https://github.com/F1p/Mitsubishi-Ecodan-Bridge-CN105/tree/master/build/esp32.esp32.m5stack-atoms3) folder.
+1. Download the files from the [/build](https://github.com/F1p/Home-Assistant-Mitsubishi-Ecodan-CN105-to-MQTT/tree/master/build/esp32.esp32.m5stack-atoms3) folder.
 
 2. Download [esptool.exe](https://github.com/espressif/esptool/releases) from Espressif.
 
