@@ -33,6 +33,7 @@ public:
   void StatusStateMachine(void);
   void KeepAlive(void);
   uint8_t UpdateComplete(void);
+  uint8_t Lastmsbetweenmsg(void);
 
   void SetZoneTempSetpoint(float Setpoint, uint8_t Mode, uint8_t Zone);
   void SetFlowSetpoint(float Setpoint, uint8_t Mode, uint8_t Zone);
@@ -43,8 +44,8 @@ public:
   void SetSvrControlMode(uint8_t OnOff);
   void GetFTCVersion(void);
   void SetHotWaterSetpoint(uint8_t Target);
-  void SetHeatingControlMode(String *Mode);
-  void SetSystemPowerMode(String *Mode);
+  void SetHeatingControlMode(uint8_t Mode);
+  void SetSystemPowerMode(uint8_t OnOff);
 
 protected:
 
@@ -53,6 +54,9 @@ private:
 
   uint8_t UpdateFlag;
   uint8_t Connected;
+  
+  uint8_t msbetweenmsg;
+
   MessageStruct TXMessage;
   Stream *DeviceStream;
   void Connect(void);
