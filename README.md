@@ -71,7 +71,7 @@ Serial, 2400, 8, E, 1
 |  0x7A | Connect Response | From Heat Pump |
 |  0x7B | Get Response     | From Heat Pump |
 |  0x5B | Extended Connect Request  | To Heat Pump   |
-|  0x7B | Extended Connect Responce | To Heat Pump   |
+|  0x7B | Extended Connect Response | To Heat Pump   |
 ### Length
 Payload Size (Bytes)
 ## Payload
