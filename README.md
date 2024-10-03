@@ -94,7 +94,7 @@ Active commands so far identified.
 | 0x32  | Flags | Flags | P |Unk| DHW | HC1 | HC2 | DHWSP | DHWSP | Z1SP | Z1SP | Z2SP | Z2SP | MRC| MRC|CHK |  
 
 * Flags (2 Bytes) : Flags to Indicate which fields are active
-  * 0x01 0x00 : Set System Power Power
+  * 0x01 0x00 : Set System Power
   * 0x02 0x00 : Unknown (Byte 4) - Operation Mode?
   * 0x04 0x00 : Set Hot Water Mode
   * 0x08 0x00 : Set Heating Control Mode Zone 1
@@ -197,12 +197,14 @@ Active commands so far identified, 0x00 to 0xff. Commands not listed appear to g
 | 0x05 | Hot Water Boot Flag |
 | 0x06 | Unknown - Empty Response |
 | 0x07 | Output Power |
+| 0x08 | Unknown - Empty Response |
 | 0x09 | Zone 1 & 2 Temperatures and Setpoints, Hot Water Setpoint |
 | 0x0b | Zone 1 & 2 and Outside |Temperature
 | 0x0c | Water Flow Temperatures |
 | 0x0d | Boiler Flow Temperatures |
-| 0x0e | Unknown |
-| 0x10 | Unknown |
+| 0x0e | Thermistors 2 |
+| 0x0f | Thermistors 3 (FTC6+ Only) |
+| 0x10 | External sources |
 | 0x11 | Unknown |
 | 0x13 | Run Hours |
 | 0x14 | Primary Flow Rate |
@@ -219,11 +221,10 @@ Active commands so far identified, 0x00 to 0xff. Commands not listed appear to g
 | 0x20 | Unknown - Empty Response |
 | 0x26 | Various Operantion Mode Flags |
 | 0x27 | Unknown |
-| 0x28 | Unknown |
 | 0x28 | Various Operantion Mode Flags |
 | 0x29 | Zone 1 & 2 Temperatures |
-| 0xa1 | Unknown |
-| 0xa2 | Unknown |
+| 0xa1 | Consumed Energy |
+| 0xa2 | Delivered Energy |
 ### Payload - All Commands
 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |---|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
@@ -265,23 +266,25 @@ Responses so far identified.
 ### 0x02 - Defrost
 |   0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
-| 0x02  |   |   | D |   |   |   |   |   |   |    |    |    |    |    |    |    |  
+| 0x02  |   | R | D | HR? |   |   |   |   |   |    |    |    |    |    |    |    |  
+* R: Own Refrigerant Address
 * D: Defrost
+* HR: Residual Heat Removal?
 ### 0x03 - Refrigerant and Zone Running Information
 |   0   |  1 | 2  |  3 |  4 |  5 | 6 | 7 |  8  | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|----|----|----|----|---|---|-----|---|----|----|----|----|----|----|----|
-| 0x03  | RF | F1 | F2 | F3 | F4 |   |   |  M  | S |    |    |    |    |    |    |    |  
+| 0x03  | RF | F1 | F2 | F3 | F4 |   |   |  M  | MF |    |    |    |    |    |    |    |  
 * RF: Refrigerant Flt Code
 * F1: Fault Code * 100 + Flt Code (F2) (Numbers)
 * F3: Fault Code (Letter) 1
 * F4: Fault Code (Letter) 2
 * M: Multi Zone Running Parameter (3 = Z2 Working, 2 = Z1 Working, 1 = Both Zones working, 0 = Idle)
-* S: Single Zone Running Parameter (TBC)?
 ### 0x04 - Various Flags
 |   0   | 1  | 2 | 3 | 4 | 5 | 6 |  7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
 | 0x04  | CF |   |   |   |   |   |   |   |   |    |    |    |    |    |    |    |  
 * CF : Compressor Frequency
+* Slave Frequency in other bytes
 ### 0x05 - Various Flags
 |   0  | 1 | 2 | 3 | 4 |  5 |  6  |  7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |------|---|---|---|---|----|-----|-----|---|---|----|----|----|----|----|----|----|
@@ -292,7 +295,8 @@ Responses so far identified.
 ### 0x07 - Heater Power
 |   0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
-| 0x07  |   |   |   |   |   | P |   |   |   |    |    |    |    |    |    |    |  
+| 0x07  |   |   |   | I |   | P |   |   |   |    |    |    |    |    |    |    |  
+* I : Input Power (kW) - 0 = 0-1kW, 1 = 1-2kW, 2 = 2-3kW etc.
 * P : Heater Power (to nearest kW)
 ### 0x09 - Zone 1 & 2 Temperatures and Setpoints, Hot Water Setpoint
 | 0    |   1  |   2  | 3    | 4    | 5    | 6    | 7    | 8    |  9  |  10 |  11 | 12 | 13 | 14 | 15 | 16 |
@@ -334,10 +338,15 @@ Responses so far identified.
 ### 0x0e - Thermistors 2
 |  0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
-| 0x0e | F | F |   | R | R |   | X | X |   |    |    |    |    |    |    |    |
-* F : Boiler Flow Temperature * 100    Suspected (Where THWB1 installed)
-* R : Boiler Return Temperature * 100     Suspected (Where THWB2 is installed)
-* X : Mixing Tank Temperature * 100        Suspected (Where THW10 is installed)  
+| 0x0e | F | F |   | R | R |   |   |   |   |    |    |    |    |    |    |    |
+* F : Boiler Flow Temperature * 100    (Where THWB1 installed)
+* R : Boiler Return Temperature * 100     (Where THWB2 is installed)
+### 0x0f - Thermistors 3 (FTC6+ Only)
+|  0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
+| 0x0f | M | M |   | C | C |   |   |   |   |    |    |    |    |    |    |    |
+* M : Mixing Tank Temperature * 100        (Where THW10 is installed)
+* C : Condensing Temperature * 100
 ### 0x10 - Hardwired Thermostats
 |   0   |  1  |  2  |  3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|-----|-----|----|---|---|---|---|---|---|----|----|----|----|----|----|----|
@@ -345,6 +354,15 @@ Responses so far identified.
 * Z1T: Hardwired/External (IN1) Thermostat 1 Demand (On/Off)
 * Z2T: Hardwired/External (IN6) Thermostat 2 Demand (On/Off)
 * OT: Hardwired/External (IN5) Outdoor Thermostat Demand (On/Off)
+### 0x11 - Dip Switches?
+|   0   |  1  |  2  |  3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|-------|-----|-----|----|---|---|---|---|---|---|----|----|----|----|----|----|----|
+| 0x10  | 1   |     | 3  |   | 4 |   | 5 |   | 6 |    |    |    |    |    |    |    |
+* Switch 1
+* Switch 3
+* Switch 4
+* Switch 5
+* Switch 6
 ### 0x13 - Run Hours
 |   0   | 1  | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
@@ -439,15 +457,15 @@ Responses so far identified.
 |   0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
 | 0xC9  |U1 |   |U2 |   |U3 | V |   |   |   |    |    |    |    |    |    |    |  
-* U1: Unknown
-* U2: Unknown
-* U3: Unknown
+* U1: Version of Protocol (Upper/Lower) BCD
+* U2: Version of Model (Upper/Lower) BCD
+* U3: Capacity of Supply
 * V: FTC Version:
       0: FTC2B
       1: FTC4
       2: FTC5
       3: FTC6
-      4: FTC7
+      5: FTC7
       128: CAHV1A
       129: CAHV1B
       130: CRHV1A
