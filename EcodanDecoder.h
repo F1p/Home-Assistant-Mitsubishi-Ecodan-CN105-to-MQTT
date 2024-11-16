@@ -33,6 +33,7 @@
 #define CONNECT_RESPONSE 0x7A
 #define EXCONNECT_REQUEST 0x5B
 #define EXCONNECT_RESPONSE 0x7B
+#define CONNECT_BAUD_SET 0xFF
 
 #define TX_MESSAGE_BASIC 0x032
 #define TX_MESSAGE_CONTROLLER 0x034
@@ -287,7 +288,7 @@ public:
   void EncodeForcedDHW(uint8_t OnOff);
   void EncodeHolidayMode(uint8_t OnOff);
   void EncodeFTCVersion(void);
-  void EncodeServerControlMode(uint8_t OnOff, uint8_t DHW, uint8_t Z1H, uint8_t Z1C, uint8_t Z2H, uint8_t Z2C);
+  void EncodeServerControlMode(uint8_t OnOff);
   void EncodeProhibit(uint8_t Flags, uint8_t OnOff);
 
   EcodanStatus Status;

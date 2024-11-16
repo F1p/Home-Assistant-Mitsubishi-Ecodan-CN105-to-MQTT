@@ -23,7 +23,7 @@ extern ESPTelnet TelnetServer;
 // Initialisation Commands
 uint8_t Init1[] = { 0x02, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x02 };
 uint8_t Init2[] = { 0x02, 0xff, 0xff, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00 };
-uint8_t Init3[] = { 0xfc, 0x5a, 0x02, 0x7a, 0x02, 0xca, 0x01, 0x5d };  // Air to Water Connect
+uint8_t Init3[] = { 0xfc, 0x5a, 0x02, 0x7a, 0x02, 0xca, 0x01, 0x5d };                                       // Air to Water Connect
 uint8_t Init4[] = { 0xfc, 0x5b, 0x02, 0x7a, 0x01, 0xc9, 0x5f };
 uint8_t Init5[] = { 0xfc, 0x41, 0x02, 0x7a, 0x10, 0x34, 0x00, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0xfd };
 
@@ -153,9 +153,7 @@ void ECODAN::RequestStatus(uint8_t TargetMessage) {
   DeviceStream->flush();
 
   for (i = 0; i < CommandSize; i++) {
-    if (Buffer[i] < 0x10) {
-      DEBUG_PRINT("0");
-    }
+    if (Buffer[i] < 0x10) DEBUG_PRINT("0");
     DEBUG_PRINT(String(Buffer[i], HEX));
     DEBUG_PRINT(", ");
   }
@@ -368,14 +366,14 @@ void ECODAN::SetProhibits(uint8_t Flags, uint8_t OnOff) {
 }
 
 
-void ECODAN::SetSvrControlMode(uint8_t OnOff, uint8_t DHW, uint8_t Z1H, uint8_t Z1C, uint8_t Z2H, uint8_t Z2C) {
+void ECODAN::SetSvrControlMode(uint8_t OnOff) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
   uint8_t i;
 
   StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
-  ECODANDECODER::EncodeServerControlMode(OnOff, DHW, Z1H, Z1C, Z2H, Z2C);
+  ECODANDECODER::EncodeServerControlMode(OnOff);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
   lastmsgdispatchedMillis = millis();
