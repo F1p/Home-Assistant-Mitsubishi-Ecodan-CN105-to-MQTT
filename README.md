@@ -4,13 +4,17 @@ This software between the Mitsubishi Ecodan FTC controller and a MQTT Broker all
 
 # Hardware
 
-Supported Hardware is ESP8266 ebay sold hardware: https://www.ebay.co.uk/itm/325967595655
+Supported Hardware is:
+
+ - Generation 1 ESP8266 ebay sold hardware: https://www.ebay.co.uk/itm/325967595655
+ - Generation 2 ESP32 ebay sold hardware: https://www.ebay.co.uk/itm/326347231581
+ - ESP32 Ethernet ebay sold hardware: https://www.ebay.co.uk/itm/326278295259
 
 
 
 M5Stack Atom S3 Lite
 
-1. Download the files from the [/build](https://github.com/F1p/Mitsubishi-Ecodan-Bridge-CN105/tree/master/build/esp32.esp32.m5stack-atoms3) folder.
+1. Download the files from the [/build](https://github.com/F1p/Mitsubishi-CN105-Protocol-Decode/tree/master/build/esp32.esp32.m5stack_atoms3) folder.
 
 2. Download [esptool.exe](https://github.com/espressif/esptool/releases) from Espressif.
 
@@ -19,10 +23,11 @@ M5Stack Atom S3 Lite
 4. Open CMD prompt in the folder with the files saved and run:
 
     ```
-    esptool.exe --chip esp32s3 --port "COM12" --baud 921600  --before default_reset --after hard_reset write_flash -e -z --flash_mode dio --flash_freq 80m --flash_size 4MB 0x0 "ECODAN_Bridge_v5.2.0.bootloader.bin" 0x8000 "ECODAN_Bridge_v5.2.0.partitions.bin" 0xe000 "boot_app0.bin" 0x10000 "ECODAN_Bridge_v5.2.0.bin"
+    esptool.exe --chip esp32s3 --port "COM12" --baud 921600  --before default_reset --after hard_reset write_flash -e -z --flash_mode dio --flash_freq 80m --flash_size 4MB 0x0 "ECODAN_Bridge_Gen2_v5.3.0.bootloader.bin" 0x8000 "ECODAN_Bridge_Gen2_v5.3.0.partitions.bin" 0xe000 "boot_app0.bin" 0x10000 "ECODAN_Bridge_Gen2_v5.3.0.bin"
     ```
 
 5. The Pins on the M5Stack are: 1 = Tx, 2 = Rx
+
 
 Wemos D1 Mini
 
@@ -333,8 +338,8 @@ Responses so far identified.
 | 0x0d | F1 | F1 |   | R1 | R1 |   | F2 | F2 |   |  R2 |  R2  |    |    |    |    |    |
 * F1 : Zone 1 Flow Temperature * 100 (Where THW6 installed)
 * R1 : Zone 1 Return Temperature * 100  (Where THW7 is installed)
-* F1 : Zone 2 Flow Temperature * 100 (Where THW8 installed)
-* R1 : Zone 2 Return Temperature * 100  (Where THW9 is installed)
+* F2 : Zone 2 Flow Temperature * 100 (Where THW8 installed)
+* R2 : Zone 2 Return Temperature * 100  (Where THW9 is installed)
 ### 0x0e - Thermistors 2
 |  0   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
