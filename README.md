@@ -14,7 +14,7 @@ Supported Hardware is:
 
 M5Stack Atom S3 Lite
 
-1. Download the files from the [/build](https://github.com/F1p/Mitsubishi-CN105-Protocol-Decode/tree/master/build/esp32.esp32.m5stack_atoms3) folder.
+1. Download the files from the [/build]([https://github.com/F1p/Mitsubishi-Ecodan-Bridge-CN105/tree/master/build/esp32.esp32.m5stack-atoms3](https://github.com/F1p/Mitsubishi-CN105-Protocol-Decode/tree/master/build/esp32.esp32.m5stack_atoms3/v5.3.0%20Beta)) folder.
 
 2. Download [esptool.exe](https://github.com/espressif/esptool/releases) from Espressif.
 
@@ -23,7 +23,7 @@ M5Stack Atom S3 Lite
 4. Open CMD prompt in the folder with the files saved and run:
 
     ```
-    esptool.exe --chip esp32s3 --port "COM12" --baud 921600  --before default_reset --after hard_reset write_flash -e -z --flash_mode dio --flash_freq 80m --flash_size 4MB 0x0 "ECODAN_Bridge_Gen2_v5.3.0.bootloader.bin" 0x8000 "ECODAN_Bridge_Gen2_v5.3.0.partitions.bin" 0xe000 "boot_app0.bin" 0x10000 "ECODAN_Bridge_Gen2_v5.3.0.bin"
+    esptool.exe --chip esp32s3 --port "COM12" --baud 921600  --before default_reset --after hard_reset write_flash -e -z --flash_mode dio --flash_freq 80m --flash_size 4MB 0x0 "ECODAN_Bridge_v5.3.0-Beta.bootloader.bin" 0x8000 "ECODAN_Bridge_v5.3.0-Beta.partitions.bin" 0xe000 "boot_app0.bin" 0x10000 "ECODAN_Bridge_v5.3.0-Beta.bin"
     ```
 
 5. The Pins on the M5Stack are: 1 = Tx, 2 = Rx
@@ -384,12 +384,14 @@ Responses so far identified.
 ### 0x15 - Unknown
 |   0   | 1  |  2 |  3 |  4 | 5 |  6 |  7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|----|----|----|---|----|----|---|---|----|----|----|----|----|----|----|
-| 0x15  | PP | U2 | U2 | P2 |   |TWV |TWV2|   |   |    | U5 |    |    |    |    |    |  
+| 0x15  | PP | U2 | U2 | P2 |P3 |TWV |TWV2|   |   | MS | U5 |    |    |    |    |    |  
 * PP : Primary Water Pump (Pump 1/OUT1)
 * U2 : Unknown Int (3+4 Two Bytes?)
 * P2 : Water Pump 2 (OUT2)
+* P3 : In "Complex Zone 2" configuration - Water Pump 3 (OUT3). See 0x16 for Simple Zone 2 OUT3
 * TWV : Three Way Valve Active
 * TWV2 : Three Way Valve 2 Active (Suspected, if installed)
+* MS : Mixing Valve Step (1 to 10)
 * U5 : Unknown - Always shows 04?
 ### 0x16 - Pumps Running
 |   0   | 1  |  2 |  3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |

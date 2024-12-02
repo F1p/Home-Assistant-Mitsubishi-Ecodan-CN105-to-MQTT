@@ -4,7 +4,7 @@ Supported Hardware is ESP8266 ebay sold hardware: https://www.ebay.co.uk/itm/325
 
 
 
-# ESP8266 Ebay Hardware Recovery
+# ESP8266 Ebay Hardware Recovery (Gen1)
 
 
 1. Download the files from the [/build](https://github.com/F1p/Mitsubishi-CN105-Protocol-Decode/tree/master/build/esp8266.esp8266.generic/v5.2.5) folder.
@@ -13,15 +13,15 @@ Supported Hardware is ESP8266 ebay sold hardware: https://www.ebay.co.uk/itm/325
 
 3. Place all the files in the same folder
 
-4. Unclip the lid, slide out the circuit board
+4. Disconnect from CN105, Unclip the lid, slide out the circuit board
 
 5. Plug the pins into the programming board, #both USB ports at the same side
 
-6. Hold the flash button down, while holding then press "reset". You can then release both buttons.
-
 6. Connect the USB cable to the bottom board (programming carrier board), locate the COM port your device is
 
-7. Open CMD prompt in the folder with the files saved and run:
+7. Hold the flash button down, while holding then press "reset". You can then release both buttons.
+
+8. Open CMD prompt in the folder with the files saved and run:
 
     ```
     python upload.py --chip esp8266 --port "COM4" --baud "115200" "" erase_flash --before default_reset --after hard_reset write_flash 0x0 "ECODAN_Bridge_v5.2.5.bin"
@@ -30,7 +30,7 @@ Supported Hardware is ESP8266 ebay sold hardware: https://www.ebay.co.uk/itm/325
 
 
 
-# M5Stack Atom S3 Lite
+# M5Stack Atom S3 Lite (Gen2)
 
 1. Download the files from the [/build](https://github.com/F1p/Mitsubishi-Ecodan-Bridge-CN105/tree/master/build/esp32.esp32.m5stack-atoms3) folder.
 
