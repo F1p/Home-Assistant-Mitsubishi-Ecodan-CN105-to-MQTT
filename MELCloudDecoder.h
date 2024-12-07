@@ -18,10 +18,8 @@ typedef struct _MelCloudMessgeStruct {
 } MelCloudMessgeStruct;
 
 typedef struct _MelCloudStatus {
-  uint8_t ReplyNow;
-  uint8_t ActiveMessage;
-  uint8_t ConnectRequest;
-  uint8_t Write_To_Melcloud_OK;
+  uint8_t ReplyNow, ActiveMessage, Write_To_Melcloud_OK;
+  uint8_t ConnectRequest, MELRequest1, MELRequest2;
 
 } MelCloudStatus;
 
@@ -46,6 +44,8 @@ private:
 
   uint8_t Preamble[PREAMBLESIZE];
 
+  uint8_t CheckForSyncMsg(MessageStruct *Message, uint8_t c);
+  uint8_t CheckForAbout(MessageStruct *Message, uint8_t c);
   uint8_t BuildRxMessage(MessageStruct *Message, uint8_t c);
 
   void CreateBlankMessageTemplate(MessageStruct *Message, uint8_t PacketType, uint8_t PayloadSize);
@@ -54,6 +54,7 @@ private:
   uint8_t CheckSum(uint8_t *Buffer, uint8_t len);
 
   void Process0x5A(uint8_t *Payload, MelCloudStatus *Status);
+  void Process0xFF(uint8_t *Payload, MelCloudStatus *Status);
   void Process0x01(uint8_t *Payload, MelCloudStatus *Status);
   void Process0x02(uint8_t *Payload, MelCloudStatus *Status);
   void Process0x03(uint8_t *Payload, MelCloudStatus *Status);
@@ -90,6 +91,9 @@ private:
   void Process0xA1(uint8_t *Payload, MelCloudStatus *Status);
   void Process0xA2(uint8_t *Payload, MelCloudStatus *Status);
   void Process0xC9(uint8_t *Payload, MelCloudStatus *Status);
+  void Process0x32(uint8_t *Payload, MelCloudStatus *Status);
+  void Process0x33(uint8_t *Payload, MelCloudStatus *Status);
+  void Process0x34(uint8_t *Payload, MelCloudStatus *Status);
 
   void WriteOK(uint8_t *Payload, MelCloudStatus *Status);
 };

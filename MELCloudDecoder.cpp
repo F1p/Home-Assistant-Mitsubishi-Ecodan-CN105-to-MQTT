@@ -72,6 +72,36 @@ uint8_t MELCLOUDDECODER::Process(uint8_t c) {
         case 0x16:
           Process0x16(RxMessage.Payload, &Status);
           break;
+        case 0x17:
+          Process0x17(RxMessage.Payload, &Status);
+          break;
+        case 0x18:
+          Process0x18(RxMessage.Payload, &Status);
+          break;
+        case 0x19:
+          Process0x19(RxMessage.Payload, &Status);
+          break;
+        case 0x1a:
+          Process0x1a(RxMessage.Payload, &Status);
+          break;
+        case 0x1b:
+          Process0x1b(RxMessage.Payload, &Status);
+          break;
+        case 0x1c:
+          Process0x1c(RxMessage.Payload, &Status);
+          break;
+        case 0x1d:
+          Process0x1d(RxMessage.Payload, &Status);
+          break;
+        case 0x1e:
+          Process0x1e(RxMessage.Payload, &Status);
+          break;
+        case 0x1f:
+          Process0x1f(RxMessage.Payload, &Status);
+          break;
+        case 0x20:
+          Process0x20(RxMessage.Payload, &Status);
+          break;
         case 0x26:
           Process0x26(RxMessage.Payload, &Status);
           break;
@@ -96,13 +126,100 @@ uint8_t MELCLOUDDECODER::Process(uint8_t c) {
       }
     } else if (RxMessage.PacketType == SET_RESPONSE) {
       WriteOK(RxMessage.Payload, &Status);
-    }
-    else if (RxMessage.PacketType == CONNECT_REQUEST){
+    } else if (RxMessage.PacketType == SET_REQUEST) {
+      switch (RxMessage.Payload[0]) {
+        case 0x32:
+          Process0x32(RxMessage.Payload, &Status);
+          break;
+        case 0x33:
+          Process0x33(RxMessage.Payload, &Status);
+          break;
+        case 0x34:
+          Process0x34(RxMessage.Payload, &Status);
+          break;
+      }
+    } else if (RxMessage.PacketType == CONNECT_REQUEST) {
       Process0x5A(RxMessage.Payload, &Status);
     }
+  } else if (CheckForSyncMsg(&RxMessage, c)) {
+    Process0xFF(RxMessage.Payload, &Status);
+    ReturnValue = true;
+  } else if (CheckForAbout(&RxMessage, c)) {
+    Process0xC9(RxMessage.Payload, &Status);
+    ReturnValue = true;
   }
   return ReturnValue;
 }
+
+
+uint8_t MELCLOUDDECODER::CheckForAbout(MessageStruct *Message, uint8_t c) {
+  static uint8_t Buffer[COMMANDSIZE];
+  static uint8_t BufferPos = 0;
+  uint8_t i;
+
+  if (BufferPos < HEADERSIZE) {
+    switch (BufferPos) {
+      case 0:
+        if (c != 0xfc) return false;
+        break;
+      case 1:
+        if (c != 0x5b) return false;
+        break;
+      case 2:
+        if (c != 0x02) return false;
+        break;
+      case 3:
+        if (c != 0x7a) return false;
+        break;        
+      case 4:
+        if (c != 0x01) return false;
+        break;        
+      case 5:
+        if (c != 0xc9) return false;
+        break;        
+      case 6:
+        if (c != 0x5f) return false;
+        break;
+    }
+    Buffer[BufferPos] = c;
+    BufferPos++;
+    return false;
+  } else {
+    Buffer[BufferPos] = c;
+    BufferPos = 0;
+    return true;
+  }
+}
+
+
+uint8_t MELCLOUDDECODER::CheckForSyncMsg(MessageStruct *Message, uint8_t c) {
+  static uint8_t Buffer[COMMANDSIZE];
+  static uint8_t BufferPos = 0;
+  uint8_t i;
+
+  if (BufferPos < HEADERSIZE) {
+    switch (BufferPos) {
+      case 0:
+        if (c != 0x02) return false;
+        break;
+      case 1:
+        if (c != 0xff) return false;
+        break;
+      case 2:
+        if (c != 0xff) return false;
+        break;
+    }
+    Buffer[BufferPos] = c;
+    BufferPos++;
+    return false;
+  } else {
+    Buffer[BufferPos] = c;
+    BufferPos = 0;
+    memcpy(Message->Payload, &Buffer[3], Message->PayloadSize);
+    return true;
+  }
+}
+
 
 uint8_t MELCLOUDDECODER::BuildRxMessage(MessageStruct *Message, uint8_t c) {
   static uint8_t Buffer[COMMANDSIZE];
@@ -113,7 +230,7 @@ uint8_t MELCLOUDDECODER::BuildRxMessage(MessageStruct *Message, uint8_t c) {
   if (BufferPos < HEADERSIZE) {
     switch (BufferPos) {
       case 0:
-        if (c != PACKET_SYNC) return false;
+        if (c != PACKET_SYNC) return false;  // Sync Byte 0xFC or MEL Sync 0x02
         break;
 
       case 1:
@@ -151,7 +268,7 @@ uint8_t MELCLOUDDECODER::BuildRxMessage(MessageStruct *Message, uint8_t c) {
 
       case 3:
         if (c != Preamble[1]) {
-          //Serial.println("Preamble 1 Error");
+          //Serial.println("Preamble 2 Error");
           BufferPos = 0;
           return false;
         }
@@ -173,9 +290,7 @@ uint8_t MELCLOUDDECODER::BuildRxMessage(MessageStruct *Message, uint8_t c) {
   } else if (BufferPos < (PayloadSize + HEADERSIZE)) {
     Buffer[BufferPos] = c;
     BufferPos++;
-  }
-
-  else if (BufferPos == (PayloadSize + HEADERSIZE)) {
+  } else if (BufferPos == (PayloadSize + HEADERSIZE)) {
     Buffer[BufferPos] = c;
     BufferPos = 0;
     if (CheckSum(Buffer, PayloadSize + HEADERSIZE) == c) {
@@ -200,7 +315,6 @@ uint8_t MELCLOUDDECODER::BuildRxMessage(MessageStruct *Message, uint8_t c) {
 void MELCLOUDDECODER::Process0x5A(uint8_t *Buffer, MelCloudStatus *Status) {
   Status->ConnectRequest = true;
 }
-
 
 void MELCLOUDDECODER::Process0x01(uint8_t *Buffer, MelCloudStatus *Status) {
   Status->ReplyNow = true;
@@ -228,7 +342,6 @@ void MELCLOUDDECODER::Process0x05(uint8_t *Buffer, MelCloudStatus *Status) {
   Status->ReplyNow = true;
   Status->ActiveMessage = 0x05;
 }
-
 
 
 void MELCLOUDDECODER::Process0x06(uint8_t *Buffer, MelCloudStatus *Status) {
@@ -399,10 +512,44 @@ void MELCLOUDDECODER::Process0xA2(uint8_t *Buffer, MelCloudStatus *Status) {
   Status->ActiveMessage = 0xA2;
 }
 
-
 void MELCLOUDDECODER::Process0xC9(uint8_t *Buffer, MelCloudStatus *Status) {
   Status->ReplyNow = true;
   Status->ActiveMessage = 0xC9;
+}
+
+void MELCLOUDDECODER::Process0x32(uint8_t *Buffer, MelCloudStatus *Status) {
+  for (int i = 1; i < 16; i++) {
+    Array0x32[i] = Buffer[i];
+  }
+
+  Status->ReplyNow = true;
+  Status->ActiveMessage = 0x32;
+}
+
+void MELCLOUDDECODER::Process0x33(uint8_t *Buffer, MelCloudStatus *Status) {
+  for (int i = 1; i < 16; i++) {
+    Array0x33[i] = Buffer[i];
+  }
+
+  Status->ReplyNow = true;
+  Status->ActiveMessage = 0x33;
+}
+
+void MELCLOUDDECODER::Process0x34(uint8_t *Buffer, MelCloudStatus *Status) {
+  for (int i = 1; i < 16; i++) {
+    Array0x34[i] = Buffer[i];
+  }
+
+  Status->ReplyNow = true;
+  Status->ActiveMessage = 0x34;
+}
+
+void MELCLOUDDECODER::Process0xFF(uint8_t *Buffer, MelCloudStatus *Status) {
+  if (Buffer[0] == 0x00) {
+    Status->MELRequest1 = true;     // Type 1
+  } else if (Buffer[0] == 0x01) {
+    Status->MELRequest2 = true;     // Type 2
+  }
 }
 
 
@@ -476,6 +623,3 @@ uint8_t MELCLOUDDECODER::CheckSum(uint8_t *Buffer, uint8_t len) {
 
   return sum;
 }
-
-
-

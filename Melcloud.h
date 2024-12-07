@@ -21,6 +21,8 @@
 #include <stdint.h>
 #include <Arduino.h>
 #include "MELCloudDecoder.h"
+#include "proxy.h"
+
 
 class MELCLOUD : public MELCLOUDDECODER {
 public:
@@ -28,25 +30,21 @@ public:
   void Process(void);
   void SetStream(Stream *MELCloudStream);
   void Connect(void);
+  void MELNegotiate1(void);
+  void MELNegotiate2(void);
   void RequestStatus(uint8_t TargetMessage);
-  void TriggerStatusStateMachine(void);
-  void StopStateMachine(void);
-  void StatusStateMachine(void);
-  void KeepAlive(void);
   uint8_t UpdateComplete(void);
   uint8_t Lastmsbetweenmsg(void);
 
 protected:
 
 private:
-  uint8_t CurrentMessage;
   uint8_t UpdateFlag;
   uint8_t Connected;  
   uint8_t msbetweenmsg;
 
   MessageStruct TXMessage;
   Stream *DeviceStream;
-  void PrintTumble(void);
 };
 
 #endif

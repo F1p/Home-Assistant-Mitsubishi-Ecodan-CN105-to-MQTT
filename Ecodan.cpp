@@ -21,21 +21,16 @@ extern ESPTelnet TelnetServer;
 #include "Debug.h"
 
 // Initialisation Commands
-uint8_t Init1[] = { 0x02, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x02 };
-uint8_t Init2[] = { 0x02, 0xff, 0xff, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00 };
-uint8_t Init3[] = { 0xfc, 0x5a, 0x02, 0x7a, 0x02, 0xca, 0x01, 0x5d };                                       // Air to Water Connect
-uint8_t Init4[] = { 0xfc, 0x5b, 0x02, 0x7a, 0x01, 0xc9, 0x5f };
-uint8_t Init5[] = { 0xfc, 0x41, 0x02, 0x7a, 0x10, 0x34, 0x00, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0xfd };
+uint8_t Init3[] = { 0xfc, 0x5a, 0x02, 0x7a, 0x02, 0xca, 0x01, 0x5d };  // Air to Water Connect
 
-#define NUMBER_COMMANDS 24
-uint8_t ActiveCommand[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x07, 0x09, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-                            0x10, 0x13, 0x14, 0x15, 0x16,
-                            0x26, 0x28, 0x29,
-                            0xA1, 0xA2,
-                            0x00 };
+#define NUMBER_COMMANDS 36
+uint8_t ActiveCommand[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x09, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+                            0x10, 0x11, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 
+                            0x1F, 0x20, 0x26, 0x27, 0x28, 0x29, 0xA1, 0xA2 };
 
 
 unsigned long lastmsgdispatchedMillis = 0;  // variable for comparing millis counter
+bool PrintStart = false;
 
 ECODAN::ECODAN(void)
   : ECODANDECODER() {
@@ -50,6 +45,7 @@ void ECODAN::Process(void) {
   uint8_t c;
 
   while (DeviceStream->available()) {
+    if (!PrintStart){ DEBUG_PRINT("[FTC > Bridge] "); PrintStart = true; }
     c = DeviceStream->read();
 
     if (c == 0)
@@ -61,10 +57,11 @@ void ECODAN::Process(void) {
     }
 
     if (ECODANDECODER::Process(c)) {
+      PrintStart = false;
       msbetweenmsg = millis() - lastmsgdispatchedMillis;
       DEBUG_PRINTLN();
-      DEBUG_PRINT(msbetweenmsg);
-      DEBUG_PRINTLN("ms");
+      //DEBUG_PRINT(msbetweenmsg);
+      //DEBUG_PRINTLN("ms");
       Connected = true;
     }
   }
@@ -78,7 +75,7 @@ void ECODAN::SetStream(Stream *HeatPumpStream) {
 
 void ECODAN::TriggerStatusStateMachine(void) {
   //DEBUG_PRINTLN("\e[1;1H\e[2J");  // Clear terminal
-  DEBUG_PRINTLN("Triggering Heat Pump Query");
+  //DEBUG_PRINTLN("Triggering Heat Pump Query");
   if (!Connected) {
     Connect();
   }
@@ -89,7 +86,7 @@ void ECODAN::TriggerStatusStateMachine(void) {
 
 void ECODAN::StopStateMachine(void) {
   if (CurrentMessage != 0) {
-    DEBUG_PRINTLN("Stopping Heat Pump Read Operation");
+    DEBUG_PRINTLN("Stopping Heat Pump Read Operation to FTC");
     CurrentMessage = 0;
     DeviceStream->flush();  // Clear the Serial Buffer
     int TimeSinceLastDispatch = millis() - lastmsgdispatchedMillis;
@@ -107,8 +104,7 @@ void ECODAN::StatusStateMachine(void) {
   uint8_t i;
 
   if (CurrentMessage != 0) {
-    DEBUG_PRINT("Send Message ");
-    DEBUG_PRINTLN(CurrentMessage);
+    DEBUG_PRINT("[Bridge > FTC] ");
     ECODANDECODER::CreateBlankTxMessage(GET_REQUEST, 0x10);
     ECODANDECODER::SetPayloadByte(ActiveCommand[CurrentMessage], 0);
     CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
@@ -130,8 +126,6 @@ void ECODAN::StatusStateMachine(void) {
     if (CurrentMessage == 0) {
       UpdateFlag = 1;
     }
-  } else {
-    PrintTumble();
   }
 }
 
@@ -153,7 +147,9 @@ void ECODAN::RequestStatus(uint8_t TargetMessage) {
   DeviceStream->flush();
 
   for (i = 0; i < CommandSize; i++) {
-    if (Buffer[i] < 0x10) DEBUG_PRINT("0");
+    if (Buffer[i] < 0x10) {
+      DEBUG_PRINT("0");
+    }
     DEBUG_PRINT(String(Buffer[i], HEX));
     DEBUG_PRINT(", ");
   }
@@ -180,30 +176,6 @@ uint8_t ECODAN::UpdateComplete(void) {
 
 uint8_t ECODAN::Lastmsbetweenmsg(void) {
   return msbetweenmsg;
-}
-
-
-void ECODAN::KeepAlive(void) {
-  uint8_t CommandSize;
-  uint8_t i;
-  uint8_t Buffer[COMMANDSIZE];
-
-  DEBUG_PRINTLN("Keep Alive Message...");
-  ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
-  ECODANDECODER::SetPayloadByte(0x34, 0);
-  ECODANDECODER::SetPayloadByte(0x02, 1);
-  CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
-  DeviceStream->write(Buffer, CommandSize);
-  lastmsgdispatchedMillis = millis();
-
-  DeviceStream->flush();
-
-  for (i = 0; i < CommandSize; i++) {
-    if (Buffer[i] < 0x10) DEBUG_PRINT("0");
-    DEBUG_PRINT(String(Buffer[i], HEX));
-    DEBUG_PRINT(", ");
-  }
-  DEBUG_PRINTLN();
 }
 
 
@@ -322,28 +294,6 @@ void ECODAN::SetHolidayMode(uint8_t OnOff) {
 }
 
 
-void ECODAN::NormalDHWBoost(uint8_t OnOff, uint8_t Z1H, uint8_t Z1C, uint8_t Z2H, uint8_t Z2C) {
-  uint8_t Buffer[COMMANDSIZE];
-  uint8_t CommandSize = 0;
-  uint8_t i;
-
-  StopStateMachine();
-  ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
-  ECODANDECODER::EncodeNormalDHW(OnOff, Z1H, Z1C, Z2H, Z1C);
-  CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
-  DeviceStream->write(Buffer, CommandSize);
-  lastmsgdispatchedMillis = millis();
-  DeviceStream->flush();
-
-  for (i = 0; i < CommandSize; i++) {
-    if (Buffer[i] < 0x10) DEBUG_PRINT("0");
-    DEBUG_PRINT(String(Buffer[i], HEX));
-    DEBUG_PRINT(", ");
-  }
-  DEBUG_PRINTLN();
-}
-
-
 void ECODAN::SetProhibits(uint8_t Flags, uint8_t OnOff) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
@@ -366,14 +316,14 @@ void ECODAN::SetProhibits(uint8_t Flags, uint8_t OnOff) {
 }
 
 
-void ECODAN::SetSvrControlMode(uint8_t OnOff) {
+void ECODAN::SetSvrControlMode(uint8_t OnOff, uint8_t DHW, uint8_t Z1H, uint8_t Z1C, uint8_t Z2H, uint8_t Z2C) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
   uint8_t i;
 
   StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
-  ECODANDECODER::EncodeServerControlMode(OnOff);
+  ECODANDECODER::EncodeServerControlMode(OnOff, DHW, Z1H, Z1C, Z2H, Z2C);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
   lastmsgdispatchedMillis = millis();
@@ -410,14 +360,14 @@ void ECODAN::SetHotWaterSetpoint(uint8_t Target) {
 }
 
 
-void ECODAN::SetHeatingControlMode(uint8_t Mode) {
+void ECODAN::SetHeatingControlMode(uint8_t Mode, uint8_t Zone) {
   uint8_t Buffer[COMMANDSIZE];
   uint8_t CommandSize = 0;
   uint8_t i;
 
   StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
-  ECODANDECODER::EncodeControlMode(Mode);
+  ECODANDECODER::EncodeControlMode(Mode, Zone);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
   DeviceStream->write(Buffer, CommandSize);
   lastmsgdispatchedMillis = millis();
@@ -477,15 +427,24 @@ void ECODAN::GetFTCVersion() {
 }
 
 
-void ECODAN::PrintTumble(void) {
-  static char tumble[] = "|/-\\";
-  static uint8_t i = 0;
-  char c;
 
-  DEBUG_PRINT('\b');
-  c = tumble[i];
-  DEBUG_PRINT(c);
+void ECODAN::WriteMELCloudCMD(uint8_t cmd) {
+  uint8_t Buffer[COMMANDSIZE];
+  uint8_t CommandSize = 0;
+  uint8_t i;
 
-  i++;
-  i %= 4;
+  StopStateMachine();
+  ECODANDECODER::CreateBlankTxMessage(SET_REQUEST, 0x10);
+  ECODANDECODER::EncodeMELCloud(cmd);
+  CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
+  DeviceStream->write(Buffer, CommandSize);
+  lastmsgdispatchedMillis = millis();
+  DeviceStream->flush();
+
+  for (i = 0; i < CommandSize; i++) {
+    if (Buffer[i] < 0x10) DEBUG_PRINT("0");
+    DEBUG_PRINT(String(Buffer[i], HEX));
+    DEBUG_PRINT(", ");
+  }
+  DEBUG_PRINTLN();
 }
