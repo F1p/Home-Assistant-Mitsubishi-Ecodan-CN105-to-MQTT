@@ -137,6 +137,9 @@ uint8_t MELCLOUDDECODER::Process(uint8_t c) {
         case 0x34:
           Process0x34(RxMessage.Payload, &Status);
           break;
+        case 0x35:
+          Process0x35(RxMessage.Payload, &Status);
+          break;
       }
     } else if (RxMessage.PacketType == CONNECT_REQUEST) {
       Process0x5A(RxMessage.Payload, &Status);
@@ -542,6 +545,15 @@ void MELCLOUDDECODER::Process0x34(uint8_t *Buffer, MelCloudStatus *Status) {
 
   Status->ReplyNow = true;
   Status->ActiveMessage = 0x34;
+}
+
+void MELCLOUDDECODER::Process0x35(uint8_t *Buffer, MelCloudStatus *Status) {
+  for (int i = 1; i < 16; i++) {
+    Array0x35[i] = Buffer[i];
+  }
+
+  Status->ReplyNow = true;
+  Status->ActiveMessage = 0x35;
 }
 
 void MELCLOUDDECODER::Process0xFF(uint8_t *Buffer, MelCloudStatus *Status) {

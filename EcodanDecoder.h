@@ -170,7 +170,6 @@ typedef struct _EcodanStatus {
   //From Message 0x03
   uint8_t RefrigeFltCode, ErrCode1, ErrCode2, FltCode1, FltCode2;
   uint8_t TwoZone_Z1Working, TwoZone_Z2Working;
-  uint8_t SingleZoneParam;
 
   // From Message 0x04
   uint8_t CompressorFrequency;
@@ -306,6 +305,7 @@ private:
 
 
   uint16_t ExtractUInt16(uint8_t *Buffer, uint8_t Index);
+  float Extract_Float_24(uint8_t *Buffer, uint8_t Index);
   float ExtractUInt16_Signed(uint8_t *Buffer, uint8_t Index);
   float ExtractUInt8_v1(uint8_t *Buffer, uint8_t Index);
   float ExtractUInt8_v2(uint8_t *Buffer, uint8_t Index);

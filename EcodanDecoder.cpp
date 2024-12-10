@@ -58,6 +58,7 @@ uint8_t Array0xc9[] = {};
 uint8_t Array0x32[] = {};
 uint8_t Array0x33[] = {};
 uint8_t Array0x34[] = {};
+uint8_t Array0x35[] = {};
 
 
 ECODANDECODER::ECODANDECODER(void) {
@@ -335,8 +336,6 @@ void ECODANDECODER::Process0x02(uint8_t *Buffer, EcodanStatus *Status) {
 void ECODANDECODER::Process0x03(uint8_t *Buffer, EcodanStatus *Status) {
   uint8_t RefrigeFltCode, ErrCode1, ErrCode2, FltCode1, FltCode2;
   uint8_t TwoZone_Z1Working, TwoZone_Z2Working;
-  uint8_t SingleZoneParam;
-
   for (int i = 1; i < 16; i++) {
     Array0x03[i] = Buffer[i];
   }
@@ -361,7 +360,7 @@ void ECODANDECODER::Process0x03(uint8_t *Buffer, EcodanStatus *Status) {
     TwoZone_Z2Working = 0;
   }
 
-  SingleZoneParam = Buffer[9];  // Single Zone Running Parameter?
+  //MasterCascadeFreq = Buffer[9];  // Single Zone Running Parameter?
 
   Status->RefrigeFltCode = RefrigeFltCode;
   Status->ErrCode1 = ErrCode1;
@@ -370,7 +369,6 @@ void ECODANDECODER::Process0x03(uint8_t *Buffer, EcodanStatus *Status) {
   Status->FltCode2 = FltCode2;
   Status->TwoZone_Z1Working = TwoZone_Z1Working;
   Status->TwoZone_Z2Working = TwoZone_Z2Working;
-  Status->SingleZoneParam = SingleZoneParam;
 }
 
 
@@ -898,30 +896,23 @@ float ECODANDECODER::ExtractEnergy(uint8_t *Buffer, uint8_t index) {
 }
 
 float ECODANDECODER::ExtractUInt16_Signed(uint8_t *Buffer, uint8_t Index) {
-  float Value;
-  Value = (Buffer[Index] << 8) + Buffer[Index + 1];
-  return Value /= 100.0f;
+  float Value = int16_t(Buffer[Index] << 8) + Buffer[Index + 1];
+  return Value;
 }
 
 uint16_t ECODANDECODER::ExtractUInt16(uint8_t *Buffer, uint8_t Index) {
-  uint16_t Value;
-
-  Value = (Buffer[Index] << 8) + Buffer[Index + 1];
-
+  uint16_t Value = (Buffer[Index] << 8) + Buffer[Index + 1];
   return Value;
 }
 
 // Used for most single-byte floating point values
 float ECODANDECODER::ExtractUInt8_v1(uint8_t *Buffer, uint8_t Index) {
-  float Value;
-  Value = (Buffer[Index] / 2) - 40;
+  float Value = (Buffer[Index] / 2) - 40;
   return Value;
 }
 
-
 float ECODANDECODER::ExtractUInt8_v2(uint8_t *Buffer, uint8_t Index) {
-  float Value;
-  Value = (Buffer[Index] - 40) / 2;
+  float Value = (Buffer[Index] - 40) / 2;
   return Value;
 }
 
@@ -1158,6 +1149,8 @@ void ECODANDECODER::EncodeMELCloud(uint8_t cmd) {
       TxMessage.Payload[i] = Array0x33[i];
     } else if (cmd == 0x34) {
       TxMessage.Payload[i] = Array0x34[i];
+    }else if (cmd == 0x35) {
+      TxMessage.Payload[i] = Array0x35[i];
     }
   }
 }

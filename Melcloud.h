@@ -32,7 +32,7 @@ public:
   void Connect(void);
   void MELNegotiate1(void);
   void MELNegotiate2(void);
-  void RequestStatus(uint8_t TargetMessage);
+  void ReplyStatus(uint8_t TargetMessage);
   uint8_t UpdateComplete(void);
   uint8_t Lastmsbetweenmsg(void);
 

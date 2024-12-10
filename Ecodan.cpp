@@ -23,19 +23,19 @@ extern ESPTelnet TelnetServer;
 // Initialisation Commands
 uint8_t Init3[] = { 0xfc, 0x5a, 0x02, 0x7a, 0x02, 0xca, 0x01, 0x5d };  // Air to Water Connect
 
-#define NUMBER_COMMANDS 36
+#define NUMBER_COMMANDS 37
 uint8_t ActiveCommand[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x09, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
                             0x10, 0x11, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 
-                            0x1F, 0x20, 0x26, 0x27, 0x28, 0x29, 0xA1, 0xA2 };
+                            0x1F, 0x20, 0x26, 0x27, 0x28, 0x29, 0xA1, 0xA2, 0x00 };
 
 
 unsigned long lastmsgdispatchedMillis = 0;  // variable for comparing millis counter
-bool PrintStart = false;
 
 ECODAN::ECODAN(void)
   : ECODANDECODER() {
   CurrentMessage = 0;
   UpdateFlag = 0;
+  ProcessFlag = false;
   Connected = false;
   msbetweenmsg = 0;
 }
@@ -45,7 +45,7 @@ void ECODAN::Process(void) {
   uint8_t c;
 
   while (DeviceStream->available()) {
-    if (!PrintStart){ DEBUG_PRINT("[FTC > Bridge] "); PrintStart = true; }
+    if (!ProcessFlag){ DEBUG_PRINT("[FTC > Bridge] "); ProcessFlag = true; }
     c = DeviceStream->read();
 
     if (c == 0)
@@ -57,12 +57,12 @@ void ECODAN::Process(void) {
     }
 
     if (ECODANDECODER::Process(c)) {
-      PrintStart = false;
+      ProcessFlag = false;
       msbetweenmsg = millis() - lastmsgdispatchedMillis;
       DEBUG_PRINTLN();
       //DEBUG_PRINT(msbetweenmsg);
       //DEBUG_PRINTLN("ms");
-      Connected = true;
+      Connected = false;
     }
   }
 }
@@ -137,8 +137,7 @@ void ECODAN::RequestStatus(uint8_t TargetMessage) {
 
   if (!Connected) { Connect(); }
   StopStateMachine();
-  DEBUG_PRINT("Send Message ");
-  DEBUG_PRINTLN(TargetMessage);
+  DEBUG_PRINT("[Bridge > FTC] ");
   ECODANDECODER::CreateBlankTxMessage(GET_REQUEST, 0x10);
   ECODANDECODER::SetPayloadByte(ActiveCommand[TargetMessage], 0);
   CommandSize = ECODANDECODER::PrepareTxCommand(Buffer);
@@ -410,6 +409,7 @@ void ECODAN::GetFTCVersion() {
   uint8_t CommandSize = 0;
   uint8_t i;
 
+  DEBUG_PRINT("[Bridge > FTC] ");
   StopStateMachine();
   ECODANDECODER::CreateBlankTxMessage(0x5B, 0x01);
   ECODANDECODER::EncodeFTCVersion();

@@ -53,6 +53,7 @@ private:
   uint8_t CurrentMessage;
 
   uint8_t UpdateFlag;
+  bool ProcessFlag;
   uint8_t Connected;
 
   uint8_t msbetweenmsg;

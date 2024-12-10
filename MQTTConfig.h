@@ -428,7 +428,9 @@ void readSettingsFromConfig() {
         Config["temp_step"] = MQTT_CLIMATE_TEMP_STEP[i - 77];
         Config["precision"] = MQTT_CLIMATE_PRECISION[i - 77];
         Config["initial"] = MQTT_CLIMATE_INITAL[i - 77];
-        Config["mode_state_topic"] = MQTT_BASETOPIC + String(MQTT_TOPIC[2]);
+        Config["action_topic"] = MQTT_BASETOPIC + String(MQTT_TOPIC[2]);
+        Config["action_template"] = String(MQTT_CLIMATE_MODE_STATE_TEMPLATE[i - 77]);
+        Config["mode_state_topic"] = MQTT_BASETOPIC + String(MQTT_TOPIC[8]);
         Config["mode_state_template"] = String(MQTT_CLIMATE_STATE_TOPIC[i - 77]);
         if (i == 77) {
           Config["modes"][0] = "heat";
@@ -490,7 +492,7 @@ void readSettingsFromConfig() {
 
       // Add Availability Topics
       if (i >= 78) {
-        if (i >= 85 && i < 91) {  // Server Control Mode Interlocks
+        if (i >= 86 && i < 91) {  // Server Control Mode Interlocks
           Config["availability"]["topic"] = MQTT_BASETOPIC + String(MQTT_TOPIC[8]);
           Config["availability"]["value_template"] = String(MQTT_SENSOR_VALUE_TEMPLATE[83]);
           Config["availability"]["payload_available"] = ITEM_ON;
