@@ -43,7 +43,7 @@ Wemos D1 Mini
     python upload.py --chip esp8266 --port "COM4" --baud "115200" "" erase_flash --before default_reset --after hard_reset write_flash 0x0 "ECODAN_Bridge_v5.2.1_WemosD1.bin"
     ```
 
-5. The Pins on the Wemos D1 Mini are: D0 = Tx, D5 = Rx
+5. The Pins on the Wemos D1 Mini are: D0 = Tx, D5 = Rx to the FTC and Tx/Rx to MELCloud
 
 
 
@@ -376,8 +376,9 @@ Responses so far identified.
 ### 0x14 - Immerson/Booster and Primary Flow Rate
 |   0   | 1  | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |-------|----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----|
-| 0x14  |    | B |   |   | I |   |   |   |   |    | PF |    |    |    |    |    |  
-* B : Booster Heater Active
+| 0x14  |    |B1 | B2 |   | I |   |   |   |   |    | PF |    |    |    |    |    |  
+* B : Booster Heater 1 Active
+* B2 : Booster Heater 2 Active
 * I : Immersion Heater Active
 * PF : Primary Flow Rate (l/min)
 ### 0x15 - Unknown
