@@ -34,8 +34,8 @@ Gen 1 ESP8266 (Generic)
 3. The Pins on the Wemos D1 Mini are: D0 = Tx, D5 = Rx
 
 
-# Compile from scratch
-
+# Compile from scratch 
+ESP32
 
 
 I am using IDE: 2.3.5
@@ -66,6 +66,7 @@ WiFiManager v2.0.17 by tzapu
 Compiled with M5Stack settings:
 
 <img width="425" height="591" alt="Image" src="https://github.com/user-attachments/assets/2a693718-001a-486e-af43-db72ed0cfeb8" />
+
 
 
 
