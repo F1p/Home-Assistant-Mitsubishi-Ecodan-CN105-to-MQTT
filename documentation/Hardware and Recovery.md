@@ -7,8 +7,12 @@ M5Stack Atom S3 Lite
 1. Download the .merged.bin from the [/build](https://github.com/F1p/Mitsubishi-CN105-Protocol-Decode/tree/master/build/esp32.esp32.m5stack_atoms3) folder.
 
 2. Connect your board and install [ESPHome](https://web.esphome.io/?dashboard_install) from ESP Tool
+   <img width="356" height="186" alt="image" src="https://github.com/user-attachments/assets/c5eef9c6-e3bc-4adc-9414-a4529ce760de" />
 
-3. The Pins on the M5Stack are: 1 = Tx, 2 = Rx (Onboard Grove Port)
+4. Select Install and upload the .merged.bin
+ 
+
+6. The Pins on the M5Stack are: 1 = Tx, 2 = Rx (Onboard Grove Port)
 
 On Proxy Carrier Boards: 38 = Rx from FTC, 39 = Tx from FTC, 8 = Rx from MELCloud, 7 = Tx from MELCloud
 
