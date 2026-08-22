@@ -19,8 +19,6 @@ Pre-Compiled software is for offical hardware:
 
 You can bring your own hardware, compile in Arduino or flash the same hardware above with pre-compiled files Or buy directly!
 
-[<img width="250" height="67" alt="image" src="https://github.com/user-attachments/assets/1a4b0bf3-1b9b-4bb3-b389-b32293dfd7b3" />](https://www.paypal.com/ncp/payment/5664MSMETNMVY)
-
 
 # Detailed Setup Instructions
 
