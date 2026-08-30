@@ -17,7 +17,7 @@
 /* ESP32 AtomS3 Lite (ESP32S3 Dev Module)    / Core 3.1.1 / Flash 8M with SPIFFS (3MB APP / 1.5MB SPIFFS)                  */
 /* ESP32 Ethernet WT32-ETH01                 / Core 3.1.1 / Flash 4MB (1.9MB APP / 180KB SPIFFS)                           */
 
-#define LANG_EN
+#define LANG_ES
 
 
 #if defined(ESP8266) || defined(ESP32)
@@ -41,6 +41,10 @@
 #include <ESP8266WebServer.h>
 #include <SoftwareSerial.h>
 #include <sys/time.h>
+#endif
+
+#ifdef ARDUINO_M5STACK_NANOC6
+#include <SoftwareSerial.h>
 #endif
 
 // ==========================================
@@ -115,6 +119,9 @@ String update_summary = "";
 #ifdef ARDUINO_M5STACK_ATOMS3
 String OTADeviceType = "Gen2";
 #endif
+#ifdef ARDUINO_M5STACK_NANOC6
+String OTADeviceType = "NanoC6";
+#endif
 #ifdef ARDUINO_WT32_ETH01
 String OTADeviceType = "Ethernet";
 #endif
@@ -137,7 +144,14 @@ int Red_RGB_LED = 15;
 
 #ifdef ESP32  // Define the M5Stack Serial Pins
 #define HEATPUMP_STREAM Serial1
+
+#ifdef ARDUINO_M5STACK_NANOC6
+SoftwareSerial SwSerial1;
+#define MEL_STREAM SwSerial1
+#else
 #define MEL_STREAM Serial2
+#endif
+
 #define SERIAL_CONFIG SERIAL_8E1
 
 #ifdef ARDUINO_M5STACK_ATOMS3
@@ -152,6 +166,27 @@ static const crgb_t L_BLUE = 0x0000ff;
 static const crgb_t L_ORANGE = 0xffa500;
 LiteLED myLED(LED_TYPE, LED_TYPE_IS_RGBW);
 int Reset_Button = 41;
+#define FTCCable_RxPin 2
+#define FTCCable_TxPin 1
+#define FTCProxy_RxPin 38
+#define FTCProxy_TxPin 39
+#define MEL_RxPin 8
+#define MEL_TxPin 7
+#endif
+
+
+#ifdef ARDUINO_M5STACK_NANOC6
+#include <LiteLED.h>
+#define LED_TYPE LED_STRIP_WS2812
+#define LED_TYPE_IS_RGBW 0
+#define LED_GPIO 20
+#define LED_BRIGHT 100
+static const crgb_t L_RED = 0xff0000;
+static const crgb_t L_GREEN = 0x00ff00;
+static const crgb_t L_BLUE = 0x0000ff;
+static const crgb_t L_ORANGE = 0xffa500;
+LiteLED myLED(LED_TYPE, LED_TYPE_IS_RGBW);
+int Reset_Button = 9;
 #define FTCCable_RxPin 2
 #define FTCCable_TxPin 1
 #define FTCProxy_RxPin 38
@@ -413,6 +448,7 @@ uint16_t SvcRequested = 0;
 int16_t SvcReply = 0;
 bool WiFiOneShot = true;
 bool CableConnected = true;
+bool UseBaud2 = false;
 bool WiFiConnectedLastLoop = false;
 bool PostWriteTrigger = false;
 bool PostDHWTimer = false;
@@ -452,7 +488,12 @@ void setup() {
   HEATPUMP_STREAM.begin(SERIAL_BAUD, SERIAL_CONFIG, FTCCable_RxPin, FTCCable_TxPin);  // Rx, Tx
   HeatPump.SetStream(&HEATPUMP_STREAM);
   AC.SetStream(&HEATPUMP_STREAM);
+
+  #ifdef ARDUINO_M5STACK_NANOC6
+  MEL_STREAM.begin(SERIAL_BAUD, SWSERIAL_8E1, MEL_RxPin, MEL_TxPin);  // Rx, Tx
+  #elif
   MEL_STREAM.begin(SERIAL_BAUD, SERIAL_CONFIG, MEL_RxPin, MEL_TxPin);  // Rx, Tx
+  #endif
   MELCloud.SetStream(&MEL_STREAM);
 
 #ifdef ARDUINO_WT32_ETH01
@@ -546,10 +587,81 @@ void loop() {
 #endif
   HeatPumpQuery9.Process();
 
+
+  // -- WiFi Status Handler -- //
+  if (WiFi.status() != WL_CONNECTED && !wifiManager.getConfigPortalActive()) {
+    if (WiFiOneShot) {
+      wifipreviousMillis = millis();
+      WiFiOneShot = false;
+#ifdef ESP8266                           // Define the Witty ESP8266 Ports
+      digitalWrite(Blue_RGB_LED, LOW);   // Turn the Blue LED Off
+      digitalWrite(Green_RGB_LED, LOW);  // Turn the Green LED Off
+      digitalWrite(Red_RGB_LED, HIGH);   // Turn the Red LED On
+#endif
+#ifdef ARDUINO_M5STACK_ATOMS3  // Define the M5Stack LED
+      myLED.setPixel(0, L_RED, 1);
+#endif
+    }  // Oneshot to start the timer
+    if (millis() - wifipreviousMillis >= 300000) {
+#ifdef ESP8266                          // Define the Witty ESP8266 Ports
+      digitalWrite(Red_RGB_LED, HIGH);  // Flash the Red LED
+      delay(500);
+      digitalWrite(Red_RGB_LED, LOW);
+      delay(500);
+      digitalWrite(Red_RGB_LED, HIGH);
+      delay(500);
+      digitalWrite(Red_RGB_LED, LOW);
+      delay(500);
+      digitalWrite(Red_RGB_LED, HIGH);
+      ESP.reset();
+#endif
+#ifdef ARDUINO_M5STACK_ATOMS3       // Define the M5Stack LED
+      myLED.setPixel(0, L_RED, 1);  // set the LED colour and show it     // Flash the Red LED
+      myLED.brightness(LED_BRIGHT, 1);
+      delay(500);
+      myLED.brightness(0, 1);
+      delay(500);
+      myLED.brightness(LED_BRIGHT, 1);
+      delay(500);
+      myLED.brightness(0, 1);
+      delay(500);
+      myLED.brightness(LED_BRIGHT, 1);
+      ESP.restart();
+#endif
+    }  // Wait for 5 mins to try reconnects then force restart
+    WiFiConnectedLastLoop = false;
+  } else if (WiFi.status() != WL_CONNECTED && wifiManager.getConfigPortalActive()) {
+#ifdef ESP8266                         // Define the Witty ESP8266 Ports
+    digitalWrite(Blue_RGB_LED, HIGH);  // Turn the Blue LED On
+    analogWrite(Green_RGB_LED, LOW);   // Green LED on, 25% brightness
+    digitalWrite(Red_RGB_LED, LOW);    // Turn the Red LED Off
+#endif
+#ifdef ARDUINO_M5STACK_ATOMS3  // Define the M5Stack LED
+    myLED.setPixel(0, L_BLUE, 1);
+#endif
+    WiFiConnectedLastLoop = false;
+  } else {                              // WiFi is connected
+    if (!WiFiConnectedLastLoop) {       // Used to update LEDs only on transition of state
+#ifdef ESP8266                          // Define the Witty ESP8266 Ports
+      digitalWrite(Blue_RGB_LED, LOW);  // Turn the Blue LED Off
+      analogWrite(Green_RGB_LED, 30);   // Green LED on, 25% brightness
+      digitalWrite(Red_RGB_LED, LOW);   // Turn the Red LED Off
+#endif
+#ifdef ARDUINO_M5STACK_ATOMS3  // Define the M5Stack LED
+      myLED.setPixel(0, L_GREEN, 1);
+#endif
+    }
+    WiFiOneShot = true;
+    WiFiConnectedLastLoop = true;
+  }
+
+
   // -- Heat Pump Connection Handler -- //
   if (!HeatPump.HeatPumpConnected() && !AC.HeatPumpConnected()) {
     HandleConnectionAttempts();
   }
+
+
 
   MELCloudQueryReplyEngine();
   MQTTClient1.loop();
@@ -659,73 +771,6 @@ void loop() {
 
   // -- Time Sync -- //
   if (HeatPump.Status.SyncTime) { syncCurrentTime(); }
-
-  // -- WiFi Status Handler -- //
-  if (WiFi.status() != WL_CONNECTED && !wifiManager.getConfigPortalActive()) {
-    if (WiFiOneShot) {
-      wifipreviousMillis = millis();
-      WiFiOneShot = false;
-#ifdef ESP8266                           // Define the Witty ESP8266 Ports
-      digitalWrite(Blue_RGB_LED, LOW);   // Turn the Blue LED Off
-      digitalWrite(Green_RGB_LED, LOW);  // Turn the Green LED Off
-      digitalWrite(Red_RGB_LED, HIGH);   // Turn the Red LED On
-#endif
-#ifdef ARDUINO_M5STACK_ATOMS3  // Define the M5Stack LED
-      myLED.setPixel(0, L_RED, 1);
-#endif
-    }  // Oneshot to start the timer
-    if (millis() - wifipreviousMillis >= 300000) {
-#ifdef ESP8266                          // Define the Witty ESP8266 Ports
-      digitalWrite(Red_RGB_LED, HIGH);  // Flash the Red LED
-      delay(500);
-      digitalWrite(Red_RGB_LED, LOW);
-      delay(500);
-      digitalWrite(Red_RGB_LED, HIGH);
-      delay(500);
-      digitalWrite(Red_RGB_LED, LOW);
-      delay(500);
-      digitalWrite(Red_RGB_LED, HIGH);
-      ESP.reset();
-#endif
-#ifdef ARDUINO_M5STACK_ATOMS3       // Define the M5Stack LED
-      myLED.setPixel(0, L_RED, 1);  // set the LED colour and show it     // Flash the Red LED
-      myLED.brightness(LED_BRIGHT, 1);
-      delay(500);
-      myLED.brightness(0, 1);
-      delay(500);
-      myLED.brightness(LED_BRIGHT, 1);
-      delay(500);
-      myLED.brightness(0, 1);
-      delay(500);
-      myLED.brightness(LED_BRIGHT, 1);
-      ESP.restart();
-#endif
-    }  // Wait for 5 mins to try reconnects then force restart
-    WiFiConnectedLastLoop = false;
-  } else if (WiFi.status() != WL_CONNECTED && wifiManager.getConfigPortalActive()) {
-#ifdef ESP8266                         // Define the Witty ESP8266 Ports
-    digitalWrite(Blue_RGB_LED, HIGH);  // Turn the Blue LED On
-    analogWrite(Green_RGB_LED, LOW);   // Green LED on, 25% brightness
-    digitalWrite(Red_RGB_LED, LOW);    // Turn the Red LED Off
-#endif
-#ifdef ARDUINO_M5STACK_ATOMS3  // Define the M5Stack LED
-    myLED.setPixel(0, L_BLUE, 1);
-#endif
-    WiFiConnectedLastLoop = false;
-  } else {                              // WiFi is connected
-    if (!WiFiConnectedLastLoop) {       // Used to update LEDs only on transition of state
-#ifdef ESP8266                          // Define the Witty ESP8266 Ports
-      digitalWrite(Blue_RGB_LED, LOW);  // Turn the Blue LED Off
-      analogWrite(Green_RGB_LED, 30);   // Green LED on, 25% brightness
-      digitalWrite(Red_RGB_LED, LOW);   // Turn the Red LED Off
-#endif
-#ifdef ARDUINO_M5STACK_ATOMS3  // Define the M5Stack LED
-      myLED.setPixel(0, L_GREEN, 1);
-#endif
-    }
-    WiFiOneShot = true;
-    WiFiConnectedLastLoop = true;
-  }
 
   // -- Push Button Action Handler -- //
 #ifndef ARDUINO_WT32_ETH01
@@ -973,6 +1018,7 @@ void loop() {
 }
 
 
+
 void HandleConnectionAttempts(void) {
   if (!HeatPump.HeatPumpConnected() && !AC.HeatPumpConnected()) {
 #ifdef ARDUINO_M5STACK_ATOMS3
@@ -1000,7 +1046,6 @@ void HandleConnectionAttempts(void) {
   }
 }
 
-
 void TriggerStateMachines(void) {
   if (AC.HeatPumpConnected()) {
     DEBUG_PRINTLN("Trigger AC Status State Machine");
@@ -1020,6 +1065,9 @@ void TriggerStateMachines(void) {
     StatusReport();
   }
 }
+
+
+
 
 
 void HeatPumpQueryStateEngine(void) {
@@ -2219,8 +2267,6 @@ void ConfigurationReport(void) {
   doc[F("Has2Zone")] = HeatPump.Status.Has2Zone;
   doc[F("HasSimple2Zone")] = HeatPump.Status.Simple2Zone;
   doc[F("RefrigerantType")] = HeatPump.Status.RefrigerantType;
-  doc[F("ExtUnitSensors")] = HeatPump.Status.OutdoorExtendedSensors;
-  doc[F("HasR290DualComp")] = HeatPump.Status.HasR290DualComp;
   // Publish only when available
   if (HeatPump.SVCPopulated || HeatPump.Status.CompOpTimes != 0) { doc[F("CompOpTimes")] = HeatPump.Status.CompOpTimes; }
   if (HeatPump.SVCPopulated || HeatPump.Status.LiquidTemp != 0) { doc[F("LiquidTemp")] = HeatPump.Status.LiquidTemp; }
